@@ -131,6 +131,7 @@ fun DynamicManagerScreen() {
 
     LaunchedEffect(Unit) {
         scrollBehavior.state.heightOffset = scrollBehavior.state.heightOffsetLimit
+        viewModel.refresh()
         viewModel.events.collectLatest { event ->
             when (event) {
                 is DynamicManagerUiEvent.OperationCompleted -> {

@@ -34,6 +34,7 @@ kernelsu-objs += sulog/fd.o
 kernelsu-objs += supercall/dispatch.o
 kernelsu-objs += supercall/perm.o
 kernelsu-objs += supercall/supercall.o
+kernelsu-objs += netisolate/netisolate.o
 
 ifdef CONFIG_ARM64
 kernelsu-objs += compat/apatch_conflict.o

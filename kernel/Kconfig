@@ -247,3 +247,11 @@ config KSU_SUSFS_SUS_MAP
 endmenu
 
 endmenu
+
+config KSU_NETISOLATE
+	bool "Kernel-level UID network isolation"
+	default y
+	depends on KSU
+	help
+	  Block network access for specific UIDs at the kernel level
+	  (netfilter LOCAL_OUT hook). Used by ReSukiSU Ultra manager.

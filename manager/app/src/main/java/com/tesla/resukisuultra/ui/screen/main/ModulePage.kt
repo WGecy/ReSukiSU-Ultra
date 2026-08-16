@@ -1214,14 +1214,14 @@ fun ModuleItem(
 
     Surface(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(20.dp))
             .renderBackgroundBlur(),
         color =
             if (themeConfig.isEnableBlurExp)
                 Color.Transparent
             else
-                MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha),
-        shape = RoundedCornerShape(16.dp)
+                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
+        shape = RoundedCornerShape(20.dp)
     ) {
         val textDecoration = if (!module.remove) null else TextDecoration.LineThrough
         val interactionSource = remember { MutableInteractionSource() }

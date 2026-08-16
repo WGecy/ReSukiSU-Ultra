@@ -25,10 +25,11 @@ class NetIsolateRepository(
         ksuCli.exec("cat $ENABLE_FILE")?.trim() == "1"
     }
 
-    /** 设置启用/禁用 */
+    /** 设置启用/禁用 (持久化 + 实时同步内核) */
     suspend fun setEnabled(enabled: Boolean) = withContext(Dispatchers.IO) {
         ksuCli.exec("mkdir -p $NETISOLATE_DIR")
         ksuCli.exec("echo ${if (enabled) 1 else 0} > $ENABLE_FILE")
+        syncToKernel()
     }
 
     /** 读取 UID 列表 */
@@ -40,10 +41,16 @@ class NetIsolateRepository(
             ?: emptySet()
     }
 
-    /** 写入 UID 列表 */
+    /** 写入 UID 列表 (持久化 + 实时同步内核) */
     suspend fun setUids(uids: Set<Int>) = withContext(Dispatchers.IO) {
         ksuCli.exec("mkdir -p $NETISOLATE_DIR")
         val content = uids.joinToString("\n")
         ksuCli.exec("echo '$content' > $UIDS_FILE")
+        syncToKernel()
+    }
+
+    /** 调 ksud netisolate 命令: 读配置文件 → supercall 实时应用到内核 */
+    private suspend fun syncToKernel() {
+        ksuCli.execKsud("netisolate", newShell = true)
     }
 }

@@ -166,6 +166,9 @@ enum Commands {
     /// Manage susfs component
     Susfs(susfs::cli::SusfsArgs),
 
+    /// ReSukiSU-Ultra: 联网隔离 (读取配置文件应用到内核 supercall)
+    NetIsolate,
+
     /// Manage initrc injection
     Initrc {
         #[command(subcommand)]
@@ -595,6 +598,7 @@ pub fn run() -> Result<()> {
     let result = match cli.command {
         Commands::AnyKernel3 { zip, slot } => anykernel3::flash(&zip, slot),
         Commands::Susfs(args) => crate::android::susfs::cli::run_main(args),
+        Commands::NetIsolate => crate::android::netisolate::apply_from_files(),
         Commands::PostFsData => init_event::on_post_data_fs(),
         Commands::BootCompleted => {
             init_event::on_boot_completed();

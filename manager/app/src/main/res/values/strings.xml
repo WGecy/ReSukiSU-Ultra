@@ -5,6 +5,7 @@
     <string name="learn_more">Learn more</string>
     <string name="home_not_installed">Not installed</string>
     <string name="home_click_to_install">Click to install</string>
+    <string name="home_reinstall">重新安装</string>
     <string name="home_working">Working</string>
     <string name="home_unsupported">Unsupported</string>
     <string name="home_unsupported_reason">No KernelSU driver detected on your kernel, wrong kernel?</string>
@@ -558,6 +559,7 @@
     <string name="dynamic_manager_clear_confirm_title">Clear dynamic manager</string>
     <string name="dynamic_manager_clear_confirm_message">Are you sure you want to clear the dynamic manager configuration?</string>
     <string name="manage_managers">Manage managers</string>
+    <string name="home_info_title">信息</string>
     <string name="home_version_info">Version Info</string>
     <string name="home_status_info">Status Info</string>
     <string name="home_short_info">SuperUser: %1$d, Modules: %2$d</string>

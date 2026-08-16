@@ -12,6 +12,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -59,6 +60,19 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PhoneAndroid
+import androidx.compose.material.icons.outlined.Android
+import androidx.compose.material.icons.outlined.DeveloperBoard
+import androidx.compose.material.icons.outlined.Extension
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
@@ -80,6 +94,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -620,8 +635,8 @@ private fun StatusCard(
                 onClick = { onClick(Offset.Zero) },
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             ) {
                 Column(
@@ -638,7 +653,7 @@ private fun StatusCard(
                             imageVector = Icons.Filled.CheckCircle,
                             contentDescription = null,
                             modifier = Modifier.size(36.dp),
-                            tint = MaterialTheme.colorScheme.onPrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                         Spacer(Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -646,19 +661,19 @@ private fun StatusCard(
                                 Text(
                                     text = workingModeText,
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 )
                                 Spacer(Modifier.width(8.dp))
                                 StatusBadge(
                                     text = workingModeSurfaceText,
-                                    containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.22f),
+                                    containerColor = MaterialTheme.colorScheme.primary,
                                     contentColor = MaterialTheme.colorScheme.onPrimary,
                                 )
                                 if (systemStatus.isLateLoadMode) {
                                     Spacer(Modifier.width(6.dp))
                                     StatusBadge(
                                         text = stringResource(id = R.string.jailbreak_mode),
-                                        containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.22f),
+                                        containerColor = MaterialTheme.colorScheme.primary,
                                         contentColor = MaterialTheme.colorScheme.onPrimary,
                                     )
                                 }
@@ -671,7 +686,7 @@ private fun StatusCard(
                                     uiState.systemInfo.moduleCount
                                 ),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
                             )
                         }
                     }
@@ -743,20 +758,32 @@ fun LearnMoreCard() {
     val uriHandler = LocalUriHandler.current
     val url = stringResource(R.string.home_learn_kernelsu_url)
 
-    SegmentedColumn(
-        modifier = Modifier.fillMaxWidth(),
-        title = stringResource(R.string.learn_more),
-        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { uriHandler.openUri(url) },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceBright,
+        )
     ) {
-        item {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_learn_kernelsu),
-                description = stringResource(R.string.home_click_to_learn_kernelsu),
-                onClick = {
-                    uriHandler.openUri(url)
-                }
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = stringResource(R.string.home_learn_kernelsu),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.home_click_to_learn_kernelsu),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
@@ -764,20 +791,32 @@ fun LearnMoreCard() {
 @Composable
 fun DonateCard() {
     val uriHandler = LocalUriHandler.current
-    SegmentedColumn(
-        modifier = Modifier.fillMaxWidth(),
-        title = stringResource(R.string.home_support_title),
-        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { uriHandler.openUri("https://patreon.com/weishu") },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceBright,
+        )
     ) {
-        item {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_support_title),
-                description = stringResource(R.string.home_support_content),
-                onClick = {
-                    uriHandler.openUri("https://patreon.com/weishu")
-                },
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = stringResource(R.string.home_support_title),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.home_support_content),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
@@ -793,103 +832,189 @@ private fun InfoCard(
 ) {
     val managersList = systemInfo.managersList
 
-    // FolkPatch ListInfoCard 风格: 整卡 20dp + 两行堆叠条目
-    InfoSectionCard {
-        InfoCardItem(
-            label = stringResource(R.string.home_device_model),
-            content = systemInfo.deviceModel,
-        )
-        InfoCardItem(
-            label = stringResource(R.string.home_kernel),
-            content = systemInfo.kernelRelease,
-        )
-        if (!isSimpleMode) {
-            InfoCardItem(
-                label = stringResource(R.string.home_android_version),
-                content = systemInfo.androidVersion,
+    // FolkPatch SystemInfoCard: TonalCard + 标题(图标+信息) + 分割线 + 带图标条目
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceBright,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.home_info_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                modifier = Modifier.padding(bottom = 12.dp)
             )
-        }
-        if (systemStatus.isValid) {
+
             InfoCardItem(
-                label = stringResource(R.string.home_kernel_version),
-                content = systemStatus.ksuFullVersion.orEmpty(),
+                icon = Icons.Outlined.PhoneAndroid,
+                label = stringResource(R.string.home_device_model),
+                value = systemInfo.deviceModel,
             )
-        }
-        InfoCardItem(
-            label = stringResource(R.string.home_manager_version),
-            content = "${systemInfo.managerVersion.first} (${systemInfo.managerVersion.second}/${systemInfo.managerVersion.third})",
-        )
-        if (!isSimpleMode && !isHideSusfsStatus && systemInfo.susfsEnabled && systemInfo.susfsVersion.isNotEmpty()) {
+            if (!isSimpleMode) {
+                InfoCardItem(
+                    icon = Icons.Outlined.Android,
+                    label = stringResource(R.string.home_android_version),
+                    value = systemInfo.androidVersion,
+                )
+            }
             InfoCardItem(
-                label = stringResource(R.string.home_susfs_version),
-                content = systemInfo.susfsVersion,
+                icon = Icons.Outlined.DeveloperBoard,
+                label = stringResource(R.string.home_kernel),
+                value = systemInfo.kernelRelease,
             )
+            if (systemStatus.isValid) {
+                InfoCardItem(
+                    icon = Icons.Outlined.Extension,
+                    label = stringResource(R.string.home_kernel_version),
+                    value = systemStatus.ksuFullVersion.orEmpty(),
+                )
+            }
+            InfoCardItem(
+                icon = Icons.Outlined.Info,
+                label = stringResource(R.string.home_manager_version),
+                value = "${systemInfo.managerVersion.first} (${systemInfo.managerVersion.second}/${systemInfo.managerVersion.third})",
+            )
+            if (!isSimpleMode && !isHideSusfsStatus && systemInfo.susfsEnabled && systemInfo.susfsVersion.isNotEmpty()) {
+                InfoCardItem(
+                    icon = Icons.Outlined.Shield,
+                    label = stringResource(R.string.home_susfs_version),
+                    value = systemInfo.susfsVersion,
+                )
+            }
+            InfoCardItem(
+                icon = Icons.Outlined.Lock,
+                label = stringResource(R.string.home_selinux_status),
+                value = systemInfo.selinuxStatus,
+            )
+            InfoCardItem(
+                icon = Icons.Outlined.Security,
+                label = stringResource(R.string.home_seccomp_status),
+                value = when (systemInfo.seccompStatus) {
+                    -1 -> stringResource(R.string.seccomp_status_not_supported)
+                    0 -> stringResource(R.string.seccomp_status_disabled)
+                    1 -> stringResource(R.string.seccomp_status_strict)
+                    2 -> stringResource(R.string.seccomp_status_filter)
+                    else -> stringResource(R.string.seccomp_status_unknown)
+                },
+            )
+            if (!isSimpleMode && managersList != null) {
+                val signatureMap =
+                    managersList.managers.orEmpty().groupBy { it.signatureIndex }
+                val managersText = buildString {
+                    signatureMap.toSortedMap().forEach { (signatureIndex, managers) ->
+                        append(managers.joinToString(", ") { "UID: ${it.uid}" })
+                        append(" ")
+                        append(
+                            when (signatureIndex) {
+                                0 -> "(${stringResource(R.string.app_name)})"
+                                255 -> "(${stringResource(R.string.dynamic_managerature)})"
+                                else -> if (signatureIndex >= 1) "(${
+                                    stringResource(
+                                        R.string.signature_index,
+                                        signatureIndex
+                                    )
+                                })" else "(${stringResource(R.string.unknown_signature)})"
+                            }
+                        )
+                        append(" | ")
+                    }
+                }.trimEnd(' ', '|')
+
+                InfoCardItem(
+                    icon = Icons.Outlined.Groups,
+                    label = stringResource(R.string.multi_manager_list),
+                    value = managersText.ifEmpty { stringResource(R.string.no_active_manager) },
+                )
+            }
+            if (!isSimpleMode && systemStatus.isValid) {
+                InfoCardItem(
+                    icon = Icons.Outlined.Tune,
+                    label = stringResource(R.string.home_hook_type),
+                    value = systemStatus.hookType,
+                )
+            }
+            if (!isHideZygiskImplement && !isSimpleMode && systemInfo.zygiskImplement.isNotEmpty() && systemInfo.zygiskImplement != "None") {
+                InfoCardItem(
+                    icon = Icons.Outlined.Layers,
+                    label = stringResource(R.string.home_zygisk_implement),
+                    value = systemInfo.zygiskImplement,
+                )
+            }
+            if (!isHideMetaModuleImplement && !isSimpleMode && systemInfo.metaModuleImplement.isNotEmpty() && systemInfo.metaModuleImplement != "None") {
+                InfoCardItem(
+                    icon = Icons.Outlined.Extension,
+                    label = stringResource(R.string.home_meta_module_implement),
+                    value = systemInfo.metaModuleImplement,
+                )
+            }
         }
     }
+}
 
-    InfoSectionCard {
-        InfoCardItem(
-            label = stringResource(R.string.home_selinux_status),
-            content = systemInfo.selinuxStatus,
+@Composable
+private fun InfoCardItem(
+    icon: ImageVector,
+    label: String,
+    value: String,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier
+                .size(18.dp)
+                .padding(top = 2.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        InfoCardItem(
-            label = stringResource(R.string.home_seccomp_status),
-            content = when (systemInfo.seccompStatus) {
-                -1 -> stringResource(R.string.seccomp_status_not_supported)
-                0 -> stringResource(R.string.seccomp_status_disabled)
-                1 -> stringResource(R.string.seccomp_status_strict)
-                2 -> stringResource(R.string.seccomp_status_filter)
-                else -> stringResource(R.string.seccomp_status_unknown)
-            },
-        )
-        if (!isSimpleMode && managersList != null) {
-            val signatureMap =
-                managersList.managers.orEmpty().groupBy { it.signatureIndex }
-            val managersText = buildString {
-                signatureMap.toSortedMap().forEach { (signatureIndex, managers) ->
-                    append(managers.joinToString(", ") { "UID: ${it.uid}" })
-                    append(" ")
-                    append(
-                        when (signatureIndex) {
-                            0 -> "(${stringResource(R.string.app_name)})"
-                            255 -> "(${stringResource(R.string.dynamic_managerature)})"
-                            else -> if (signatureIndex >= 1) "(${
-                                stringResource(
-                                    R.string.signature_index,
-                                    signatureIndex
-                                )
-                            })" else "(${stringResource(R.string.unknown_signature)})"
-                        }
-                    )
-                    append(" | ")
-                }
-            }.trimEnd(' ', '|')
-
-            InfoCardItem(
-                label = stringResource(R.string.multi_manager_list),
-                content = managersText.ifEmpty { stringResource(R.string.no_active_manager) },
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
-        if (!isSimpleMode && systemStatus.isValid) {
-            InfoCardItem(
-                label = stringResource(R.string.home_hook_type),
-                content = systemStatus.hookType,
-            )
-        }
-        if (!isHideZygiskImplement && !isSimpleMode && systemInfo.zygiskImplement.isNotEmpty() && systemInfo.zygiskImplement != "None") {
-            InfoCardItem(
-                label = stringResource(R.string.home_zygisk_implement),
-                content = systemInfo.zygiskImplement,
-            )
-        }
-        if (!isHideMetaModuleImplement && !isSimpleMode && systemInfo.metaModuleImplement.isNotEmpty() && systemInfo.metaModuleImplement != "None") {
-            InfoCardItem(
-                label = stringResource(R.string.home_meta_module_implement),
-                content = systemInfo.metaModuleImplement,
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
 }
+
+
+
+
 
 @Composable
 private fun InfoSectionCard(content: @Composable ColumnScope.() -> Unit) {
@@ -897,7 +1022,7 @@ private fun InfoSectionCard(content: @Composable ColumnScope.() -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
         )
     ) {
         Column(
@@ -913,17 +1038,20 @@ private fun InfoSectionCard(content: @Composable ColumnScope.() -> Unit) {
 private fun InfoCardItem(
     label: String,
     content: String,
+    showSpacer: Boolean = true,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = label, style = MaterialTheme.typography.bodyLarge)
         Text(
             text = content,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
-        Spacer(Modifier.height(16.dp))
+        if (showSpacer) {
+            Spacer(Modifier.height(16.dp))
+        }
     }
 }
 

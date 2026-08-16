@@ -25,7 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.twotone.WifiOff
 import androidx.compose.material3.Checkbox
@@ -45,6 +45,11 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.add
+import com.tesla.resukisuultra.ui.component.settings.AppBackButton
+import com.tesla.resukisuultra.ui.navigation.LocalNavigator
+import com.tesla.resukisuultra.ui.theme.blurEffect
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,6 +58,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asImageBitmap
@@ -64,7 +71,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tesla.resukisuultra.R
-import com.tesla.resukisuultra.ui.theme.blurEffect
+import kotlinx.coroutines.launch
+import com.tesla.resukisuultra.data.netisolate.NetIsolateRepository
+import com.tesla.resukisuultra.data.shell.KsuCliRepository
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private data class AppListEntry(
     val uid: Int,
@@ -80,27 +92,35 @@ private data class AppListEntry(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NetIsolateScreen() {
-    val topAppBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
-
+fun NetIsolateTab(
+    innerPadding: PaddingValues,
+    nestedScrollConnection: NestedScrollConnection,
+) {
     val context = LocalContext.current
 
-    var enabled by remember { mutableStateOf(true) }
+    // 真实持久化 (root 读写 /data/adb/ksu/netisolate/)
+    val repository = remember { NetIsolateRepository(context, KsuCliRepository(context)) }
+    val scope = rememberCoroutineScope()
+    var enabled by remember { mutableStateOf(false) }
     var selectedUids by remember { mutableStateOf<Set<Int>>(emptySet()) }
+    var loaded by remember { mutableStateOf(false) }
     var showPicker by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = { NetIsolateTopBar(scrollBehavior) },
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    // 启动时加载
+    LaunchedEffect(Unit) {
+        enabled = repository.isEnabled()
+        selectedUids = repository.getUids()
+        loaded = true
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .nestedScroll(nestedScrollConnection),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
             item {
                 // 开关卡片 (圆角)
                 Row(
@@ -131,7 +151,10 @@ fun NetIsolateScreen() {
                     }
                     Switch(
                         checked = enabled,
-                        onCheckedChange = { enabled = it }
+                        onCheckedChange = {
+                            enabled = it
+                            scope.launch { repository.setEnabled(it) }
+                        }
                     )
                 }
             }
@@ -220,9 +243,13 @@ fun NetIsolateScreen() {
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            IconButton(onClick = { selectedUids = selectedUids - uid }) {
+                            IconButton(onClick = {
+                                val newSet = selectedUids - uid
+                                selectedUids = newSet
+                                scope.launch { repository.setUids(newSet) }
+                            }) {
                                 Icon(
-                                    imageVector = Icons.Filled.Delete,
+                                    imageVector = Icons.TwoTone.Delete,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.error
                                 )
@@ -231,39 +258,22 @@ fun NetIsolateScreen() {
                     }
                 }
             }
-        }
     }
 
     if (showPicker) {
         AppPickerSheet(
             selectedUids = selectedUids,
             onUidToggle = { uid ->
-                selectedUids = if (uid in selectedUids) selectedUids - uid
+                val newSet = if (uid in selectedUids) selectedUids - uid
                     else selectedUids + uid
+                selectedUids = newSet
+                scope.launch { repository.setUids(newSet) }
             },
             onDismiss = { showPicker = false }
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun NetIsolateTopBar(scrollBehavior: TopAppBarScrollBehavior) {
-    LargeFlexibleTopAppBar(
-        title = {
-            Text(text = stringResource(R.string.netisolate_title))
-        },
-        scrollBehavior = scrollBehavior,
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.85f)
-        )
-    )
-}
-
-/**
- * 应用选择底部弹窗 (仿 FolkPatch AppPickerSheet)
- * 半屏 ModalBottomSheet: 可下滑关闭, 左上标题, 右上确定, 搜索框, 复选框列表
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppPickerSheet(

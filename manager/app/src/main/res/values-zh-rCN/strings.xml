@@ -566,4 +566,6 @@
     <string name="susfs_standard_uname">Uname</string>
     <string name="susfs_standard_cmdline_or_bootconfig">Cmdline / Bootconfig</string>
     <string name="susfs_redirect_entry_description">%1$s · %2$s</string>
+    <string name="settings_fake_lock">隐藏Bootloader解锁状态</string>
+    <string name="settings_fake_lock_summary">一定程度上隐藏Bootloader锁解锁状态</string>
 </resources>

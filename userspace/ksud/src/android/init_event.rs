@@ -137,6 +137,11 @@ pub fn on_post_data_fs() -> Result<()> {
 
     run_stage("post-mount", true);
 
+    // ReSukiSU-Ultra: 开机加载联网隔离配置
+    if let Err(e) = crate::android::netisolate::apply_from_files() {
+        warn!("apply netisolate failed: {e}");
+    }
+
     std::env::set_current_dir("/").with_context(|| "failed to chdir to /")?;
 
     Ok(())
@@ -192,6 +197,10 @@ pub fn on_boot_completed() {
     // Load susfs boot-completed
     if !is_safe_mode() {
         crate::android::susfs::init_event::on_boot_completed();
+    }
+    // ReSukiSU-Ultra: 开机应用隐藏 BL 锁伪装
+    if let Err(e) = crate::android::fakelock::apply_if_enabled() {
+        warn!("apply fakelock failed: {e}");
     }
 }
 

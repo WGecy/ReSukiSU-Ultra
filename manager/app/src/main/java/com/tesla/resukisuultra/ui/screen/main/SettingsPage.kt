@@ -35,7 +35,7 @@ import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.DeleteForever
 import androidx.compose.material.icons.twotone.ElectricalServices
 import androidx.compose.material.icons.twotone.Extension
-import androidx.compose.material.icons.twotone.Fence
+import androidx.compose.material.icons.twotone.GppGood
 import androidx.compose.material.icons.twotone.FolderDelete
 import androidx.compose.material.icons.twotone.FolderOff
 import androidx.compose.material.icons.twotone.Info
@@ -69,6 +69,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.tesla.resukisuultra.data.fakelock.FakeLockRepository
+import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -201,7 +203,7 @@ fun SettingsPage(bottomPadding: Dp) {
                             item {
                                 // 配置文件模板入口
                                 SettingsJumpPageWidget(
-                                    icon = Icons.TwoTone.Fence,
+                                    icon = Icons.TwoTone.GppGood,
                                     title = stringResource(R.string.settings_profile_template),
                                     description = stringResource(R.string.settings_profile_template_summary),
                                     onClick = {
@@ -336,6 +338,29 @@ fun SettingsPage(bottomPadding: Dp) {
                                                 checked
                                             )
                                         )
+                                    },
+                                )
+                            }
+
+                            item {
+                                // 伪装 BL 锁状态开关
+                                var fakeLockEnabled by remember { mutableStateOf(false) }
+                                var fakeLockLoaded by remember { mutableStateOf(false) }
+                                val fakeLockRepo = remember {
+                                    FakeLockRepository(context, KsuCliRepository(context))
+                                }
+                                LaunchedEffect(Unit) {
+                                    fakeLockEnabled = fakeLockRepo.isEnabled()
+                                    fakeLockLoaded = true
+                                }
+                                SettingsSwitchWidget(
+                                    icon = Icons.TwoTone.GppGood,
+                                    title = stringResource(id = R.string.settings_fake_lock),
+                                    description = stringResource(id = R.string.settings_fake_lock_summary),
+                                    checked = fakeLockEnabled,
+                                    onCheckedChange = { checked ->
+                                        fakeLockEnabled = checked
+                                        scope.launch { fakeLockRepo.setEnabled(checked) }
                                     },
                                 )
                             }

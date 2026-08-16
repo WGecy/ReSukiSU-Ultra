@@ -36,6 +36,7 @@ import androidx.compose.material.icons.twotone.Info
 import androidx.compose.material.icons.twotone.PowerSettingsNew
 import androidx.compose.material.icons.twotone.TaskAlt
 import androidx.compose.material.icons.twotone.Tune
+import androidx.compose.material.icons.twotone.Handyman
 import androidx.compose.material.icons.twotone.WifiOff
 import androidx.compose.material.icons.twotone.Warning
 import androidx.compose.material3.Button
@@ -513,13 +514,13 @@ private fun TopBar(
         ),
         actions = {
             if (uiState.isCoreDataLoaded) {
-                // 联网隔离按钮 (ReSukiSU Ultra)
+                // 附加功能 (工具箱) 按钮 (ReSukiSU Ultra)
                 IconButton(onClick = {
-                    navigator.push(Route.NetIsolate)
+                    navigator.push(Route.Toolbox)
                 }) {
                     Icon(
-                        imageVector = Icons.TwoTone.WifiOff,
-                        contentDescription = stringResource(R.string.netisolate_title)
+                        imageVector = Icons.TwoTone.Handyman,
+                        contentDescription = stringResource(R.string.toolbox_title)
                     )
                 }
 

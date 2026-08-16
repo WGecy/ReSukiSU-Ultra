@@ -23,6 +23,9 @@
 #include <linux/net.h>
 #include <net/sock.h>
 #include <linux/susfs_def.h>
+#include <linux/netisolate_def.h>
+#include <linux/fs.h>
+#include <linux/uaccess.h>
 
 #define NETISOLATE_MAX_UID 256
 
@@ -160,6 +163,116 @@ bool netisolate_is_enabled(void)
 	return netisolate_enabled;
 }
 
+/* ===== supercall 分发 (ksud netisolate 命令, 走 SUSFS_MAGIC 通道) ===== */
+int netisolate_handle_cmd(unsigned int cmd, void __user **arg)
+{
+	unsigned int val;
+
+	switch (cmd) {
+	case CMD_NETISOLATE_ENABLE:
+		if (get_user(val, (unsigned int __user *)*arg))
+			return -EFAULT;
+		netisolate_set_enabled(val ? true : false);
+		break;
+	case CMD_NETISOLATE_UID_ADD:
+		if (get_user(val, (unsigned int __user *)*arg))
+			return -EFAULT;
+		return netisolate_uid_add(val);
+	case CMD_NETISOLATE_UID_REMOVE:
+		if (get_user(val, (unsigned int __user *)*arg))
+			return -EFAULT;
+		return netisolate_uid_remove(val);
+	case CMD_NETISOLATE_UID_CLEAR:
+		netisolate_uid_clear();
+		break;
+	case CMD_NETISOLATE_UID_LIST:
+	{
+		unsigned int out[NETISOLATE_MAX_UID + 1];
+
+		out[0] = netisolate_get_uid_count();
+		netisolate_get_uids(&out[1], NETISOLATE_MAX_UID);
+		if (copy_to_user(*arg, out, sizeof(out)))
+			return -EFAULT;
+		break;
+	}
+	case CMD_NETISOLATE_GET_STATE:
+	{
+		struct {
+			unsigned int enabled;
+			unsigned int count;
+		} state;
+
+		state.enabled = netisolate_is_enabled() ? 1 : 0;
+		state.count = netisolate_get_uid_count();
+		if (copy_to_user(*arg, &state, sizeof(state)))
+			return -EFAULT;
+		break;
+	}
+	default:
+		return -EINVAL;
+	}
+	return 0;
+}
+
+/* ===== 配置文件读取 (开机自动加载) ===== */
+#define NETISOLATE_DIR "/data/adb/ksu/netisolate"
+#define NETISOLATE_ENABLE_FILE NETISOLATE_DIR "/enabled"
+#define NETISOLATE_UIDS_FILE NETISOLATE_DIR "/uids"
+
+static bool file_read_bool(const char *path)
+{
+	struct file *f;
+	char buf[8] = {0};
+	bool result = false;
+
+	f = filp_open(path, O_RDONLY, 0);
+	if (IS_ERR(f))
+		return false;
+	if (kernel_read(f, buf, sizeof(buf) - 1, &f->f_pos) > 0) {
+		result = (buf[0] == '1');
+	}
+	filp_close(f, NULL);
+	return result;
+}
+
+static void file_read_uids(const char *path)
+{
+	struct file *f;
+	char buf[4096];
+	ssize_t n;
+
+	f = filp_open(path, O_RDONLY, 0);
+	if (IS_ERR(f))
+		return;
+	n = kernel_read(f, buf, sizeof(buf) - 1, &f->f_pos);
+	filp_close(f, NULL);
+	if (n <= 0)
+		return;
+	buf[n] = '\0';
+
+	/* 解析每行一个 UID */
+	netisolate_uid_clear();
+	{
+		char *p = buf;
+		while (*p) {
+			char *end = p;
+			while (*end && *end != '\n')
+				end++;
+			if (*end)
+				*end = '\0';
+			{
+				unsigned long uid = 0;
+				int i;
+				for (i = 0; p[i] >= '0' && p[i] <= '9'; i++)
+					uid = uid * 10 + (p[i] - '0');
+				if (uid > 0)
+					netisolate_uid_add(uid);
+			}
+			p = end + 1;
+		}
+	}
+}
+
 static int __init netisolate_init(void)
 {
 	int ret;
@@ -170,7 +283,11 @@ static int __init netisolate_init(void)
 		pr_err("netisolate: nf_register_net_hooks failed (%d)\n", ret);
 		return ret;
 	}
-	pr_info("netisolate: initialized (UID network isolation)\n");
+	/* 开机加载配置 (管理器写入 /data/adb/ksu/netisolate/) */
+	netisolate_set_enabled(file_read_bool(NETISOLATE_ENABLE_FILE));
+	file_read_uids(NETISOLATE_UIDS_FILE);
+	pr_info("netisolate: initialized (enabled=%d, uids=%u)\n",
+		netisolate_is_enabled(), netisolate_get_uid_count());
 	return 0;
 }
 
@@ -181,7 +298,7 @@ static void __exit netisolate_exit(void)
 	pr_info("netisolate: exited\n");
 }
 
-module_init(netisolate_init);
+late_initcall(netisolate_init);
 module_exit(netisolate_exit);
 
 MODULE_LICENSE("GPL");

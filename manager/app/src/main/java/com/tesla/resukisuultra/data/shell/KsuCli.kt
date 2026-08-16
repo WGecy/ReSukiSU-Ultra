@@ -576,6 +576,14 @@ class KsuCliRepository(context: Context) {
             .joinToString("\n")
     }
 
+    /** 执行 root 命令, 返回输出 (无输出返回 null) */
+    fun exec(cmd: String): String? {
+        val shell = getRootShell()
+        return runCatching {
+            runCmd(shell, cmd)
+        }.getOrNull()?.takeIf { it.isNotBlank() }
+    }
+
     fun forceStopApp(packageName: String) {
         val shell = getRootShell()
         val result = shell.newJob().add("am force-stop $packageName").exec()

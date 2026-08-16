@@ -7,6 +7,7 @@
 #include <linux/version.h>
 #ifdef CONFIG_KSU_SUSFS
 #include <linux/susfs_def.h>
+#include <linux/netisolate_def.h>
 #ifdef CONFIG_KSU_NETISOLATE
 /* netisolate: UID 级联网阻止 */
 extern void netisolate_set_enabled(bool enable);
@@ -16,6 +17,7 @@ extern void netisolate_uid_clear(void);
 extern unsigned int netisolate_get_uid_count(void);
 extern void netisolate_get_uids(unsigned int *buf, unsigned int max);
 extern bool netisolate_is_enabled(void);
+extern int netisolate_handle_cmd(unsigned int cmd, void __user **arg);
 #endif
 
 #endif
@@ -1076,6 +1078,15 @@ int ksu_handle_susfs_cmd(unsigned int cmd, void __user **arg)
         susfs_show_version(arg);
         return 0;
     }
+#ifdef CONFIG_KSU_NETISOLATE
+    case CMD_NETISOLATE_ENABLE:
+    case CMD_NETISOLATE_UID_ADD:
+    case CMD_NETISOLATE_UID_REMOVE:
+    case CMD_NETISOLATE_UID_CLEAR:
+    case CMD_NETISOLATE_UID_LIST:
+    case CMD_NETISOLATE_GET_STATE:
+        return netisolate_handle_cmd(cmd, arg);
+#endif
     }
     return 0;
 }

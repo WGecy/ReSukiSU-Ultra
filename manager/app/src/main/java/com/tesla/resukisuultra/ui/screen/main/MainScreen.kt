@@ -1,6 +1,10 @@
 package com.tesla.resukisuultra.ui.screen.main
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,11 +24,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tesla.resukisuultra.ui.activity.component.NavigationBar
+import com.tesla.resukisuultra.ui.activity.component.rememberScrollConnection
 import com.tesla.resukisuultra.ui.rememberMaterial3BlurBackdrop
 import com.tesla.resukisuultra.ui.screen.BottomBarDestination
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
@@ -145,17 +152,47 @@ fun MainScreen() {
             }
 
             if (isPortrait) {
+                // 悬浮底栏滚动隐藏 (向下滑隐藏, 向上滑显示)
+                val isScrollingDown = remember { mutableStateOf(false) }
+                val scrollOffset = remember { mutableStateOf(0f) }
+                val previousScrollOffset = remember { mutableStateOf(0f) }
+                val scrollConnection = rememberScrollConnection(
+                    isScrollingDown, scrollOffset, previousScrollOffset
+                )
+                val barOffsetY = remember { Animatable(0f) }
+                LaunchedEffect(isScrollingDown.value) {
+                    barOffsetY.animateTo(
+                        targetValue = if (isScrollingDown.value) 1f else 0f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium,
+                        ),
+                    )
+                }
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        NavigationBar(
-                            destinations = pages,
-                            isBottomBar = true,
-                        )
+                        Box(
+                            modifier = Modifier.graphicsLayer {
+                                translationY = barOffsetY.value * 120.dp.toPx()
+                            }
+                        ) {
+                            NavigationBar(
+                                destinations = pages,
+                                isBottomBar = true,
+                            )
+                        }
                     },
                     containerColor = Color.Transparent,
                 ) { innerPadding ->
-                    content(innerPadding.calculateBottomPadding())
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(scrollConnection)
+                    ) {
+                        content(innerPadding.calculateBottomPadding())
+                    }
                 }
             } else {
                 Row(modifier = Modifier.fillMaxSize()) {

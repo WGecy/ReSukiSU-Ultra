@@ -87,7 +87,7 @@ import com.tesla.resukisuultra.ui.screen.about.OpenSourceLicenseScreen
 import com.tesla.resukisuultra.ui.screen.kernelFlash.KernelFlashScreen
 import com.tesla.resukisuultra.ui.screen.main.MainScreen
 import com.tesla.resukisuultra.ui.screen.moduleRepo.ModuleRepoScreen
-import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateScreen
+import com.tesla.resukisuultra.ui.screen.toolbox.ToolboxScreen
 import com.tesla.resukisuultra.ui.screen.moduleRepo.OnlineModuleDetailScreen
 import com.tesla.resukisuultra.ui.screen.susfs.SuSFSConfigScreen
 import com.tesla.resukisuultra.ui.screen.themeSettings.ThemeSettingsScreen
@@ -488,7 +488,7 @@ fun NavContainer(
                         ThemeSettingsScreen(settingsViewModel = settingsViewModel)
                     }
                     entry<Route.SuSFSConfig> { SuSFSConfigScreen() }
-                    entry<Route.NetIsolate> { NetIsolateScreen() }
+                    entry<Route.Toolbox> { ToolboxScreen() }
                     entry<Route.UmountManager> { UmountManagerScreen() }
                     entry<Route.DynamicManager> { DynamicManagerScreen() }
                     entry<Route.KernelFlash> { key ->

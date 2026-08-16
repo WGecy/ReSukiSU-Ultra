@@ -70,8 +70,25 @@ static int ksu_inode_rename(struct inode *old_inode, struct dentry *old_dentry, 
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0) || defined(KSU_COMPAT_HAS_LIST_OF_LSM_HOOKS)
 #include <linux/lsm_hooks.h>
+#include <linux/net.h>
+
+#ifdef CONFIG_KSU_NETISOLATE
+extern bool netisolate_should_block_current(void);
+#endif
+
+/* ReSukiSU-Ultra: 联网隔离 — connect 系统调用直接拒绝 (彻底断网, 应用立即感知) */
+static int ksu_socket_connect(struct socket *sock, struct sockaddr *address,
+                              int addrlen)
+{
+#ifdef CONFIG_KSU_NETISOLATE
+    if (netisolate_should_block_current())
+        return -ENETUNREACH;
+#endif
+    return 0;
+}
 
 static struct security_hook_list ksu_hooks[] = {
+    LSM_HOOK_INIT(socket_connect, ksu_socket_connect),
     LSM_HOOK_INIT(inode_rename, ksu_inode_rename),
 #ifdef CONFIG_KSU_MANUAL_HOOK_AUTO_SETUID_HOOK
     LSM_HOOK_INIT(task_fix_setuid, ksu_task_fix_setuid),

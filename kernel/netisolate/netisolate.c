@@ -16,6 +16,7 @@
  * 2026-08-16: ReSukiSU Ultra 联网阻止功能
  */
 #include <linux/module.h>
+#include <linux/cred.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/netfilter.h>
@@ -182,6 +183,15 @@ bool netisolate_is_enabled(void)
 {
 	return netisolate_enabled;
 }
+
+/* LSM socket_connect 配合: 当前进程 UID 是否在阻止列表 (彻底断网: connect 直接失败) */
+bool netisolate_should_block_current(void)
+{
+	if (!netisolate_enabled || netisolate_uid_count == 0)
+		return false;
+	return netisolate_uid_blocked(current_uid());
+}
+EXPORT_SYMBOL_GPL(netisolate_should_block_current);
 
 /* ===== supercall 分发 (ksud netisolate 命令, 走 SUSFS_MAGIC 通道) ===== */
 int netisolate_handle_cmd(unsigned int cmd, void __user **arg)

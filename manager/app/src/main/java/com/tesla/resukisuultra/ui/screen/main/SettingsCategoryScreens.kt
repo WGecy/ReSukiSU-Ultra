@@ -193,7 +193,6 @@ fun SettingsCoreScreen() {
 
                 SegmentedColumn(
                         modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.configuration),
                         content = {
                             item {
                                 // 配置文件模板入口
@@ -452,7 +451,6 @@ fun SettingsAppScreen() {
                     // 应用设置卡片
                     SegmentedColumn(
                         modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.app_settings),
                         content = {
                             expandableItem(
                                 expanded = uiState.checkManagerUpdate,
@@ -593,7 +591,6 @@ fun SettingsToolsScreen() {
                     // 工具卡片
                     SegmentedColumn(
                         modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.tools),
                         content = {
                             item {
                                 SettingsBaseWidget(

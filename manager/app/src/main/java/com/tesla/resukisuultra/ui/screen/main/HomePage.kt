@@ -34,11 +34,16 @@ import androidx.compose.material.icons.twotone.Block
 import androidx.compose.material.icons.twotone.Error
 import androidx.compose.material.icons.twotone.Info
 import androidx.compose.material.icons.twotone.PowerSettingsNew
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.twotone.TaskAlt
 import androidx.compose.material.icons.twotone.Tune
 import androidx.compose.material.icons.twotone.Handyman
 import androidx.compose.material.icons.twotone.WifiOff
 import androidx.compose.material.icons.twotone.Warning
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuGroup
@@ -49,6 +54,11 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.Surface
+import androidx.compose.material3.contentColorFor
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
@@ -596,54 +606,77 @@ private fun StatusCard(
 
     when {
         systemStatus.ksuVersion != null -> {
+            // FolkPatch KStatusCard 风格: primary 大色块 + 居中 + 徽章
             val workingModeText = when {
                 systemStatus.isSafeMode -> stringResource(id = R.string.safe_mode)
                 else -> stringResource(id = R.string.home_working)
             }
-
             val workingModeSurfaceText = when {
                 systemStatus.lkmMode == true -> "LKM"
                 else -> "Built-in"
             }
 
-            SettingsBaseWidget(
-                icon = Icons.TwoTone.TaskAlt,
-                iconSize = 18.dp,
-                title = workingModeText,
-                description = stringResource(
-                    R.string.home_short_info,
-                    uiState.systemInfo.superuserCount,
-                    uiState.systemInfo.moduleCount
-                ),
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                foreContent = {
-                    Spacer(Modifier.width(8.dp))
-
-                    // 工作模式标签
-                    LabelText(
-                        label = workingModeSurfaceText,
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-
-                    if (systemStatus.isLateLoadMode) {
-                        Spacer(Modifier.width(6.dp))
-                        LabelText(
-                            label = stringResource(id = R.string.jailbreak_mode),
-                            containerColor = MaterialTheme.colorScheme.primary
+            Card(
+                onClick = { onClick(Offset.Zero) },
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(36.dp),
+                            tint = MaterialTheme.colorScheme.onPrimary,
                         )
+                        Spacer(Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = workingModeText,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                StatusBadge(
+                                    text = workingModeSurfaceText,
+                                    containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.22f),
+                                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                                )
+                                if (systemStatus.isLateLoadMode) {
+                                    Spacer(Modifier.width(6.dp))
+                                    StatusBadge(
+                                        text = stringResource(id = R.string.jailbreak_mode),
+                                        containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.22f),
+                                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(
+                                    R.string.home_short_info,
+                                    uiState.systemInfo.superuserCount,
+                                    uiState.systemInfo.moduleCount
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                            )
+                        }
                     }
-
-                    // 架构标签
-                    if (Os.uname().machine != "aarch64") {
-                        Spacer(Modifier.width(6.dp))
-                        LabelText(
-                            label = Os.uname().machine,
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                onClick = onClick
-            )
+                }
+            }
         }
 
         systemStatus.kernelVersion.isGKI() -> {
@@ -682,6 +715,26 @@ private fun StatusCard(
                 description = stringResource(R.string.home_unsupported_reason),
             )
         }
+    }
+}
+
+@Composable
+private fun StatusBadge(
+    text: String,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = contentColorFor(containerColor),
+) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = containerColor
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+            color = contentColor,
+            maxLines = 1,
+        )
     }
 }
 
@@ -740,101 +793,58 @@ private fun InfoCard(
 ) {
     val managersList = systemInfo.managersList
 
-    SegmentedColumn(
-        title = stringResource(R.string.home_version_info),
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
-    ) {
-        item {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_device_model),
-                description = systemInfo.deviceModel,
+    // FolkPatch ListInfoCard 风格: 整卡 20dp + 两行堆叠条目
+    InfoSectionCard {
+        InfoCardItem(
+            label = stringResource(R.string.home_device_model),
+            content = systemInfo.deviceModel,
+        )
+        InfoCardItem(
+            label = stringResource(R.string.home_kernel),
+            content = systemInfo.kernelRelease,
+        )
+        if (!isSimpleMode) {
+            InfoCardItem(
+                label = stringResource(R.string.home_android_version),
+                content = systemInfo.androidVersion,
             )
         }
-
-        item {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_kernel),
-                description = systemInfo.kernelRelease,
+        if (systemStatus.isValid) {
+            InfoCardItem(
+                label = stringResource(R.string.home_kernel_version),
+                content = systemStatus.ksuFullVersion.orEmpty(),
             )
         }
-
-        item(
-            visible = !isSimpleMode
-        ) {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_android_version),
-                description = systemInfo.androidVersion,
-            )
-        }
-
-
-        item(
-            visible = systemStatus.isValid
-        ) {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_kernel_version),
-                description = systemStatus.ksuFullVersion.orEmpty(),
-            )
-        }
-
-        item {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_manager_version),
-                description = "${systemInfo.managerVersion.first} (${systemInfo.managerVersion.second}/${systemInfo.managerVersion.third})",
-            )
-        }
-
-        item(
-            visible = !isSimpleMode && !isHideSusfsStatus && systemInfo.susfsEnabled && systemInfo.susfsVersion.isNotEmpty()
-        ) {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_susfs_version),
-                description = systemInfo.susfsVersion,
+        InfoCardItem(
+            label = stringResource(R.string.home_manager_version),
+            content = "${systemInfo.managerVersion.first} (${systemInfo.managerVersion.second}/${systemInfo.managerVersion.third})",
+        )
+        if (!isSimpleMode && !isHideSusfsStatus && systemInfo.susfsEnabled && systemInfo.susfsVersion.isNotEmpty()) {
+            InfoCardItem(
+                label = stringResource(R.string.home_susfs_version),
+                content = systemInfo.susfsVersion,
             )
         }
     }
 
-    SegmentedColumn(
-        title = stringResource(R.string.home_status_info),
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
-    ) {
-        item {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_selinux_status),
-                description = systemInfo.selinuxStatus,
-            )
-        }
-
-        item {
-            val seccompDisplay = when (systemInfo.seccompStatus) {
+    InfoSectionCard {
+        InfoCardItem(
+            label = stringResource(R.string.home_selinux_status),
+            content = systemInfo.selinuxStatus,
+        )
+        InfoCardItem(
+            label = stringResource(R.string.home_seccomp_status),
+            content = when (systemInfo.seccompStatus) {
                 -1 -> stringResource(R.string.seccomp_status_not_supported)
                 0 -> stringResource(R.string.seccomp_status_disabled)
                 1 -> stringResource(R.string.seccomp_status_strict)
                 2 -> stringResource(R.string.seccomp_status_filter)
                 else -> stringResource(R.string.seccomp_status_unknown)
-            }
-
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_seccomp_status),
-                description = seccompDisplay,
-            )
-        }
-
-        item(
-            visible = !isSimpleMode && managersList != null
-        ) {
+            },
+        )
+        if (!isSimpleMode && managersList != null) {
             val signatureMap =
-                managersList?.managers.orEmpty().groupBy { it.signatureIndex }
+                managersList.managers.orEmpty().groupBy { it.signatureIndex }
             val managersText = buildString {
                 signatureMap.toSortedMap().forEach { (signatureIndex, managers) ->
                     append(managers.joinToString(", ") { "UID: ${it.uid}" })
@@ -855,41 +865,65 @@ private fun InfoCard(
                 }
             }.trimEnd(' ', '|')
 
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.multi_manager_list),
-                description = managersText.ifEmpty { stringResource(R.string.no_active_manager) },
+            InfoCardItem(
+                label = stringResource(R.string.multi_manager_list),
+                content = managersText.ifEmpty { stringResource(R.string.no_active_manager) },
             )
         }
-
-        item(
-            visible = !isSimpleMode && systemStatus.isValid
-        ) {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_hook_type),
-                description = systemStatus.hookType,
+        if (!isSimpleMode && systemStatus.isValid) {
+            InfoCardItem(
+                label = stringResource(R.string.home_hook_type),
+                content = systemStatus.hookType,
             )
         }
-
-        item(
-            visible = !isHideZygiskImplement && !isSimpleMode && systemInfo.zygiskImplement.isNotEmpty() && systemInfo.zygiskImplement != "None"
-        ) {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_zygisk_implement),
-                description = systemInfo.zygiskImplement,
+        if (!isHideZygiskImplement && !isSimpleMode && systemInfo.zygiskImplement.isNotEmpty() && systemInfo.zygiskImplement != "None") {
+            InfoCardItem(
+                label = stringResource(R.string.home_zygisk_implement),
+                content = systemInfo.zygiskImplement,
             )
         }
-
-        item(
-            visible = !isHideMetaModuleImplement && !isSimpleMode && systemInfo.metaModuleImplement.isNotEmpty() && systemInfo.metaModuleImplement != "None"
-        ) {
-            SettingsBaseWidget(
-                iconPlaceholder = false,
-                title = stringResource(R.string.home_meta_module_implement),
-                description = systemInfo.metaModuleImplement,
+        if (!isHideMetaModuleImplement && !isSimpleMode && systemInfo.metaModuleImplement.isNotEmpty() && systemInfo.metaModuleImplement != "None") {
+            InfoCardItem(
+                label = stringResource(R.string.home_meta_module_implement),
+                content = systemInfo.metaModuleImplement,
             )
         }
     }
 }
+
+@Composable
+private fun InfoSectionCard(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 16.dp),
+            content = content,
+        )
+    }
+}
+
+@Composable
+private fun InfoCardItem(
+    label: String,
+    content: String,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(text = label, style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = content,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Spacer(Modifier.height(16.dp))
+    }
+}
+

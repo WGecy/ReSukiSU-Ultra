@@ -11,6 +11,7 @@ import com.resukisu.rootService.IKsuInterface
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ipc.RootService
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -26,14 +27,43 @@ class RootServiceRepository(
 ) {
     private val requestMutex = Mutex()
 
-    suspend fun getInstalledPackages(): List<PackageInfo> = requestMutex.withLock {
+    // 包安装/卸载/更新 → 失效缓存 (新 App 能立刻刷新出来)
+    private val packageReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
+            cachedPackages = null
+            cacheTimestamp = 0
+        }
+    }
+
+    init {
+        val filter = android.content.IntentFilter().apply {
+            addAction(android.content.Intent.ACTION_PACKAGE_ADDED)
+            addAction(android.content.Intent.ACTION_PACKAGE_REMOVED)
+            addAction(android.content.Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
+        }
+        application.registerReceiver(packageReceiver, filter)
+    }
+
+    // 进程内缓存: 避免频繁 start/bind/stop root 服务 (被系统限制 → 超时 unavailable)
+    @Volatile
+    private var cachedPackages: List<PackageInfo>? = null
+    @Volatile
+    private var cacheTimestamp: Long = 0
+
+    suspend fun getInstalledPackages(forceRefresh: Boolean = false): List<PackageInfo> = requestMutex.withLock {
+        val now = System.currentTimeMillis()
+        if (!forceRefresh && cachedPackages != null && now - cacheTimestamp < 5 * 60 * 1000) {
+            return cachedPackages!!
+        }
+
         val intent = Intent(application, KsuService::class.java)
         try {
-            val binder = withTimeoutOrNull(10000.milliseconds) {
+            val binder = withTimeoutOrNull(15000.milliseconds) {
                 connectService(intent)
             } ?: throw IllegalStateException("Root service unavailable")
 
-            withContext(Dispatchers.IO) {
+            val result = withContext(Dispatchers.IO) {
                 val service = IKsuInterface.Stub.asInterface(binder)
                 val total = service.packageCount
                 buildList {
@@ -46,6 +76,9 @@ class RootServiceRepository(
                     }
                 }
             }
+            cachedPackages = result
+            cacheTimestamp = System.currentTimeMillis()
+            result
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {

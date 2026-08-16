@@ -1220,8 +1220,8 @@ fun ModuleItem(
             if (themeConfig.isEnableBlurExp)
                 Color.Transparent
             else
-                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
-        shape = RoundedCornerShape(20.dp)
+                MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha),
+        shape = RoundedCornerShape(16.dp)
     ) {
         val textDecoration = if (!module.remove) null else TextDecoration.LineThrough
         val interactionSource = remember { MutableInteractionSource() }

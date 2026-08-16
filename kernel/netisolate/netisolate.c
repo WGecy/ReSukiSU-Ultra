@@ -3,7 +3,8 @@
  * netisolate - UID 级联网阻止 (内核态)
  *
  * 原理: netfilter LOCAL_OUT hook, 检查 socket 属主 UID 是否在阻止列表
- *       → 是则 NF_DROP (阻止出站连接)
+ *       → 是则 REJECT (回 ICMP port unreachable → 应用立即 ECONNREFUSED,
+ *         与 FolkPatch 一致: 应用直接认为没网, 而非丢包假有网)
  *
  * supercall 命令 (通过 KSU supercall ioctl):
  *   CMD_NETISOLATE_ENABLE      启用/禁用 (0/1)
@@ -26,6 +27,12 @@
 #include <linux/netisolate_def.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
+#include <linux/icmp.h>
+#include <net/netfilter/ipv4/nf_reject.h>
+#ifdef CONFIG_IPV6
+#include <net/netfilter/ipv6/nf_reject.h>
+#include <linux/icmpv6.h>
+#endif
 
 #define NETISOLATE_MAX_UID 256
 
@@ -66,8 +73,21 @@ static unsigned int netisolate_hook(void *priv, struct sk_buff *skb,
 		return NF_ACCEPT;
 
 	if (netisolate_uid_blocked(sk->sk_uid)) {
-		pr_info("netisolate: blocked uid=%u\n",
+		pr_info("netisolate: rejected uid=%u\n",
 			from_kuid(&init_user_ns, sk->sk_uid));
+		/* REJECT 语义: 回 ICMP port unreachable, 让应用立即 ECONNREFUSED
+		 * (LOCAL_OUT 下 dev=NULL, nf_reject_* 内部自行路由) */
+		if (skb->protocol == htons(ETH_P_IP)) {
+			nf_reject_skb_v4_unreach(state->net, skb, NULL,
+						 state->hook,
+						 ICMP_PORT_UNREACH);
+#ifdef CONFIG_IPV6
+		} else if (skb->protocol == htons(ETH_P_IPV6)) {
+			nf_reject_skb_v6_unreach(state->net, skb, NULL,
+						 state->hook,
+						 ICMPV6_PORT_UNREACH);
+#endif
+		}
 		return NF_DROP;
 	}
 	return NF_ACCEPT;

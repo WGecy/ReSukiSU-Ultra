@@ -35,7 +35,10 @@ import androidx.compose.ui.unit.dp
 import com.tesla.resukisuultra.R
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
+import org.koin.compose.koinInject
 import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateTab
+import com.tesla.resukisuultra.ui.theme.CardConfig
+import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import kotlinx.coroutines.launch
 
@@ -47,6 +50,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun ToolboxScreen() {
     val navigator = LocalNavigator.current
+    val themeConfig: ThemeConfig = koinInject()
+    val cardConfig: CardConfig = koinInject()
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
     val coroutineScope = rememberCoroutineScope()
@@ -79,15 +84,27 @@ fun ToolboxScreen() {
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors().copy(
-                        containerColor = Color.Transparent,
-                        scrolledContainerColor = Color.Transparent
+                        containerColor =
+                            if (themeConfig.isEnableBlur)
+                                Color.Transparent
+                            else
+                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+                        scrolledContainerColor =
+                            if (themeConfig.isEnableBlur)
+                                Color.Transparent
+                            else
+                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
                     ),
                     windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
                 )
 
                 PrimaryScrollableTabRow(
                     selectedTabIndex = pagerState.currentPage,
-                    containerColor = Color.Transparent,
+                    containerColor =
+                        if (themeConfig.isEnableBlur)
+                            Color.Transparent
+                        else
+                            MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
                     edgePadding = 0.dp,
                     minTabWidth = 0.dp,
                     modifier = Modifier.fillMaxWidth()

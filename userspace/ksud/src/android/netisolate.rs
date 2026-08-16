@@ -68,7 +68,7 @@ pub(crate) fn uid_clear() -> Result<()> {
     Ok(())
 }
 
-/// 开机加载: 读 /data/adb/ksu/netisolate/ 配置 → 应用到内核
+/// 开机加载: 读 /data/adb/ksu/netisolate/ 配置 → supercall 应用到内核 (纯内核 REJECT)
 pub(crate) fn apply_from_files() -> Result<()> {
     let enabled_path = format!("{CONFIG_DIR}/enabled");
     let uids_path = format!("{CONFIG_DIR}/uids");
@@ -90,3 +90,5 @@ pub(crate) fn apply_from_files() -> Result<()> {
     log::info!("netisolate: applied from files (enabled={enabled})");
     Ok(())
 }
+
+

@@ -40,6 +40,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.twotone.TaskAlt
 import androidx.compose.material.icons.twotone.Tune
+import androidx.compose.material.icons.twotone.AutoAwesome
 import androidx.compose.material.icons.twotone.Handyman
 import androidx.compose.material.icons.twotone.WifiOff
 import androidx.compose.material.icons.twotone.Warning
@@ -113,6 +114,9 @@ import com.tesla.resukisuultra.domain.usecase.EnqueueManagerUpdateUseCase
 import com.tesla.resukisuultra.magica.MagicaService
 import com.tesla.resukisuultra.ui.component.KsuIsValid
 import com.tesla.resukisuultra.ui.component.SwipeableSnackbarHost
+import com.tesla.resukisuultra.ui.component.DeviceStatusCard
+import com.tesla.resukisuultra.ui.component.HeroStatusCard
+import com.tesla.resukisuultra.ui.component.StorageInfoCard
 import com.tesla.resukisuultra.ui.component.WarningCard
 import com.tesla.resukisuultra.ui.component.rememberConfirmDialog
 import com.tesla.resukisuultra.ui.component.rememberLoadingDialog
@@ -343,16 +347,30 @@ fun HomePage(
                         )
                     }
 
-                    StatusCard(
-                        uiState = uiState,
-                        onClickInstall = {
-                            navigator.push(Route.Install(preselectedKernelUri = null))
+                    HeroStatusCard(
+                        isWorking = uiState.systemStatus.ksuVersion != null,
+                        workingText = if (uiState.systemStatus.ksuVersion != null) {
+                            if (uiState.systemStatus.isSafeMode) {
+                                stringResource(id = R.string.safe_mode)
+                            } else {
+                                stringResource(id = R.string.home_working)
+                            }
+                        } else {
+                            stringResource(R.string.home_not_installed)
                         },
+                        modeText = if (uiState.systemStatus.lkmMode == true) "LKM" else "Built-in",
+                        summaryText = stringResource(
+                            R.string.home_short_info,
+                            uiState.systemInfo.superuserCount,
+                            uiState.systemInfo.moduleCount
+                        ),
+                        versionText = uiState.systemStatus.ksuFullVersion,
+                        isPermissiveJailbreak = uiState.systemStatus.isSELinuxPermissive &&
+                            uiState.systemStatus.ksuVersion == null,
+                        onClickInstall = {},
                         onClickJailbreak = {
                             loadingDialog.showLoading()
                             context.startService(Intent(context, MagicaService::class.java))
-                            // Manager will be force-stopped and restarted by late-load on success.
-                            // If that doesn't happen within timeout, jailbreak likely failed.
                             scope.launch(Dispatchers.IO) {
                                 delay(30_000.milliseconds)
                                 withContext(Dispatchers.Main) {
@@ -392,6 +410,7 @@ fun HomePage(
                         isHideZygiskImplement = uiState.isHideZygiskImplement,
                         isHideMetaModuleImplement = uiState.isHideMetaModuleImplement,
                     )
+
                 }
 
                 // 链接卡片
@@ -520,6 +539,16 @@ private fun TopBar(
 
     LargeFlexibleTopAppBar(
         modifier = Modifier.blurEffect(),
+        navigationIcon = {
+            IconButton(onClick = {
+                navigator.push(Route.Install(preselectedKernelUri = null))
+            }) {
+                Icon(
+                    imageVector = Icons.TwoTone.AutoAwesome,
+                    contentDescription = stringResource(R.string.install),
+                )
+            }
+        },
         title = {
             Text(
                 text = stringResource(R.string.app_name)

@@ -541,8 +541,7 @@ private fun AppGroupItem(
                 contentDescription = mainApp.label,
                 modifier = Modifier
                     .padding(4.dp)
-                    .size(48.dp)
-                    .clip(CircleShape),
+                    .size(48.dp),
             )
         },
         iconPlaceholder = false,

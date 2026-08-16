@@ -133,6 +133,7 @@ fun ToolboxScreen() {
                 }
             }
         },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         HorizontalPager(

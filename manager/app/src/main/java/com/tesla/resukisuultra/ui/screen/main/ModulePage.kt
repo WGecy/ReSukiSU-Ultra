@@ -1207,6 +1207,8 @@ fun ModuleItem(
     val scope = rememberCoroutineScope()
     var isEnabled by remember(module.dirId) { mutableStateOf(module.enabled) }
     var isChangingEnabled by remember(module.dirId) { mutableStateOf(false) }
+    // FolkPatch 交互: 点击卡片展开/收起操作按钮行
+    var expanded by remember(module.dirId) { mutableStateOf(false) }
 
     LaunchedEffect(module.enabled) {
         isEnabled = module.enabled
@@ -1234,22 +1236,14 @@ fun ModuleItem(
 
         Column(
             modifier = Modifier
-                .run {
-                    if (module.hasActionScript || module.hasWebUi) {
-                        combinedClickable(
-                            onLongClick = {
-                                onModuleAddShortcut(module)
-                            },
-                            onClick = {
-                                if (module.hasWebUi) {
-                                    onClick(module)
-                                }
-                            }
-                        )
-                    } else {
-                        this
-                    }
-                }
+                .combinedClickable(
+                    onLongClick = {
+                        if (module.hasActionScript || module.hasWebUi) {
+                            onModuleAddShortcut(module)
+                        }
+                    },
+                    onClick = { expanded = !expanded },
+                )
                 .padding(22.dp, 18.dp, 22.dp, 12.dp)
         ) {
             Row(
@@ -1411,16 +1405,20 @@ fun ModuleItem(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            HorizontalDivider(thickness = Dp.Hairline)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            // FolkPatch 交互: 点击卡片展开/收起操作按钮行 (分割线同步显隐)
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn() + expandVertically(),
+                exit = shrinkVertically() + fadeOut(),
             ) {
+                Column {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(thickness = Dp.Hairline)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                 if (module.hasActionScript) {
                     FilledTonalButton(
                         modifier = Modifier.defaultMinSize(minWidth = 52.dp, minHeight = 32.dp),
@@ -1492,6 +1490,8 @@ fun ModuleItem(
                             imageVector = Icons.TwoTone.Refresh,
                             contentDescription = null
                         )
+                    }
+                }
                     }
                 }
             }

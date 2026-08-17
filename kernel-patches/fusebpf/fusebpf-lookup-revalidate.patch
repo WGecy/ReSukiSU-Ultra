@@ -1,17 +1,8 @@
 diff --git a/fs/fuse/backing.c b/fs/fuse/backing.c
+index 25fb34f..4f16036 100644
 --- a/fs/fuse/backing.c
 +++ b/fs/fuse/backing.c
-@@ -2516,3 +2516,67 @@ out:
-+/* ReSukiSU-Ultra: FUSEBPF 直通修复运行时开关 (默认开启)
-+ * 修复: 未授权 App 通过 FUSE-BPF 绕过安装列表权限读取包名 */
-+bool fuse_bpf_lookup_revalidate_enabled = true;
-+EXPORT_SYMBOL_GPL(fuse_bpf_lookup_revalidate_enabled);
-+void fuse_bpf_lookup_revalidate_set(bool enable)
-+{
-+	fuse_bpf_lookup_revalidate_enabled = enable;
-+}
-+EXPORT_SYMBOL_GPL(fuse_bpf_lookup_revalidate_set);
-
+@@ -2546,3 +2546,77 @@ ssize_t fuse_bpf_simple_request(struct fuse_mount *fm, struct fuse_bpf_args *bpf
  		};
  	return res;
  }
@@ -79,10 +70,21 @@ diff --git a/fs/fuse/backing.c b/fs/fuse/backing.c
 +		fput(feb->backing_file);
 +	return NULL;
 +}
++
++/* ReSukiSU-Ultra: FUSEBPF 直通修复运行时开关 (默认开启)
++ * 修复: 未授权 App 通过 FUSE-BPF 绕过安装列表权限读取包名 */
++bool fuse_bpf_lookup_revalidate_enabled = true;
++EXPORT_SYMBOL_GPL(fuse_bpf_lookup_revalidate_enabled);
++void fuse_bpf_lookup_revalidate_set(bool enable)
++{
++	fuse_bpf_lookup_revalidate_enabled = enable;
++}
++EXPORT_SYMBOL_GPL(fuse_bpf_lookup_revalidate_set);
 diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index 522bd04..3f8c756 100644
 --- a/fs/fuse/dir.c
 +++ b/fs/fuse/dir.c
-@@ -278,12 +278,20 @@ static int fuse_dentry_revalidate(struct dentry *entry, unsigned int flags)
+@@ -273,12 +273,20 @@ static int fuse_dentry_revalidate(struct dentry *entry, unsigned int flags)
  		parent = dget_parent(entry);
  
  #ifdef CONFIG_FUSE_BPF
@@ -108,9 +110,10 @@ diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
  		}
  #endif
 diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index baab5b6..9fb29eb 100644
 --- a/fs/fuse/fuse_i.h
 +++ b/fs/fuse/fuse_i.h
-@@ -1804,6 +1804,13 @@ int fuse_access_initialize(struct fuse_bpf_args *fa, struct fuse_access_in *fai,
+@@ -1834,6 +1834,13 @@ int fuse_access_initialize(struct fuse_bpf_args *fa, struct fuse_access_in *fai,
  int fuse_access_backing(struct fuse_bpf_args *fa, struct inode *inode, int mask);
  void *fuse_access_finalize(struct fuse_bpf_args *fa, struct inode *inode, int mask);
  

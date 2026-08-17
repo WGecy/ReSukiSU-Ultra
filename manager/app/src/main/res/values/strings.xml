@@ -289,10 +289,10 @@
     <string name="flash_failed_message">Flash failed</string>
     <string name="Lkm_install_methods">LKM repair/installation</string>
     <string name="GKI_install_methods">Flash AnyKernel3</string>
-    <string name="settings_category_core_summary">配置文件模板、SuCompat、内核卸载、Jailbreak 与隐藏选项</string>
-    <string name="settings_category_app_summary">更新检查与主题设置</string>
-    <string name="settings_category_tools_summary">发送日志、动态管理器与卸载路径管理</string>
-    <string name="settings_category_about_summary">版本信息、开源许可与关于</string>
+    <string name="settings_category_core_summary">核心设置与隐藏选项</string>
+    <string name="settings_category_app_summary">更新检查与主题</string>
+    <string name="settings_category_tools_summary">日志、动态管理器与卸载路径</string>
+    <string name="settings_category_about_summary">版本与开源许可</string>
     <string name="configuration">Configure</string>
     <string name="app_settings">Application Settings</string>
     <string name="tools">Tools</string>

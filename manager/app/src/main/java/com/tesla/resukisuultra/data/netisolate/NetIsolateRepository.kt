@@ -49,8 +49,9 @@ class NetIsolateRepository(
         syncToKernel()
     }
 
-    /** 调 ksud netisolate 命令: 读配置文件 → supercall 实时应用到内核 */
+    /** 调 ksud net-isolate 命令: 读配置文件 → supercall 实时应用到内核
+     *  (注意: clap kebab-case, 命令名是 net-isolate 不是 netisolate) */
     private suspend fun syncToKernel() {
-        ksuCli.execKsud("netisolate", newShell = true)
+        ksuCli.execKsud("net-isolate", newShell = true)
     }
 }

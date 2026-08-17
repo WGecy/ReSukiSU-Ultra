@@ -20,6 +20,7 @@ fn fusebpfctl(val: u32) -> i64 {
             CMD_FUSEBPF_SET,
             &val as *const u32 as usize,
         )
+        .into()
     }
 }
 

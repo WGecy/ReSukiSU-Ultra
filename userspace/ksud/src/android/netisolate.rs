@@ -29,6 +29,7 @@ fn netisolatectl<T>(cmd: u64, arg: &mut T) -> i64 {
             cmd,
             std::ptr::from_mut::<T>(arg),
         )
+        .into()
     }
 }
 

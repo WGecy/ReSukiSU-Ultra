@@ -24,7 +24,6 @@
 #include <linux/skbuff.h>
 #include <linux/net.h>
 #include <net/sock.h>
-#include <linux/susfs_def.h>
 #include <linux/netisolate_def.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>

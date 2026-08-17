@@ -343,11 +343,17 @@ static int netisolate_feature_get(u64 *value)
 	return 0;
 }
 
+static int netisolate_feature_set(u64 value)
+{
+	netisolate_set_enabled(value != 0);
+	return 0;
+}
+
 static const struct ksu_feature_handler netisolate_handler = {
 	.feature_id = KSU_FEATURE_NETISOLATE,
 	.name = "netisolate",
 	.get_handler = netisolate_feature_get,
-	.set_handler = NULL,
+	.set_handler = netisolate_feature_set,
 };
 
 static int __init netisolate_register_feature(void)

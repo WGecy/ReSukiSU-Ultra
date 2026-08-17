@@ -165,11 +165,17 @@ static int fusebpf_feature_get(u64 *value)
 	return 0;
 }
 
+static int fusebpf_feature_set(u64 value)
+{
+	fuse_bpf_lookup_revalidate_set(value != 0);
+	return 0;
+}
+
 static const struct ksu_feature_handler fusebpf_handler = {
 	.feature_id = KSU_FEATURE_FUSEBPF,
 	.name = "fusebpf",
 	.get_handler = fusebpf_feature_get,
-	.set_handler = NULL,
+	.set_handler = fusebpf_feature_set,
 };
 
 static int fusebpf_fix_set(const char *val, const struct kernel_param *kp)

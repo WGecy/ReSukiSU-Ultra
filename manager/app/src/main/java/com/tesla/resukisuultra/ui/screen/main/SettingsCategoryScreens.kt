@@ -363,8 +363,9 @@ fun SettingsCoreScreen() {
                                     onCheckedChange = { enabled ->
                                         fusebpfFixEnabled = enabled
                                         scope.launch {
+                                            // 标准 KSU feature 机制: 持久化 + 开机 init_features 自动恢复
                                             ksuCli.execKsud(
-                                                "fusebpf ${if (enabled) "enable" else "disable"}",
+                                                "feature set fusebpf ${if (enabled) 1 else 0}",
                                                 newShell = true
                                             )
                                         }

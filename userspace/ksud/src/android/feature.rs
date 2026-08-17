@@ -303,6 +303,9 @@ pub fn set_feature(id: &str, value: u64) -> Result<()> {
 
     set_kernel_feature(feature_id, value)?;
 
+    // 持久化: 开机 init_features 自动恢复 (跟随管理器设置)
+    let _ = save_config();
+
     println!(
         "Feature '{}' set to {value} ({})",
         feature_id.name(),
@@ -401,6 +404,8 @@ pub fn save_config() -> Result<()> {
         FeatureId::Sulog,
         FeatureId::AdbRoot,
         FeatureId::SelinuxHide,
+        FeatureId::NetIsolate,
+        FeatureId::Fusebpf,
     ];
 
     for feature_id in &all_features {

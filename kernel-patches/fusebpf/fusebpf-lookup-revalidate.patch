@@ -110,15 +110,18 @@ index 522bd04..3f8c756 100644
  		}
  #endif
 diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index baab5b6..9fb29eb 100644
+index baab5b6..a6ebef2 100644
 --- a/fs/fuse/fuse_i.h
 +++ b/fs/fuse/fuse_i.h
-@@ -1834,6 +1834,13 @@ int fuse_access_initialize(struct fuse_bpf_args *fa, struct fuse_access_in *fai,
+@@ -1834,6 +1834,16 @@ int fuse_access_initialize(struct fuse_bpf_args *fa, struct fuse_access_in *fai,
  int fuse_access_backing(struct fuse_bpf_args *fa, struct inode *inode, int mask);
  void *fuse_access_finalize(struct fuse_bpf_args *fa, struct inode *inode, int mask);
  
 +int fuse_lookup_revalidate_initialize(struct fuse_bpf_args *fa, struct fuse_lookup_io *feo,
 +	       struct inode *dir, struct dentry *entry, unsigned int flags);
++
++/* ReSukiSU-Ultra: FUSEBPF 直通修复开关 */
++extern bool fuse_bpf_lookup_revalidate_enabled;
 +int fuse_lookup_revalidate_backing(struct fuse_bpf_args *fa, struct inode *dir,
 +			  struct dentry *entry, unsigned int flags);
 +void *fuse_lookup_revalidate_finalize(struct fuse_bpf_args *fa, struct inode *dir,

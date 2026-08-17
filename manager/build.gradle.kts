@@ -17,8 +17,9 @@ extra["managerVersionCode"] = 30000 + getGitCommitCount() + 800
 extra["managerVersionName"] = getGitDescribe()
 
 fun getGitCommitCount(): Int {
+    // 用 origin/main (与内核构建 fetch 后的 commit 数一致, 保证版本对齐)
     return providers.exec {
-        commandLine("git", "rev-list", "--count", "HEAD")
+        commandLine("sh", "-c", "git rev-list --count origin/main 2>/dev/null || git rev-list --count HEAD")
     }.standardOutput.asText.get().trim().toInt()
 }
 

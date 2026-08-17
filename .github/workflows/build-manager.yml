@@ -384,3 +384,40 @@ jobs:
           export VERSION=$(git rev-list --count HEAD)
           APK_RELEASE=apk/release/*.apk
           python3 $GITHUB_WORKSPACE/scripts/ksubot.py $APK_RELEASE
+
+  publish-release:
+    needs: [repack-manager]
+    if: github.event_name != 'pull_request' && github.event_name != 'workflow_call'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Download Manager artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: manager
+          name: "Manager-release"
+          merge-multiple: true
+
+      - name: 计算版本号
+        id: version
+        run: |
+          VERSION=$(git rev-list --count HEAD)
+          echo "VERSION_CODE=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=v4.3.0_$VERSION" >> $GITHUB_OUTPUT
+
+      - name: 发布 Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.TAG_NAME }}
+          name: "ReSukiSU-Ultra ${{ steps.version.outputs.TAG_NAME }}"
+          body: |
+            自动构建产物 (ReSukiSU-Ultra 分支)
+            - 版本: ${{ steps.version.outputs.TAG_NAME }}
+            - 提交: ${{ github.sha }}
+          files: manager/*.apk
+          prerelease: true
+          fail_on_unmatched_files: false

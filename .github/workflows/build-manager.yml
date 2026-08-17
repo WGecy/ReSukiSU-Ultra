@@ -411,6 +411,11 @@ jobs:
           echo "VERSION_CODE=$VERSION" >> $GITHUB_OUTPUT
           echo "TAG_NAME=v4.3.0_$VERSION" >> $GITHUB_OUTPUT
 
+      - name: 准备固定名资产
+        run: |
+          # 固定名 universal APK: get-manager 用 latest/download 直连下载 (无需 API)
+          cp manager/*universal-release.apk manager/ReSukiSU-Ultra-universal.apk
+
       - name: 发布 Release
         uses: softprops/action-gh-release@v3
         with:

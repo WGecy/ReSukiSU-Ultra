@@ -337,42 +337,6 @@ fun SettingsCoreScreen() {
                                 )
                             }
 
-                            item(
-                                visible = runCatching {
-                                    KsuCliRepository(context).exec(
-                                        "/data/adb/ksu/bin/ksud feature check fusebpf"
-                                    )?.contains("supported") == true
-                                }.getOrDefault(false)
-                            ) {
-                                // FUSEBPF 直通修复开关 (ReSukiSU-Ultra)
-                                val ksuCli = remember { KsuCliRepository(context) }
-                                var fusebpfFixEnabled by remember { mutableStateOf(false) }
-                                LaunchedEffect(Unit) {
-                                    // param_get_bool 输出 Y/N (内核 bool 参数惯例)
-                                    val raw = ksuCli.exec(
-                                        "cat /sys/module/kernelsu/parameters/fusebpf_fix"
-                                    )?.trim().orEmpty()
-                                    fusebpfFixEnabled = raw.equals("1", true) ||
-                                        raw.equals("Y", true) || raw.equals("true", true)
-                                }
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.DataUsage,
-                                    title = stringResource(R.string.settings_fusebpf_fix),
-                                    description = stringResource(R.string.settings_fusebpf_fix_summary),
-                                    checked = fusebpfFixEnabled,
-                                    onCheckedChange = { enabled ->
-                                        fusebpfFixEnabled = enabled
-                                        scope.launch {
-                                            // 标准 KSU feature 机制: 持久化 + 开机 init_features 自动恢复
-                                            ksuCli.execKsud(
-                                                "feature set fusebpf ${if (enabled) 1 else 0}",
-                                                newShell = true
-                                            )
-                                        }
-                                    },
-                                )
-                            }
-
                             item {
                                 // 伪装 BL 锁状态开关
                                 var fakeLockEnabled by remember { mutableStateOf(false) }

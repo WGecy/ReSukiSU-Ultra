@@ -25,10 +25,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,6 +38,7 @@ import com.tesla.resukisuultra.R
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import org.koin.compose.koinInject
+import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateTab
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
@@ -56,16 +59,27 @@ fun ToolboxScreen() {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
     val coroutineScope = rememberCoroutineScope()
 
-    val subpages = listOf(
-        ToolboxSubpage(
-            title = stringResource(R.string.netisolate_title),
-        ) { innerPadding, nestedScrollConnection ->
-            NetIsolateTab(
-                innerPadding = innerPadding,
-                nestedScrollConnection = nestedScrollConnection,
-            )
-        },
-    )
+    // 内核支持检测: netisolate 只在内核集成时显示 (ksud feature check)
+    val context = LocalContext.current
+    val netisolateSupported = remember {
+        runCatching {
+            KsuCliRepository(context).exec("/data/adb/ksu/bin/ksud feature check netisolate")
+                ?.contains("supported") == true
+        }.getOrDefault(false)
+    }
+
+    val subpages = buildList {
+        if (netisolateSupported) {
+            add(ToolboxSubpage(
+                title = stringResource(R.string.netisolate_title),
+            ) { innerPadding, nestedScrollConnection ->
+                NetIsolateTab(
+                    innerPadding = innerPadding,
+                    nestedScrollConnection = nestedScrollConnection,
+                )
+            })
+        }
+    }
 
     val pagerState = rememberPagerState(
         initialPage = 0,

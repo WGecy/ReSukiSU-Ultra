@@ -157,6 +157,20 @@ module_param_named(norc, ksu_no_custom_rc, bool, 0);
 /* ReSukiSU-Ultra: FUSEBPF 直通修复开关 (控制 fs/fuse lookup revalidate 的 BPF 结果尊重) */
 #ifdef CONFIG_KSU_FUSEBPF_FIX
 extern void fuse_bpf_lookup_revalidate_set(bool enable);
+extern bool fuse_bpf_lookup_revalidate_enabled;
+
+static int fusebpf_feature_get(u64 *value)
+{
+	*value = fuse_bpf_lookup_revalidate_enabled ? 1 : 0;
+	return 0;
+}
+
+static const struct ksu_feature_handler fusebpf_handler = {
+	.feature_id = KSU_FEATURE_FUSEBPF,
+	.name = "fusebpf",
+	.get_handler = fusebpf_feature_get,
+	.set_handler = NULL,
+};
 
 static int fusebpf_fix_set(const char *val, const struct kernel_param *kp)
 {
@@ -176,6 +190,10 @@ module_param_cb(fusebpf_fix, &fusebpf_fix_ops, &fusebpf_fix_enabled, 0644);
 
 int __init kernelsu_init(void)
 {
+#ifdef CONFIG_KSU_FUSEBPF_FIX
+    if (ksu_register_feature_handler(&fusebpf_handler))
+        pr_err("Failed to register fusebpf feature handler\n");
+#endif
     // clang-format off
     
     // ddk in x86-64 doesn't have generated/compile.h

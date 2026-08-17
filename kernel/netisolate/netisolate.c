@@ -333,3 +333,28 @@ module_exit(netisolate_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("UID-level network isolation (ReSukiSU Ultra)");
+
+#ifdef CONFIG_KSU_FEATURE
+#include "policy/feature.h"
+
+static int netisolate_feature_get(u64 *value)
+{
+	*value = netisolate_is_enabled() ? 1 : 0;
+	return 0;
+}
+
+static const struct ksu_feature_handler netisolate_handler = {
+	.feature_id = KSU_FEATURE_NETISOLATE,
+	.name = "netisolate",
+	.get_handler = netisolate_feature_get,
+	.set_handler = NULL,
+};
+
+static int __init netisolate_register_feature(void)
+{
+	if (ksu_register_feature_handler(&netisolate_handler))
+		pr_err("netisolate: failed to register feature\n");
+	return 0;
+}
+late_initcall(netisolate_register_feature);
+#endif

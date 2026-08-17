@@ -337,7 +337,13 @@ fun SettingsCoreScreen() {
                                 )
                             }
 
-                            item {
+                            item(
+                                visible = runCatching {
+                                    KsuCliRepository(context).exec(
+                                        "/data/adb/ksu/bin/ksud feature check fusebpf"
+                                    )?.contains("supported") == true
+                                }.getOrDefault(false)
+                            ) {
                                 // FUSEBPF 直通修复开关 (ReSukiSU-Ultra)
                                 val ksuCli = remember { KsuCliRepository(context) }
                                 var fusebpfFixEnabled by remember { mutableStateOf(false) }

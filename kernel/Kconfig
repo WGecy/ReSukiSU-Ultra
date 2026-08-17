@@ -248,6 +248,14 @@ endmenu
 
 endmenu
 
+config KSU_FUSEBPF_FIX
+	bool "FUSEBPF 直通修复 (防止未授权读取包名)"
+	default y
+	depends on KSU
+	help
+	  ReSukiSU-Ultra: 让 FUSE-BPF lookup revalidate 尊重 BPF 结果,
+	  防止未授权应用绕过安装列表权限读取包名目录
+
 config KSU_NETISOLATE
 	bool "Kernel-level UID network isolation"
 	default y

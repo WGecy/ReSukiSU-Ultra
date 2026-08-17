@@ -39,6 +39,7 @@ import androidx.compose.material.icons.twotone.FolderDelete
 import androidx.compose.material.icons.twotone.FolderOff
 import androidx.compose.material.icons.twotone.GppGood
 import androidx.compose.material.icons.twotone.Info
+import androidx.compose.material.icons.twotone.DataUsage
 import androidx.compose.material.icons.twotone.Policy
 import androidx.compose.material.icons.twotone.RadioButtonChecked
 import androidx.compose.material.icons.twotone.RadioButtonUnchecked
@@ -332,6 +333,32 @@ fun SettingsCoreScreen() {
                                                 checked
                                             )
                                         )
+                                    },
+                                )
+                            }
+
+                            item {
+                                // FUSEBPF 直通修复开关 (ReSukiSU-Ultra)
+                                val ksuCli = remember { KsuCliRepository(context) }
+                                var fusebpfFixEnabled by remember { mutableStateOf(false) }
+                                LaunchedEffect(Unit) {
+                                    fusebpfFixEnabled = ksuCli.exec(
+                                        "cat /sys/module/kernelsu/parameters/fusebpf_fix"
+                                    )?.trim() == "1"
+                                }
+                                SettingsSwitchWidget(
+                                    icon = Icons.TwoTone.DataUsage,
+                                    title = stringResource(R.string.settings_fusebpf_fix),
+                                    description = stringResource(R.string.settings_fusebpf_fix_summary),
+                                    checked = fusebpfFixEnabled,
+                                    onCheckedChange = { enabled ->
+                                        fusebpfFixEnabled = enabled
+                                        scope.launch {
+                                            ksuCli.execKsud(
+                                                "fusebpf ${if (enabled) "enable" else "disable"}",
+                                                newShell = true
+                                            )
+                                        }
                                     },
                                 )
                             }

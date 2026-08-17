@@ -591,6 +591,8 @@
     <string name="netisolate_blocked">已阻止</string>
     <string name="netisolate_add_selected">添加所选 (%1$d)</string>
     <string name="netisolate_show_system">显示系统应用</string>
+    <string name="settings_fusebpf_fix">FUSEBPF 直通修复</string>
+    <string name="settings_fusebpf_fix_summary">防止未授权应用通过 FUSE-BPF 绕过安装列表权限读取包名</string>
     <string name="settings_fake_lock">隐藏Bootloader解锁状态</string>
     <string name="settings_fake_lock_summary">一定程度上隐藏Bootloader锁解锁状态</string>
     <string name="settings_fake_lock_enabled">已启用伪装</string>

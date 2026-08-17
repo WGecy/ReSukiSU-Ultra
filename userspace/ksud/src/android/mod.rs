@@ -3,6 +3,7 @@ mod debug;
 mod dynamic_manager;
 mod feature;
 mod fakelock;
+mod fusebpf;
 mod init_event;
 mod netisolate;
 mod ksucalls;

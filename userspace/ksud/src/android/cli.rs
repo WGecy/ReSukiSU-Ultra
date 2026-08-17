@@ -169,6 +169,12 @@ enum Commands {
     /// ReSukiSU-Ultra: 联网隔离 (读取配置文件应用到内核 supercall)
     NetIsolate,
 
+    /// ReSukiSU-Ultra: FUSEBPF 直通修复开关
+    Fusebpf {
+        #[command(subcommand)]
+        command: FusebpfOp,
+    },
+
     /// Manage initrc injection
     Initrc {
         #[command(subcommand)]
@@ -517,6 +523,14 @@ enum Kernel {
 }
 
 #[derive(clap::Subcommand, Debug)]
+enum FusebpfOp {
+    /// 开启修复 (默认)
+    Enable,
+    /// 关闭修复 (直通)
+    Disable,
+}
+
+#[derive(clap::Subcommand, Debug)]
 enum DynamicManagerOp {
     /// Get the signature of the current dynamic manager (size+hash)
     Get {
@@ -599,6 +613,10 @@ pub fn run() -> Result<()> {
         Commands::AnyKernel3 { zip, slot } => anykernel3::flash(&zip, slot),
         Commands::Susfs(args) => crate::android::susfs::cli::run_main(args),
         Commands::NetIsolate => crate::android::netisolate::apply_from_files(),
+        Commands::Fusebpf { command } => match command {
+            FusebpfOp::Enable => crate::android::fusebpf::set(true),
+            FusebpfOp::Disable => crate::android::fusebpf::set(false),
+        },
         Commands::PostFsData => init_event::on_post_data_fs(),
         Commands::BootCompleted => {
             init_event::on_boot_completed();

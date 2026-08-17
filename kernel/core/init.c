@@ -154,6 +154,26 @@ bool allow_shell = false;
 bool ksu_no_custom_rc = false;
 module_param_named(norc, ksu_no_custom_rc, bool, 0);
 
+/* ReSukiSU-Ultra: FUSEBPF 直通修复开关 (控制 fs/fuse lookup revalidate 的 BPF 结果尊重) */
+#ifdef CONFIG_KSU_FUSEBPF_FIX
+extern void fuse_bpf_lookup_revalidate_set(bool enable);
+
+static int fusebpf_fix_set(const char *val, const struct kernel_param *kp)
+{
+	int ret = param_set_bool(val, kp);
+	if (ret == 0)
+		fuse_bpf_lookup_revalidate_set(*(bool *)kp->arg);
+	return ret;
+}
+
+static const struct kernel_param_ops fusebpf_fix_ops = {
+	.set = fusebpf_fix_set,
+	.get = param_get_bool,
+};
+static bool fusebpf_fix_enabled = true;
+module_param_cb(fusebpf_fix, &fusebpf_fix_ops, &fusebpf_fix_enabled, 0644);
+#endif
+
 int __init kernelsu_init(void)
 {
     // clang-format off

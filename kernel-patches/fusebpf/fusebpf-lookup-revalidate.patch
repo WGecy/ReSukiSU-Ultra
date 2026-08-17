@@ -2,6 +2,16 @@ diff --git a/fs/fuse/backing.c b/fs/fuse/backing.c
 --- a/fs/fuse/backing.c
 +++ b/fs/fuse/backing.c
 @@ -2516,3 +2516,67 @@ out:
++/* ReSukiSU-Ultra: FUSEBPF 直通修复运行时开关 (默认开启)
++ * 修复: 未授权 App 通过 FUSE-BPF 绕过安装列表权限读取包名 */
++bool fuse_bpf_lookup_revalidate_enabled = true;
++EXPORT_SYMBOL_GPL(fuse_bpf_lookup_revalidate_enabled);
++void fuse_bpf_lookup_revalidate_set(bool enable)
++{
++	fuse_bpf_lookup_revalidate_enabled = enable;
++}
++EXPORT_SYMBOL_GPL(fuse_bpf_lookup_revalidate_set);
+
  		};
  	return res;
  }
@@ -90,7 +100,7 @@ diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
 +						dir, entry, flags);
  			dput(parent);
 -			ret = 1;
-+			if (fer.ret && PTR_ERR(fer.result))
++			if (fuse_bpf_lookup_revalidate_enabled && fer.ret && PTR_ERR(fer.result))
 +				ret = PTR_ERR(fer.result);
 +			else
 +				ret = 1;

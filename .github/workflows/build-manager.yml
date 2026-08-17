@@ -71,14 +71,6 @@ jobs:
           echo "Certificate size: $SIZE_HEX ($SIZE_DEC bytes)"
           echo "Certificate hash: $HASH"
 
-  build-lkm:
-    needs: generate-key
-    uses: ./.github/workflows/build-lkm.yml
-    with:
-      expected_pr_build_size: ${{ needs.generate-key.outputs.expected_size || '' }}
-      expected_pr_build_hash: ${{ needs.generate-key.outputs.expected_hash || '' }}
-    secrets: inherit
-
   build-ksuinit:
     uses: ./.github/workflows/ksuinit.yml
 
@@ -97,6 +89,7 @@ jobs:
     with:
       target: ${{ matrix.target }}
       os: ${{ matrix.os }}
+      pack_lkm: false
 
   build-manager:
     needs: [generate-key]

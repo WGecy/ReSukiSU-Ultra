@@ -14,5 +14,6 @@ pub(crate) fn set(enabled: bool) -> Result<()> {
 pub(crate) fn get() -> Result<bool> {
     let v = fs::read_to_string(SYSFS_PARAM)
         .with_context(|| format!("read {SYSFS_PARAM} failed"))?;
-    Ok(v.trim() == "1")
+    let t = v.trim().to_ascii_lowercase();
+    Ok(t == "1" || t == "y" || t == "true" || t == "yes")
 }

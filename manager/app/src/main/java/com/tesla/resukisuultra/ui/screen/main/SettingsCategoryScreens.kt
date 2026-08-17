@@ -348,9 +348,12 @@ fun SettingsCoreScreen() {
                                 val ksuCli = remember { KsuCliRepository(context) }
                                 var fusebpfFixEnabled by remember { mutableStateOf(false) }
                                 LaunchedEffect(Unit) {
-                                    fusebpfFixEnabled = ksuCli.exec(
+                                    // param_get_bool 输出 Y/N (内核 bool 参数惯例)
+                                    val raw = ksuCli.exec(
                                         "cat /sys/module/kernelsu/parameters/fusebpf_fix"
-                                    )?.trim() == "1"
+                                    )?.trim().orEmpty()
+                                    fusebpfFixEnabled = raw.equals("1", true) ||
+                                        raw.equals("Y", true) || raw.equals("true", true)
                                 }
                                 SettingsSwitchWidget(
                                     icon = Icons.TwoTone.DataUsage,

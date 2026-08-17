@@ -83,7 +83,7 @@ jobs:
     uses: ./.github/workflows/ksuinit.yml
 
   build-ksud:
-    needs: [build-lkm, build-ksuinit]
+    needs: [build-ksuinit]
     strategy:
       matrix:
         include:

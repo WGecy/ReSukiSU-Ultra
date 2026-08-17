@@ -416,10 +416,16 @@ jobs:
           # 固定名 universal APK: get-manager 用 latest/download 直连下载 (无需 API)
           cp manager/*universal-release.apk manager/ReSukiSU-Ultra-universal.apk
 
+      - name: 删除旧 Release (固定 tag v4.3.0-latest)
+        continue-on-error: true
+        run: |
+          # 固定 tag: get-manager 用稳定 URL 下载 (无需 API/latest 重定向)
+          gh release delete v4.3.0-latest --repo ${{ github.repository }} --yes --cleanup-tag
+
       - name: 发布 Release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ steps.version.outputs.TAG_NAME }}
+          tag_name: v4.3.0-latest
           name: "ReSukiSU-Ultra ${{ steps.version.outputs.TAG_NAME }}"
           body: |
             自动构建产物 (ReSukiSU-Ultra 分支)

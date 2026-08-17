@@ -388,6 +388,8 @@ jobs:
   publish-release:
     needs: [repack-manager]
     if: github.event_name != 'pull_request' && github.event_name != 'workflow_call'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -1,4 +1,8 @@
 package com.tesla.resukisuultra.ui.screen.main
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.material.icons.twotone.AddLink
 
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -1417,11 +1421,21 @@ fun ModuleItem(
                 }
             }
 
-            // FolkPatch 交互: 点击卡片展开/收起操作按钮行 (分割线同步显隐)
+            // FolkPatch 交互: 点击卡片展开/收起操作按钮行 (spring 动画)
             AnimatedVisibility(
                 visible = expanded,
-                enter = fadeIn() + expandVertically(),
-                exit = shrinkVertically() + fadeOut(),
+                enter = fadeIn(tween(150)) + expandVertically(
+                    animationSpec = spring(
+                        dampingRatio = 0.8f,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                ),
+                exit = shrinkVertically(
+                    animationSpec = spring(
+                        dampingRatio = 0.8f,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                ) + fadeOut(tween(150)),
             ) {
                 Column {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1461,6 +1475,22 @@ fun ModuleItem(
                             modifier = Modifier.size(20.dp),
                             imageVector = Icons.AutoMirrored.TwoTone.Wysiwyg,
                             contentDescription = null
+                        )
+                    }
+                }
+
+                // 快捷方式 (仿 FolkPatch: 创建桌面快捷方式)
+                if (module.hasWebUi || module.hasActionScript) {
+                    FilledTonalButton(
+                        modifier = Modifier.defaultMinSize(minWidth = 52.dp, minHeight = 32.dp),
+                        enabled = !module.remove && isEnabled,
+                        onClick = { onModuleAddShortcut(module) },
+                        contentPadding = ButtonDefaults.TextButtonContentPadding,
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(20.dp),
+                            imageVector = Icons.TwoTone.AddLink,
+                            contentDescription = null,
                         )
                     }
                 }

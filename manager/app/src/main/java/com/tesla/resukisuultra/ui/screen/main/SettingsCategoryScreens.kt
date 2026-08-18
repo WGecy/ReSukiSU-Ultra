@@ -639,7 +639,7 @@ fun SettingsToolsScreen() {
                                     icon = Icons.TwoTone.BugReport,
                                     title = stringResource(R.string.send_log),
                                     onClick = {
-                                        showBottomsheet = true
+                                        exportBugreportLauncher.launch("bugreport.tar.gz")
                                     }
                                 ) {}
                             }

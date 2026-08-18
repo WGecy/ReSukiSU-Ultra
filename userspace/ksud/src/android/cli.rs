@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use crate::android::nomount::{self, cli::NoMountArgs};
 use android_logger::Config;
 use anyhow::{Context, Ok, Result};
 use clap::Parser;
@@ -165,6 +166,10 @@ enum Commands {
 
     /// Manage susfs component
     Susfs(susfs::cli::SusfsArgs),
+
+    /// NoMount: VFS 路径重定向管理
+    #[command(name = "nomount")]
+    NoMount(NoMountArgs),
 
     /// ReSukiSU-Ultra: 联网隔离 (读取配置文件应用到内核 supercall)
     NetIsolate,
@@ -612,6 +617,7 @@ pub fn run() -> Result<()> {
     let result = match cli.command {
         Commands::AnyKernel3 { zip, slot } => anykernel3::flash(&zip, slot),
         Commands::Susfs(args) => crate::android::susfs::cli::run_main(args),
+        Commands::NoMount(args) => nomount::cli::run_main(args),
         Commands::NetIsolate => crate::android::netisolate::apply_from_files(),
         Commands::Fusebpf { command } => match command {
             FusebpfOp::Enable => crate::android::fusebpf::set(true),

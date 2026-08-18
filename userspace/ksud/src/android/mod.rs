@@ -6,6 +6,7 @@ mod fakelock;
 mod fusebpf;
 mod init_event;
 mod netisolate;
+pub mod nomount;
 mod ksucalls;
 mod late_load;
 mod module;

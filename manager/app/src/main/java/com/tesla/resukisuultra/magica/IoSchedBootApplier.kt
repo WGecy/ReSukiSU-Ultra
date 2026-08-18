@@ -30,11 +30,31 @@ object IoSchedBootApplier : KoinComponent {
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             // 开机早期 su/ksud 可能未就绪: 延迟 + 重试
             delay(5000)
+            var applied = false
             repeat(3) {
-                if (applyScheduler(saved)) return@launch
+                if (applyScheduler(saved)) {
+                    applied = true
+                    return@repeat
+                }
                 delay(5000)
             }
-            Log.w(TAG, "应用 IO 调度器 $saved 失败 (3 次重试)")
+            if (!applied) {
+                Log.w(TAG, "应用 IO 调度器 $saved 失败 (3 次重试)")
+                return@launch
+            }
+            Log.i(TAG, "开机应用 IO 调度器: $saved")
+            // 厂商 init 开机 5s 内会写 cpq, 监听 10s (每 2s 检查, 被覆盖就纠正; 保持则提前结束)
+            repeat(5) {
+                delay(2_000)
+                val cur = ksuCli.exec("cat /sys/block/sda/queue/scheduler").orEmpty()
+                if (cur.contains("[$saved]")) {
+                    Log.i(TAG, "监听结束: 调度器保持 $saved")
+                    return@launch
+                }
+                if (applyScheduler(saved)) {
+                    Log.i(TAG, "监听纠正: 被覆盖(当前 ${cur.trim()}), 已写回 $saved")
+                }
+            }
         }
     }
 

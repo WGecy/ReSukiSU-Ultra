@@ -44,6 +44,11 @@ class IoSchedulerViewModel(
             val primary = devices.firstOrNull { it.name == "sda" }
                 ?: devices.firstOrNull()
             val pinned = settingsRepository.getString(PREF_KEY)
+            val current = primary?.current.orEmpty()
+            // 事件驱动同步: 固化开着且被外部覆盖(厂商 init 等) → 自动纠正 (用户打开工具箱即生效)
+            if (pinned != null && current.isNotBlank() && current != pinned) {
+                restoreScheduler(pinned)
+            }
             mutableState.value = IoSchedulerUiState(
                 devices = devices,
                 current = primary?.current.orEmpty(),
@@ -51,6 +56,18 @@ class IoSchedulerViewModel(
                 loaded = true,
                 pinned = pinned,
             )
+        }
+    }
+
+    private fun restoreScheduler(name: String) {
+        var success = false
+        for (dev in mutableState.value.devices) {
+            ksuCli.exec("echo $name > /sys/block/${dev.name}/queue/scheduler")
+            val cur = ksuCli.exec("cat /sys/block/${dev.name}/queue/scheduler").orEmpty()
+            if (cur.contains("[$name]")) success = true
+        }
+        if (success) {
+            android.util.Log.i("IoSchedulerVM", "打开时同步: 已纠正为 $name")
         }
     }
 

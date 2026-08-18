@@ -6,9 +6,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -16,6 +18,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
@@ -120,6 +123,8 @@ fun ToolboxScreen() {
                     windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
                 )
 
+                // 注意: subpages 为空 (支持检测中) 时不渲染 TabRow — 空 tabs 会 IndexOutOfBounds 崩溃
+                if (subpages.isNotEmpty()) {
                 PrimaryScrollableTabRow(
                     selectedTabIndex = pagerState.currentPage,
                     containerColor =
@@ -153,17 +158,28 @@ fun ToolboxScreen() {
                         }
                     }
                 }
+                }
             }
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        HorizontalPager(
-            modifier = Modifier.fillMaxSize(),
-            state = pagerState,
-            beyondViewportPageCount = 1,
-        ) { page ->
-            subpages[page].content(innerPadding, scrollBehavior.nestedScrollConnection)
+        if (subpages.isEmpty()) {
+            // 支持检测中 — 占位 (不渲染空 Pager, 防空 pageCount 崩溃)
+            Box(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                contentAlignment = Alignment.Center,
+            ) {
+                LoadingIndicator()
+            }
+        } else {
+            HorizontalPager(
+                modifier = Modifier.fillMaxSize(),
+                state = pagerState,
+                beyondViewportPageCount = 1,
+            ) { page ->
+                subpages[page].content(innerPadding, scrollBehavior.nestedScrollConnection)
+            }
         }
     }
 }

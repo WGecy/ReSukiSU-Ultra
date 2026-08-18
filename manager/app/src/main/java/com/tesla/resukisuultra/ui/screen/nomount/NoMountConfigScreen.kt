@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -54,6 +55,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -90,6 +92,7 @@ import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
+import com.tesla.resukisuultra.ui.theme.renderBackgroundBlur
 import com.tesla.resukisuultra.ui.viewmodel.NoMountUiAction
 import com.tesla.resukisuultra.ui.viewmodel.NoMountUiState
 import com.tesla.resukisuultra.ui.viewmodel.NoMountViewModel
@@ -113,6 +116,11 @@ fun NoMountConfigScreen() {
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
+
+    // 仿 SUSFS: 进入页面/切 tab 才读取数据 (懒加载, 避免卡顿)
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.loadTab(pagerState.currentPage)
+    }
 
     val removeConfirmTitle = stringResource(R.string.nomount_remove_confirm_title)
     val removeConfirmMessage = stringResource(R.string.nomount_remove_confirm_message)
@@ -390,43 +398,46 @@ private fun ModuleCard(
         else -> MaterialTheme.colorScheme.primary
     }
 
-    // 仿 ModuleItem (模块管理页卡片): Surface 圆角卡片 + 图标 + 名称 + 状态 + 操作
+    // 完整仿 ModuleItem (模块管理页卡片): Surface + blur + 名称/状态行 + 操作
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .renderBackgroundBlur(),
         color =
             if (themeConfig.isEnableBlurExp)
                 Color.Transparent
             else
                 MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha),
+        shape = RoundedCornerShape(16.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.padding(22.dp, 18.dp, 22.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = Icons.TwoTone.Folder,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = module.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    fontWeight = FontWeight.SemiBold,
+                    lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
+                    fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = statusText,
                     color = statusColor,
-                    style = MaterialTheme.typography.labelMedium,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                    lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
+                    fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
                 )
                 Text(
                     text = moduleSummary,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                    lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
+                    fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
                 )
             }
             Spacer(Modifier.width(8.dp))
@@ -709,6 +720,7 @@ private fun NoMountExclusionPickerSheet(
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
+    val cardConfig: CardConfig = koinInject()
     val pm = context.packageManager
     var searchQuery by remember { mutableStateOf("") }
     var showSystem by remember { mutableStateOf(false) }
@@ -770,7 +782,7 @@ private fun NoMountExclusionPickerSheet(
 
             Spacer(Modifier.height(8.dp))
 
-            // 搜索框 (支持文字/UID)
+            // 搜索框 (统一模块管理页样式: 圆形 + surfaceContainerHighest + 无指示线)
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -782,9 +794,13 @@ private fun NoMountExclusionPickerSheet(
                     placeholder = { Text(stringResource(R.string.search_apps)) },
                     leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                     singleLine = true,
+                    shape = CircleShape,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = cardConfig.cardAlpha),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = cardConfig.cardAlpha),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
                     ),
                 )
             }

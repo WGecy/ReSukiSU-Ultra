@@ -24,7 +24,8 @@ data class NoMountUiState(
     val customRules: List<NoMountRule> = emptyList(),
     val modules: List<NoMountModule> = emptyList(),
     val exclusions: List<Long> = emptyList(),
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
+    val loadedTabs: Set<Int> = emptySet(),
     val error: String? = null,
 )
 
@@ -45,17 +46,73 @@ class NoMountViewModel(
     private val mutableState = MutableStateFlow(NoMountUiState())
     val uiState: StateFlow<NoMountUiState> = mutableState.asStateFlow()
 
-    init {
-        refresh()
+    /** 按 tab 懒加载 (仿 SUSFS: 进入页面/切 tab 才读取数据) — 避免进入页面卡顿 */
+    fun loadTab(tab: Int) {
+        val current = mutableState.value
+        if (tab in current.loadedTabs || current.isLoading) return
+        viewModelScope.launch {
+            mutableState.update { it.copy(isLoading = true, error = null) }
+            runCatching {
+                when (tab) {
+                    0 -> {
+                        val status = repository.getStatus()
+                        val modules = repository.listModules()
+                        NoMountUiState(
+                            version = status?.version.orEmpty(),
+                            supported = status != null,
+                            modules = modules,
+                            loadedTabs = current.loadedTabs + 0,
+                        )
+                    }
+
+                    1 -> {
+                        val rules = repository.listRules()
+                        val (moduleRules, custom) = groupRules(rules)
+                        NoMountUiState(
+                            rules = rules,
+                            moduleRules = moduleRules,
+                            customRules = custom,
+                            loadedTabs = current.loadedTabs + 1,
+                        )
+                    }
+
+                    else -> {
+                        val exclusions = repository.listExclusions()
+                        NoMountUiState(
+                            exclusions = exclusions,
+                            loadedTabs = current.loadedTabs + 2,
+                        )
+                    }
+                }
+            }.onSuccess { partial ->
+                mutableState.update { it.copy(
+                    version = partial.version,
+                    supported = partial.supported,
+                    rules = partial.rules,
+                    moduleRules = partial.moduleRules,
+                    customRules = partial.customRules,
+                    modules = partial.modules,
+                    exclusions = partial.exclusions,
+                    loadedTabs = partial.loadedTabs,
+                    isLoading = false,
+                ) }
+            }.onFailure { e ->
+                mutableState.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
     }
 
     fun dispatch(action: NoMountUiAction) {
         when (action) {
-            NoMountUiAction.Refresh -> refresh()
+            NoMountUiAction.Refresh -> {
+                mutableState.update { it.copy(loadedTabs = emptySet()) }
+                loadTab(0)
+            }
+
             is NoMountUiAction.AddRule -> {
                 viewModelScope.launch {
                     if (repository.addRule(action.virtual, action.real)) {
-                        refresh()
+                        invalidateAndReload(1)
                     }
                 }
             }
@@ -63,7 +120,7 @@ class NoMountViewModel(
             is NoMountUiAction.RemoveRule -> {
                 viewModelScope.launch {
                     if (repository.removeRule(action.virtual)) {
-                        refresh()
+                        invalidateAndReload(1)
                     }
                 }
             }
@@ -73,7 +130,7 @@ class NoMountViewModel(
                     // 只清自定义规则 (remove-many), 不动模块注入规则
                     val customVirtuals = mutableState.value.customRules.map { it.virtual }
                     if (repository.removeRules(customVirtuals)) {
-                        refresh()
+                        invalidateAndReload(1)
                     }
                 }
             }
@@ -81,7 +138,7 @@ class NoMountViewModel(
             is NoMountUiAction.LoadModule -> {
                 viewModelScope.launch {
                     if (repository.loadModule(action.moduleId)) {
-                        refresh()
+                        invalidateAndReload(0)
                     }
                 }
             }
@@ -89,7 +146,7 @@ class NoMountViewModel(
             is NoMountUiAction.UnloadModule -> {
                 viewModelScope.launch {
                     if (repository.unloadModule(action.moduleId)) {
-                        refresh()
+                        invalidateAndReload(0)
                     }
                 }
             }
@@ -97,7 +154,7 @@ class NoMountViewModel(
             is NoMountUiAction.AddExclusion -> {
                 viewModelScope.launch {
                     if (repository.addExclusion(action.uid)) {
-                        refresh()
+                        invalidateAndReload(2)
                     }
                 }
             }
@@ -105,52 +162,31 @@ class NoMountViewModel(
             is NoMountUiAction.RemoveExclusion -> {
                 viewModelScope.launch {
                     if (repository.removeExclusion(action.uid)) {
-                        refresh()
+                        invalidateAndReload(2)
                     }
                 }
             }
         }
     }
 
-    fun refresh() {
-        viewModelScope.launch {
-            mutableState.update { it.copy(isLoading = true, error = null) }
-            runCatching {
-                val status = repository.getStatus()
-                val rules = repository.listRules()
-                val modules = repository.listModules()
-                val exclusions = repository.listExclusions()
-                val modulePrefix = "/data/adb/modules/"
-                // 模块注入规则: real 路径以 /data/adb/modules/<模块名>/ 开头 → 按模块分组
-                val moduleMap = LinkedHashMap<String, MutableList<NoMountRule>>()
-                val custom = mutableListOf<NoMountRule>()
-                for (rule in rules) {
-                    if (rule.real.startsWith(modulePrefix)) {
-                        val parts = rule.real.removePrefix(modulePrefix).split('/')
-                        val module = parts.firstOrNull().orEmpty().ifBlank { "unknown" }
-                        moduleMap.getOrPut(module) { mutableListOf() }.add(rule)
-                    } else {
-                        custom.add(rule)
-                    }
-                }
-                NoMountUiState(
-                    version = status?.version.orEmpty(),
-                    supported = status != null,
-                    rules = rules,
-                    moduleRules = moduleMap.map { (name, rs) ->
-                        NoMountModuleRules(name, rs)
-                    },
-                    customRules = custom,
-                    modules = modules,
-                    exclusions = exclusions,
-                    isLoading = false,
-                )
-            }.onSuccess { mutableState.value = it }
-                .onFailure { e ->
-                    mutableState.update {
-                        it.copy(isLoading = false, error = e.message)
-                    }
-                }
+    private fun invalidateAndReload(tab: Int) {
+        mutableState.update { it.copy(loadedTabs = emptySet()) }
+        loadTab(tab)
+    }
+
+    private fun groupRules(rules: List<NoMountRule>): Pair<List<NoMountModuleRules>, List<NoMountRule>> {
+        val modulePrefix = "/data/adb/modules/"
+        val moduleMap = LinkedHashMap<String, MutableList<NoMountRule>>()
+        val custom = mutableListOf<NoMountRule>()
+        for (rule in rules) {
+            if (rule.real.startsWith(modulePrefix)) {
+                val parts = rule.real.removePrefix(modulePrefix).split('/')
+                val module = parts.firstOrNull().orEmpty().ifBlank { "unknown" }
+                moduleMap.getOrPut(module) { mutableListOf() }.add(rule)
+            } else {
+                custom.add(rule)
+            }
         }
+        return moduleMap.map { (name, rs) -> NoMountModuleRules(name, rs) } to custom
     }
 }

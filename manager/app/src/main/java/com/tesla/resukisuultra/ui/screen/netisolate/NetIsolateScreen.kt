@@ -50,6 +50,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
+import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -77,6 +78,7 @@ import com.tesla.resukisuultra.data.netisolate.NetIsolateRepository
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import org.koin.compose.koinInject
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private data class AppListEntry(
@@ -283,6 +285,7 @@ private fun AppPickerSheet(
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
+    val cardConfig: CardConfig = koinInject()
     val pm = context.packageManager
     var searchQuery by remember { mutableStateOf("") }
     var showSystem by remember { mutableStateOf(false) }
@@ -353,9 +356,13 @@ private fun AppPickerSheet(
                     placeholder = { Text(stringResource(R.string.netisolate_search_hint)) },
                     leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                     singleLine = true,
+                    shape = CircleShape,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = cardConfig.cardAlpha),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = cardConfig.cardAlpha),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
                     ),
                 )
             }

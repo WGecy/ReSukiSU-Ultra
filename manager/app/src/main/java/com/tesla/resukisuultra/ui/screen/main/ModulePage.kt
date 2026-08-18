@@ -1234,7 +1234,8 @@ fun ModuleItem(
                 Color.Transparent
             else
                 MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha),
-        shape = RoundedCornerShape(16.dp)
+        // 组内形状: 首/尾大圆角, 中间相接处小圆角 (SUSFS 拼接组)
+        shape = segmentedShape
     ) {
         val textDecoration = if (!module.remove) null else TextDecoration.LineThrough
         val interactionSource = remember { MutableInteractionSource() }

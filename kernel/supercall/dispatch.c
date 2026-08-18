@@ -1089,8 +1089,7 @@ int ksu_handle_susfs_cmd(unsigned int cmd, void __user **arg)
     case CMD_NETISOLATE_UID_LIST:
     case CMD_NETISOLATE_GET_STATE:
         return netisolate_handle_cmd(cmd, arg);
-    case CMD_FUSEBPF_SET:
-    {
+    case CMD_FUSEBPF_SET: {
         unsigned int val;
 
         if (get_user(val, (unsigned int __user *)*arg))

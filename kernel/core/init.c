@@ -161,34 +161,34 @@ extern bool fuse_bpf_lookup_revalidate_enabled;
 
 static int fusebpf_feature_get(u64 *value)
 {
-	*value = fuse_bpf_lookup_revalidate_enabled ? 1 : 0;
-	return 0;
+    *value = fuse_bpf_lookup_revalidate_enabled ? 1 : 0;
+    return 0;
 }
 
 static int fusebpf_feature_set(u64 value)
 {
-	fuse_bpf_lookup_revalidate_set(value != 0);
-	return 0;
+    fuse_bpf_lookup_revalidate_set(value != 0);
+    return 0;
 }
 
 static const struct ksu_feature_handler fusebpf_handler = {
-	.feature_id = KSU_FEATURE_FUSEBPF,
-	.name = "fusebpf",
-	.get_handler = fusebpf_feature_get,
-	.set_handler = fusebpf_feature_set,
+    .feature_id = KSU_FEATURE_FUSEBPF,
+    .name = "fusebpf",
+    .get_handler = fusebpf_feature_get,
+    .set_handler = fusebpf_feature_set,
 };
 
 static int fusebpf_fix_set(const char *val, const struct kernel_param *kp)
 {
-	int ret = param_set_bool(val, kp);
-	if (ret == 0)
-		fuse_bpf_lookup_revalidate_set(*(bool *)kp->arg);
-	return ret;
+    int ret = param_set_bool(val, kp);
+    if (ret == 0)
+        fuse_bpf_lookup_revalidate_set(*(bool *)kp->arg);
+    return ret;
 }
 
 static const struct kernel_param_ops fusebpf_fix_ops = {
-	.set = fusebpf_fix_set,
-	.get = param_get_bool,
+    .set = fusebpf_fix_set,
+    .get = param_get_bool,
 };
 static bool fusebpf_fix_enabled = true;
 module_param_cb(fusebpf_fix, &fusebpf_fix_ops, &fusebpf_fix_enabled, 0644);

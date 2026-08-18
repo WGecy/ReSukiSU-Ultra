@@ -203,17 +203,14 @@ do_orig_execve:
 
 int ksu_handle_execve_sucompat_tp_internal(const char __user **filename_user, int orig_nr, const struct pt_regs *regs)
 {
-    return ksu_handle_execve_sucompat_tp_common(filename_user,
-                                                (const char __user *const __user *)PT_REGS_PARM2(regs), false, orig_nr,
-                                                regs);
+    return ksu_handle_execve_sucompat_tp_common(filename_user, (const char __user *const __user *)PT_REGS_PARM2(regs),
+                                                false, orig_nr, regs);
 }
 
-int ksu_handle_execveat_sucompat_tp_internal(const char __user **filename_user, int orig_nr,
-                                             const struct pt_regs *regs)
+int ksu_handle_execveat_sucompat_tp_internal(const char __user **filename_user, int orig_nr, const struct pt_regs *regs)
 {
-    return ksu_handle_execve_sucompat_tp_common(filename_user,
-                                                (const char __user *const __user *)PT_REGS_PARM3(regs), true, orig_nr,
-                                                regs);
+    return ksu_handle_execve_sucompat_tp_common(filename_user, (const char __user *const __user *)PT_REGS_PARM3(regs),
+                                                true, orig_nr, regs);
 }
 #endif
 

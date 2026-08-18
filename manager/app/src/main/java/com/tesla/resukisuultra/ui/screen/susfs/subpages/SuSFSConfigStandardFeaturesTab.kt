@@ -1,11 +1,8 @@
 package com.tesla.resukisuultra.ui.screen.susfs.subpages
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -108,11 +105,9 @@ fun StandardFeaturesTab(
 
     val operationFailedMsg = stringResource(R.string.susfs_operation_failed)
 
-    LaunchedEffect(showUnameDialog, unameDialogTab, slotInfoReloadKey) {
-        if (!showUnameDialog ||
-            unameDialogTab != UnameDialogTab.SlotInfo ||
-            slotInfos != null
-        ) {
+    // 打开 uname 对话框即预加载槽位信息 (切 tab 时已就绪, 无加载等待/展开卡顿)
+    LaunchedEffect(showUnameDialog, slotInfoReloadKey) {
+        if (!showUnameDialog || slotInfos != null) {
             return@LaunchedEffect
         }
 
@@ -380,23 +375,9 @@ fun StandardFeaturesTab(
                             )
                         }
 
-                        AnimatedContent(
-                            targetState = unameDialogTab,
-                            transitionSpec = {
-                                val direction =
-                                    if (targetState.ordinal > initialState.ordinal) 1 else -1
-                                val enter = slideInHorizontally { width ->
-                                    direction * width / 3
-                                } + fadeIn()
-                                val exit = slideOutHorizontally { width ->
-                                    -direction * width / 3
-                                } + fadeOut()
-                                enter togetherWith exit
-                            },
-                            label = "UnameDialogTabContent",
-                        ) { currentTab ->
-                            when (currentTab) {
-                                UnameDialogTab.Manual -> {
+                        // tab 内容即时切换 (无 AnimatedContent 动画 → 无"缓缓拉出"卡顿感)
+                        when (unameDialogTab) {
+                            UnameDialogTab.Manual -> {
                                     SegmentedColumn(contentPadding = PaddingValues(top = 8.dp)) {
                                         item {
                                             SettingsTextFieldWidget(
@@ -495,7 +476,6 @@ fun StandardFeaturesTab(
                                                         },
                                                     )
                                                 }
-                                            }
                                         }
                                     }
                                 }

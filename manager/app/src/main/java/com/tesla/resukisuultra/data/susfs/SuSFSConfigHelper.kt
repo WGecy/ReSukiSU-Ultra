@@ -191,7 +191,10 @@ class SuSFSConfigHelper(
     }
 
     suspend fun setUname(release: String, version: String): Boolean {
-        val arguments = "${shellQuote(release)} ${shellQuote(version)}"
+        // 清空输入 = 恢复默认 (SUSFS 用 "default" 表示使用内核真实值, 空字符串内核不认)
+        val r = release.ifBlank { "default" }
+        val v = version.ifBlank { "default" }
+        val arguments = "${shellQuote(r)} ${shellQuote(v)}"
         return executeConfigMutation(
             command = "uname add $arguments",
             currentKernelCommands = listOf("set_uname $arguments"),

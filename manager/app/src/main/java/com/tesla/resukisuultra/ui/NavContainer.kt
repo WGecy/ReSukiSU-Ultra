@@ -93,7 +93,6 @@ import com.tesla.resukisuultra.ui.screen.moduleRepo.ModuleRepoScreen
 import com.tesla.resukisuultra.ui.screen.toolbox.ToolboxScreen
 import com.tesla.resukisuultra.ui.screen.moduleRepo.OnlineModuleDetailScreen
 import com.tesla.resukisuultra.ui.screen.susfs.SuSFSConfigScreen
-import com.tesla.resukisuultra.ui.screen.nomount.NoMountConfigScreen
 import com.tesla.resukisuultra.ui.screen.themeSettings.ThemeSettingsScreen
 import com.tesla.resukisuultra.ui.theme.LocalBackgroundRenderState
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
@@ -492,7 +491,6 @@ fun NavContainer(
                         ThemeSettingsScreen(settingsViewModel = settingsViewModel)
                     }
                     entry<Route.SuSFSConfig> { SuSFSConfigScreen() }
-                    entry<Route.NoMountConfig> { NoMountConfigScreen() }
                     entry<Route.SettingsCore> { SettingsCoreScreen() }
                     entry<Route.SettingsApp> { SettingsAppScreen() }
                     entry<Route.SettingsTools> { SettingsToolsScreen() }

@@ -59,6 +59,13 @@ pub enum NoMountSubCommands {
         #[arg(required = true)]
         virtual_paths: Vec<String>,
     },
+    /// 设置总开关 (0/1)
+    SetEnabled {
+        /// 1=启用 0=禁用
+        enabled: u8,
+    },
+    /// 查询总开关状态
+    IsEnabled,
     /// 聚合快照 (一次返回全部数据)
     Snapshot,
     /// 切换模块禁用状态 (写 disable 文件)
@@ -193,6 +200,15 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
         NoMountSubCommands::RemoveMany { virtual_paths } => {
             nomount::remove_rules_batch(&virtual_paths)?;
             println!("ok");
+            Ok(())
+        }
+        NoMountSubCommands::SetEnabled { enabled } => {
+            nomount::set_enabled(enabled == 1)?;
+            println!("ok");
+            Ok(())
+        }
+        NoMountSubCommands::IsEnabled => {
+            println!("{}", if nomount::is_enabled() { "true" } else { "false" });
             Ok(())
         }
         NoMountSubCommands::Snapshot => {

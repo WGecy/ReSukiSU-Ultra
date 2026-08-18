@@ -230,6 +230,8 @@
     <string name="su_not_allowed">Granting superuser to %s is not allowed</string>
     <string name="settings_sucompat">Classic su command</string>
     <string name="settings_sucompat_summary">Allow root access via /system/bin/su, in new processes.</string>
+    <string name="settings_nomount">Built-in mount system</string>
+    <string name="settings_nomount_summary">Enable built-in NoMount seamless mount (VFS injection, no module needed)</string>
     <string name="settings_kernel_umount">Module unmounting</string>
     <string name="settings_kernel_umount_summary">Unmount modules from kernel in App Profile</string>
     <string name="feature_status_unsupported_summary">Kernel does not support this feature</string>

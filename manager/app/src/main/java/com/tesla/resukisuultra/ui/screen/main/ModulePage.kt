@@ -53,7 +53,6 @@ import androidx.compose.material.icons.twotone.Cloud
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.Download
 import androidx.compose.material.icons.twotone.Extension
-import androidx.compose.material.icons.twotone.Inventory2
 import androidx.compose.material.icons.twotone.MoreVert
 import androidx.compose.material.icons.twotone.Photo
 import androidx.compose.material.icons.twotone.PlayArrow
@@ -128,7 +127,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kyant.capsule.ContinuousRoundedRectangle
 import com.tesla.resukisuultra.R
-import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.domain.model.InstalledModule
 import com.tesla.resukisuultra.domain.model.MetaModuleStatus
 import com.tesla.resukisuultra.domain.usecase.EnqueueDownloadUseCase
@@ -205,17 +203,6 @@ fun ModulePage(bottomPadding: Dp) {
 
     var showDropdown by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
-
-    // NoMount 内核支持检测 (异步检测, 避免主线程 exec 阻塞)
-    var isNoMountSupported by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        isNoMountSupported = withContext(Dispatchers.IO) {
-            runCatching {
-                KsuCliRepository(context).exec("${KsuCliRepository(context).getKsuDaemonPath()} nomount status")
-                    ?.isNotBlank() == true
-            }.getOrDefault(false)
-        }
-    }
 
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var pendingZipFiles by remember { mutableStateOf<List<ZipFileInfo>>(emptyList()) }
@@ -327,17 +314,6 @@ fun ModulePage(bottomPadding: Dp) {
                     viewModel.dispatch(ModuleUiAction.Search(query))
                 },
                 dropdownContent = {
-                    // NoMount 入口 (三个点左边) — 内核支持时才显示
-                    if (isNoMountSupported) {
-                        IconButton(
-                            onClick = { navigator.push(Route.NoMountConfig) },
-                        ) {
-                            Icon(
-                                imageVector = Icons.TwoTone.Inventory2,
-                                contentDescription = stringResource(id = R.string.nomount_title),
-                            )
-                        }
-                    }
                     IconButton(
                         onClick = { showDropdown = true },
                     ) {

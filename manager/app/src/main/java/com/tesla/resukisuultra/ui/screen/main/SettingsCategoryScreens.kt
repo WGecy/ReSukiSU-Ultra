@@ -34,6 +34,7 @@ import androidx.compose.material.icons.twotone.BugReport
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.DeleteForever
 import androidx.compose.material.icons.twotone.ElectricalServices
+import androidx.compose.material.icons.twotone.Inventory2
 import androidx.compose.material.icons.twotone.Extension
 import androidx.compose.material.icons.twotone.FolderDelete
 import androidx.compose.material.icons.twotone.FolderOff
@@ -226,6 +227,19 @@ fun SettingsCoreScreen() {
                                                 index
                                             )
                                         )
+                                    },
+                                )
+                            }
+
+                            item {
+                                SettingsSwitchWidget(
+                                    icon = Icons.TwoTone.Inventory2,
+                                    title = stringResource(id = R.string.settings_nomount),
+                                    description = stringResource(id = R.string.settings_nomount_summary),
+                                    enabled = uiState.nomountSupported,
+                                    checked = uiState.isNomountEnabled,
+                                    onCheckedChange = { enabled ->
+                                        settingsViewModel.handleNomountChange(enabled)
                                     },
                                 )
                             }

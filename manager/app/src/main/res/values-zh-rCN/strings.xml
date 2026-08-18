@@ -226,6 +226,8 @@
     <string name="su_not_allowed">不允许授予 %s 超级用户权限</string>
     <string name="settings_sucompat">传统 su 命令支持</string>
     <string name="settings_sucompat_summary">允许通过 /system/bin/su 获取 Root 权限。</string>
+    <string name="settings_nomount">启用内置挂载系统</string>
+    <string name="settings_nomount_summary">启用内置 NoMount 无痕挂载（VFS 注入，无需安装模块）</string>
     <string name="settings_kernel_umount">内核处理卸载模块</string>
     <string name="settings_kernel_umount_summary">在内核给需要的应用卸载模块</string>
     <string name="feature_status_unsupported_summary">内核不支持此功能</string>

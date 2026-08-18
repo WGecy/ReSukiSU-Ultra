@@ -13,6 +13,7 @@ import com.tesla.resukisuultra.domain.usecase.ConfigureSuLogUseCase
 import com.tesla.resukisuultra.domain.usecase.GetKernelFeatureSettingsUseCase
 import com.tesla.resukisuultra.domain.usecase.GetPlatformFeatureStatusUseCase
 import com.tesla.resukisuultra.domain.usecase.LoadSettingsPlatformUseCase
+import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.domain.usecase.SetDefaultUmountModulesUseCase
 import com.tesla.resukisuultra.domain.usecase.SetKernelUmountEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.SetSelinuxHideEnabledUseCase
@@ -89,6 +90,8 @@ data class SettingsUiState(
     val suStatus: String = "",
     val kernelUmountStatus: String = "",
     val isKernelUmountEnabled: Boolean = false,
+    val isNomountEnabled: Boolean = false,
+    val nomountSupported: Boolean = false,
     val autoJailbreakEnabled: Boolean = false,
     val adbRootStatus: String = "",
     val isAdbRootEnabled: Boolean = false,
@@ -154,10 +157,24 @@ class SettingsViewModel(
     private val setSuLogEnabled: ConfigureSuLogUseCase,
     private val setSelinuxHideEnabled: SetSelinuxHideEnabledUseCase,
     private val setDefaultUmountModules: SetDefaultUmountModulesUseCase,
+    private val ksuCli: KsuCliRepository,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(SettingsUiState())
     val state: StateFlow<SettingsUiState> = mutableState.asStateFlow()
     val uiState: StateFlow<SettingsUiState> = state
+
+    init {
+        // 读取 NoMount 开关状态 (内置挂载系统)
+        viewModelScope.launch {
+            val out = ksuCli.exec("${ksuCli.getKsuDaemonPath()} nomount is-enabled")
+            mutableState.update {
+                it.copy(
+                    isNomountEnabled = out?.trim() == "true",
+                    nomountSupported = out != null,
+                )
+            }
+        }
+    }
     private val mutableEvents = MutableSharedFlow<SettingsUiEvent>(extraBufferCapacity = 2)
     val events: SharedFlow<SettingsUiEvent> = mutableEvents.asSharedFlow()
 
@@ -355,6 +372,17 @@ class SettingsViewModel(
         viewModelScope.launch {
             if (setKernelUmountEnabled(checked)) {
                 mutableState.update { it.copy(isKernelUmountEnabled = checked) }
+            }
+        }
+    }
+
+    fun handleNomountChange(checked: Boolean) {
+        viewModelScope.launch {
+            val out = ksuCli.exec(
+                "${ksuCli.getKsuDaemonPath()} nomount set-enabled ${if (checked) 1 else 0}"
+            )
+            if (out != null) {
+                mutableState.update { it.copy(isNomountEnabled = checked) }
             }
         }
     }

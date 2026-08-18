@@ -373,6 +373,30 @@ pub fn unblock_uid(uid: u32) -> Result<()> {
     Ok(())
 }
 
+/// 总开关状态文件 (1=启用)
+pub const ENABLED_FILE: &str = "/data/adb/nomount/enabled";
+
+pub fn is_enabled() -> bool {
+    std::fs::read_to_string(ENABLED_FILE)
+        .map(|s| s.trim() == "1")
+        .unwrap_or(false)
+}
+
+pub fn set_enabled(enabled: bool) -> Result<()> {
+    let _ = std::fs::create_dir_all("/data/adb/nomount");
+    std::fs::write(ENABLED_FILE, if enabled { "1" } else { "0" })?;
+    if enabled {
+        // 启用: 注入模块规则 + 重放自定义规则
+        crate::android::nomount::mount::inject_modules()?;
+        replay_custom_rules()?;
+    } else {
+        // 禁用: 清空全部规则
+        let s = NmSocket::new()?;
+        s.clear()?;
+    }
+    Ok(())
+}
+
 /// 持久化排除列表 (web 界面: /data/adb/nomount/.exclusion_list — uid 空白/逗号分隔)
 pub const EXCLUSION_FILE: &str = "/data/adb/nomount/.exclusion_list";
 

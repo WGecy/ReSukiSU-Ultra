@@ -109,13 +109,15 @@ pub fn on_post_data_fs() -> Result<()> {
     // Load susfs config entries that must capture metadata before mounts/overlays.
     crate::android::susfs::init_event::on_post_fs_data();
 
-    // NoMount 内置注入: 遍历模块文件注入 VFS 重定向规则 (替代 metamount.sh)
-    if let Err(e) = crate::android::nomount::mount::inject_modules() {
-        warn!("nomount: 模块注入失败: {e:#}");
-    }
-    // 重放手动自定义规则 (持久化文件)
-    if let Err(e) = crate::android::nomount::replay_custom_rules() {
-        warn!("nomount: 自定义规则重放失败: {e:#}");
+    // NoMount 内置注入: 仅在总开关启用时执行 (替代 metamount.sh)
+    if crate::android::nomount::is_enabled() {
+        if let Err(e) = crate::android::nomount::mount::inject_modules() {
+            warn!("nomount: 模块注入失败: {e:#}");
+        }
+        // 重放手动自定义规则 (持久化文件)
+        if let Err(e) = crate::android::nomount::replay_custom_rules() {
+            warn!("nomount: 自定义规则重放失败: {e:#}");
+        }
     }
 
     // execute metamodule post-fs-data script first (priority)

@@ -73,6 +73,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tesla.resukisuultra.R
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import com.tesla.resukisuultra.data.netisolate.NetIsolateRepository
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
@@ -109,11 +111,15 @@ fun NetIsolateTab(
     var loaded by remember { mutableStateOf(false) }
     var showPicker by remember { mutableStateOf(false) }
 
-    // 启动时加载
+    // 启动时加载 (并行, 复用缓存 shell — 快)
     LaunchedEffect(Unit) {
-        enabled = repository.isEnabled()
-        selectedUids = repository.getUids()
-        loaded = true
+        coroutineScope {
+            val enabledDeferred = async { repository.isEnabled() }
+            val uidsDeferred = async { repository.getUids() }
+            enabled = enabledDeferred.await()
+            selectedUids = uidsDeferred.await()
+            loaded = true
+        }
     }
 
     LazyColumn(

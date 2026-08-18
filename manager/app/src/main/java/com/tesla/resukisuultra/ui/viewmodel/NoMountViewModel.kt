@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tesla.resukisuultra.data.nomount.NoMountModule
 import com.tesla.resukisuultra.data.nomount.NoMountRepository
 import com.tesla.resukisuultra.data.nomount.NoMountRule
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,56 +47,39 @@ class NoMountViewModel(
     private val mutableState = MutableStateFlow(NoMountUiState())
     val uiState: StateFlow<NoMountUiState> = mutableState.asStateFlow()
 
-    /** 按 tab 懒加载 (仿 SUSFS: 进入页面/切 tab 才读取数据) — 避免进入页面卡顿 */
-    fun loadTab(tab: Int) {
+    /** 进入页面并行加载全部数据 (一次刷新 3 个数据源并行, 切 tab 秒开)
+     *  silent=true: 已有数据时静默刷新 (不转圈, 避免每次进入卡顿) */
+    fun refreshAll(silent: Boolean = false) {
         val current = mutableState.value
-        if (tab in current.loadedTabs || current.isLoading) return
+        if (current.isLoading) return
         viewModelScope.launch {
-            mutableState.update { it.copy(isLoading = true, error = null) }
+            if (!silent) {
+                mutableState.update { it.copy(isLoading = true, error = null) }
+            }
             runCatching {
-                when (tab) {
-                    0 -> {
-                        val status = repository.getStatus()
-                        val modules = repository.listModules()
-                        NoMountUiState(
-                            version = status?.version.orEmpty(),
-                            supported = status != null,
-                            modules = modules,
-                            loadedTabs = current.loadedTabs + 0,
-                        )
-                    }
+                val statusDeferred = async { repository.getStatus() }
+                val rulesDeferred = async { repository.listRules() }
+                val modulesDeferred = async { repository.listModules() }
+                val exclusionsDeferred = async { repository.listExclusions() }
 
-                    1 -> {
-                        val rules = repository.listRules()
-                        val (moduleRules, custom) = groupRules(rules)
-                        NoMountUiState(
-                            rules = rules,
-                            moduleRules = moduleRules,
-                            customRules = custom,
-                            loadedTabs = current.loadedTabs + 1,
-                        )
-                    }
+                val status = statusDeferred.await()
+                val rules = rulesDeferred.await()
+                val modules = modulesDeferred.await()
+                val exclusions = exclusionsDeferred.await()
+                val (moduleRules, custom) = groupRules(rules)
 
-                    else -> {
-                        val exclusions = repository.listExclusions()
-                        NoMountUiState(
-                            exclusions = exclusions,
-                            loadedTabs = current.loadedTabs + 2,
-                        )
-                    }
-                }
-            }.onSuccess { partial ->
-                mutableState.update { it.copy(
-                    version = partial.version,
-                    supported = partial.supported,
-                    rules = partial.rules,
-                    moduleRules = partial.moduleRules,
-                    customRules = partial.customRules,
-                    modules = partial.modules,
-                    exclusions = partial.exclusions,
-                    loadedTabs = partial.loadedTabs,
-                    isLoading = false,
-                ) }
+                NoMountUiState(
+                    version = status?.version.orEmpty(),
+                    supported = status != null,
+                    rules = rules,
+                    moduleRules = moduleRules,
+                    customRules = custom,
+                    modules = modules,
+                    exclusions = exclusions,
+                    loadedTabs = setOf(0, 1, 2),
+                )
+            }.onSuccess { newState ->
+                mutableState.value = newState
             }.onFailure { e ->
                 mutableState.update { it.copy(isLoading = false, error = e.message) }
             }
@@ -104,15 +88,12 @@ class NoMountViewModel(
 
     fun dispatch(action: NoMountUiAction) {
         when (action) {
-            NoMountUiAction.Refresh -> {
-                mutableState.update { it.copy(loadedTabs = emptySet()) }
-                loadTab(0)
-            }
+            NoMountUiAction.Refresh -> refreshAll()
 
             is NoMountUiAction.AddRule -> {
                 viewModelScope.launch {
                     if (repository.addRule(action.virtual, action.real)) {
-                        invalidateAndReload(1)
+                        invalidateAndReload()
                     }
                 }
             }
@@ -120,7 +101,7 @@ class NoMountViewModel(
             is NoMountUiAction.RemoveRule -> {
                 viewModelScope.launch {
                     if (repository.removeRule(action.virtual)) {
-                        invalidateAndReload(1)
+                        invalidateAndReload()
                     }
                 }
             }
@@ -130,7 +111,7 @@ class NoMountViewModel(
                     // 只清自定义规则 (remove-many), 不动模块注入规则
                     val customVirtuals = mutableState.value.customRules.map { it.virtual }
                     if (repository.removeRules(customVirtuals)) {
-                        invalidateAndReload(1)
+                        invalidateAndReload()
                     }
                 }
             }
@@ -138,7 +119,7 @@ class NoMountViewModel(
             is NoMountUiAction.LoadModule -> {
                 viewModelScope.launch {
                     if (repository.loadModule(action.moduleId)) {
-                        invalidateAndReload(0)
+                        invalidateAndReload()
                     }
                 }
             }
@@ -146,7 +127,7 @@ class NoMountViewModel(
             is NoMountUiAction.UnloadModule -> {
                 viewModelScope.launch {
                     if (repository.unloadModule(action.moduleId)) {
-                        invalidateAndReload(0)
+                        invalidateAndReload()
                     }
                 }
             }
@@ -154,7 +135,7 @@ class NoMountViewModel(
             is NoMountUiAction.AddExclusion -> {
                 viewModelScope.launch {
                     if (repository.addExclusion(action.uid)) {
-                        invalidateAndReload(2)
+                        invalidateAndReload()
                     }
                 }
             }
@@ -162,16 +143,16 @@ class NoMountViewModel(
             is NoMountUiAction.RemoveExclusion -> {
                 viewModelScope.launch {
                     if (repository.removeExclusion(action.uid)) {
-                        invalidateAndReload(2)
+                        invalidateAndReload()
                     }
                 }
             }
         }
     }
 
-    private fun invalidateAndReload(tab: Int) {
+    private fun invalidateAndReload() {
         mutableState.update { it.copy(loadedTabs = emptySet()) }
-        loadTab(tab)
+        refreshAll()
     }
 
     private fun groupRules(rules: List<NoMountRule>): Pair<List<NoMountModuleRules>, List<NoMountRule>> {

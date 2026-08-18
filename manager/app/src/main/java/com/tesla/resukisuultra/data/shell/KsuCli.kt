@@ -42,8 +42,23 @@ class KsuCliRepository(context: Context) {
 
     fun getKsuDaemonPath(): String = getNativeLibraryPath("ksud")
 
+    // 常驻 root shell 缓存 (避免每次命令新建 su 会话 — 卡顿根因; 所有 exec/execKsud 受益)
+    @Volatile
+    private var cachedShell: Shell? = null
+
     fun getRootShell(globalMnt: Boolean = false): Shell {
-        return createRootShell(globalMnt)
+        if (globalMnt) {
+            return createRootShell(true)
+        }
+        cachedShell?.let { return it }
+        return synchronized(this) {
+            cachedShell ?: createRootShell(false).also { cachedShell = it }
+        }
+    }
+
+    /** shell 失效时重建 (exec 失败时调用) */
+    fun invalidateCachedShell() {
+        cachedShell = null
     }
 
     fun generateMainShellBuilder(): Shell.Builder {
@@ -576,9 +591,15 @@ class KsuCliRepository(context: Context) {
             .joinToString("\n")
     }
 
-    /** 执行 root 命令, 返回输出 (无输出返回 null) */
+    /** 执行 root 命令, 返回输出 (无输出返回 null) — 复用常驻 shell, 失败重建重试一次 */
     fun exec(cmd: String): String? {
-        val shell = getRootShell()
+        return execWithShell(getRootShell(), cmd) ?: run {
+            invalidateCachedShell()
+            execWithShell(getRootShell(), cmd)
+        }
+    }
+
+    private fun execWithShell(shell: Shell, cmd: String): String? {
         return runCatching {
             runCmd(shell, cmd)
         }.getOrNull()?.takeIf { it.isNotBlank() }

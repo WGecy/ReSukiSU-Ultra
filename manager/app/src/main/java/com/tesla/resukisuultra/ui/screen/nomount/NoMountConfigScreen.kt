@@ -117,9 +117,13 @@ fun NoMountConfigScreen() {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
 
-    // 仿 SUSFS: 进入页面/切 tab 才读取数据 (懒加载, 避免卡顿)
-    LaunchedEffect(pagerState.currentPage) {
-        viewModel.loadTab(pagerState.currentPage)
+    // 进入页面加载: 首次显示 loading, 再次进入静默刷新 (有缓存数据, 不转圈不卡)
+    LaunchedEffect(Unit) {
+        if (uiState.loadedTabs.size < 3) {
+            viewModel.refreshAll()
+        } else {
+            viewModel.refreshAll(silent = true)
+        }
     }
 
     val removeConfirmTitle = stringResource(R.string.nomount_remove_confirm_title)
@@ -342,10 +346,10 @@ private fun NoMountModulesTab(
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
                 )
             }
-            lazySegmentColumn(
+            items(
                 items = uiState.modules,
-                key = { _, m -> m.id },
-            ) { _, module ->
+                key = { it.id },
+            ) { module ->
                 ModuleCard(
                     module = module,
                     onLoad = { onLoadModule(module) },

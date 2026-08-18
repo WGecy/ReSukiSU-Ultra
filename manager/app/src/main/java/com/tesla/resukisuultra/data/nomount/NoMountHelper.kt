@@ -2,6 +2,7 @@ package com.tesla.resukisuultra.data.nomount
 
 import android.util.Log
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
+import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -10,6 +11,16 @@ class NoMountHelper(
     private val ksuCliRepository: KsuCliRepository,
 ) {
     private val TAG = "NoMountHelper"
+
+    // 常驻 root shell (复用, 避免每次命令新建 su 会话 — 卡顿根因)
+    @Volatile
+    private var globalShell: Shell? = null
+    private fun rootShell(): Shell {
+        globalShell?.let { return it }
+        return synchronized(this) {
+            globalShell ?: ksuCliRepository.getRootShell().also { globalShell = it }
+        }
+    }
 
     private data class CommandResult(
         val success: Boolean,
@@ -140,11 +151,14 @@ class NoMountHelper(
         try {
             val stdout = ArrayList<String>()
             val stderr = ArrayList<String>()
-            val result = ksuCliRepository.withNewRootShell {
-                newJob()
-                    .add("${shellQuote(ksuCliRepository.getKsuDaemonPath())} nomount $command")
-                    .to(stdout, stderr)
-                    .exec()
+            // 复用常驻 shell (不再每次 withNewRootShell 新建 su 会话)
+            val result = rootShell().newJob()
+                .add("${shellQuote(ksuCliRepository.getKsuDaemonPath())} nomount $command")
+                .to(stdout, stderr)
+                .exec()
+            if (!result.isSuccess) {
+                // shell 可能失效 → 重建
+                globalShell = null
             }
             CommandResult(
                 success = result.isSuccess,
@@ -152,6 +166,7 @@ class NoMountHelper(
                 stderr = stderr.joinToString("\n").trim(),
             )
         } catch (e: Exception) {
+            globalShell = null
             Log.e(TAG, "nomount command failed: $command", e)
             CommandResult(false, "", e.message.orEmpty())
         }

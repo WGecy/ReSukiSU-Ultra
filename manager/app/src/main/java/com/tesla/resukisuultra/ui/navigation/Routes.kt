@@ -125,6 +125,10 @@ sealed interface Route : NavKey, Parcelable {
 
     @Parcelize
     @Serializable
+    data object NoMountConfig : Route
+
+    @Parcelize
+    @Serializable
     data object SettingsCore : Route
 
     @Parcelize

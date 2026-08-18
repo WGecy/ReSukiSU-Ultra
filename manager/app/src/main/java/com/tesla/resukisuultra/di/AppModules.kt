@@ -33,6 +33,8 @@ import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.data.shell.ShortcutRepository
 import com.tesla.resukisuultra.data.startup.ApplicationInitializationRepository
 import com.tesla.resukisuultra.data.startup.StartupRepository
+import com.tesla.resukisuultra.data.nomount.NoMountHelper
+import com.tesla.resukisuultra.data.nomount.NoMountRepository
 import com.tesla.resukisuultra.data.susfs.SuSFSConfigHelper
 import com.tesla.resukisuultra.data.susfs.SuSFSRepository
 import com.tesla.resukisuultra.data.system.HomeRuntimeRepository
@@ -158,6 +160,7 @@ import com.tesla.resukisuultra.ui.viewmodel.ModuleRepoViewModel
 import com.tesla.resukisuultra.ui.viewmodel.ModuleViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SettingsViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SuSFSViewModel
+import com.tesla.resukisuultra.ui.viewmodel.NoMountViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SulogViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SuperUserViewModel
 import com.tesla.resukisuultra.ui.viewmodel.TemplateEditorViewModel
@@ -271,6 +274,8 @@ val repositoryModule = module {
     singleOf(::ModuleFileRepository)
     singleOf(::ProfileRepository)
     singleOf(::ProfileTemplateRepository)
+    singleOf(::NoMountHelper)
+    singleOf(::NoMountRepository)
     singleOf(::SuSFSConfigHelper)
     singleOf(::SuSFSRepository)
     singleOf(::MonetCompatColorSource)
@@ -414,6 +419,7 @@ val viewModelModule = module {
     viewModelOf(::ModuleViewModel)
     viewModelOf(::SuperUserViewModel)
     viewModelOf(::SuSFSViewModel)
+    viewModelOf(::NoMountViewModel)
     viewModelOf(::ModuleRepoViewModel)
     viewModel { parameters -> ModuleDetailViewModel(parameters[0], get()) }
     viewModelOf(::TemplateViewModel)

@@ -548,6 +548,8 @@
     <string name="nomount_hot_load">Hot load</string>
     <string name="nomount_hot_unload">Hot unload</string>
     <string name="nomount_module_not_enabled">Not enabled</string>
+    <string name="nomount_module_version">Version</string>
+    <string name="nomount_module_author">Author</string>
     <string name="nomount_module_status_loaded">Injected</string>
     <string name="nomount_module_status_disabled">Disabled</string>
     <string name="nomount_module_status_inactive">Not injected</string>

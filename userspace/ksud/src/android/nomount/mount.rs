@@ -18,6 +18,9 @@ const ALIAS_PARTITIONS: [&str; 5] = ["vendor", "product", "system_ext", "odm", "
 pub struct ModuleInfo {
     pub id: String,
     pub name: String,
+    pub version: String,
+    pub author: String,
+    pub description: String,
     pub disabled: bool,
     pub file_count: usize,
     pub loaded: usize,
@@ -122,11 +125,18 @@ pub fn modules() -> Result<Vec<ModuleInfo>> {
             .iter()
             .filter(|(_, real)| real.starts_with(&format!("{MODULES_DIR}/{id}/")))
             .count();
-        let name = read_module_name(&mod_dir).unwrap_or_else(|| id.clone());
+        let prop = read_module_prop(&mod_dir);
+        let name = prop.get("name").cloned().unwrap_or_else(|| id.clone());
+        let version = prop.get("version").cloned().unwrap_or_default();
+        let author = prop.get("author").cloned().unwrap_or_default();
+        let description = prop.get("description").cloned().unwrap_or_default();
         let disabled = mod_dir.join("disable").exists();
         out.push(ModuleInfo {
             id,
             name,
+            version,
+            author,
+            description,
             disabled,
             file_count,
             loaded,
@@ -135,11 +145,16 @@ pub fn modules() -> Result<Vec<ModuleInfo>> {
     Ok(out)
 }
 
-fn read_module_name(mod_dir: &Path) -> Option<String> {
-    let prop = fs::read_to_string(mod_dir.join("module.prop")).ok()?;
-    prop.lines()
-        .find(|l| l.starts_with("name="))
-        .map(|l| l["name=".len()..].trim().to_string())
+fn read_module_prop(mod_dir: &Path) -> std::collections::HashMap<String, String> {
+    let mut map = std::collections::HashMap::new();
+    if let Ok(content) = fs::read_to_string(mod_dir.join("module.prop")) {
+        for line in content.lines() {
+            if let Some((k, v)) = line.split_once('=') {
+                map.insert(k.trim().to_string(), v.trim().to_string());
+            }
+        }
+    }
+    map
 }
 
 fn encode_del_payload(v: &str) -> Vec<u8> {

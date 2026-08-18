@@ -155,9 +155,12 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
                         out.push(',');
                     }
                     out.push_str(&format!(
-                        "{{\"id\": \"{}\", \"name\": \"{}\", \"disabled\": {}, \"file_count\": {}, \"loaded\": {}}}",
+                        "{{\"id\": \"{}\", \"name\": \"{}\", \"version\": \"{}\", \"author\": \"{}\", \"description\": \"{}\", \"disabled\": {}, \"file_count\": {}, \"loaded\": {}}}",
                         escape_json(&m.id),
                         escape_json(&m.name),
+                        escape_json(&m.version),
+                        escape_json(&m.author),
+                        escape_json(&m.description),
                         m.disabled,
                         m.file_count,
                         m.loaded

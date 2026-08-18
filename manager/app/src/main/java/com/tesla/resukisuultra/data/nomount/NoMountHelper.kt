@@ -98,6 +98,9 @@ class NoMountHelper(
                         NoMountModule(
                             id = obj.optString("id"),
                             name = obj.optString("name"),
+                            version = obj.optString("version"),
+                            author = obj.optString("author"),
+                            description = obj.optString("description"),
                             disabled = obj.optBoolean("disabled"),
                             fileCount = obj.optInt("file_count"),
                             loaded = obj.optInt("loaded"),
@@ -183,6 +186,9 @@ data class NoMountRule(val virtual: String, val real: String)
 data class NoMountModule(
     val id: String,
     val name: String,
+    val version: String = "",
+    val author: String = "",
+    val description: String = "",
     val disabled: Boolean,
     val fileCount: Int,
     val loaded: Int,

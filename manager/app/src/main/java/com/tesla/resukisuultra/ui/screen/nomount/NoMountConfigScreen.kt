@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.pager.HorizontalPager
@@ -64,6 +66,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -88,6 +91,10 @@ import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.SettingsTextFieldWidget
 import com.tesla.resukisuultra.ui.component.settings.lazySegmentColumn
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.updateTransition
+import com.tesla.resukisuultra.ui.screen.LabelText
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
@@ -97,6 +104,7 @@ import com.tesla.resukisuultra.ui.viewmodel.NoMountUiAction
 import com.tesla.resukisuultra.ui.viewmodel.NoMountUiState
 import com.tesla.resukisuultra.ui.viewmodel.NoMountViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -208,18 +216,11 @@ fun NoMountConfigScreen() {
             WindowInsetsSides.Top + WindowInsetsSides.Horizontal
         ),
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                LoadingIndicator()
-            }
-        } else {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-            ) { page ->
+        // 进入立即显示页面框架 (数据在 tab 内容区局部加载, 不整页转圈 — 仿 SUSFS)
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+        ) { page ->
                 when (page) {
                     0 -> NoMountModulesTab(
                         uiState = uiState,
@@ -257,7 +258,6 @@ fun NoMountConfigScreen() {
                             viewModel.dispatch(NoMountUiAction.RemoveExclusion(uid))
                         },
                     )
-                }
             }
         }
     }
@@ -346,12 +346,22 @@ private fun NoMountModulesTab(
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
                 )
             }
-            items(
+            // 渐进显示: 数据到达后模块卡片逐个淡入 (仿 SUSFS 内容逐个弹出)
+            itemsIndexed(
                 items = uiState.modules,
-                key = { it.id },
-            ) { module ->
+                key = { _, m -> m.id },
+            ) { index, module ->
+                var visible by remember(module.id) { mutableStateOf(false) }
+                LaunchedEffect(module.id) {
+                    delay(index * 60L)
+                    visible = true
+                }
+                val transition = updateTransition(targetState = visible, label = "module")
+                val alpha by transition.animateFloat(label = "alpha") { if (it) 1f else 0f }
+                val offsetY by transition.animateDp(label = "offset") { if (it) 0.dp else 24.dp }
                 ModuleCard(
                     module = module,
+                    modifier = Modifier.alpha(alpha).offset(y = offsetY),
                     onLoad = { onLoadModule(module) },
                     onUnload = { onUnloadModule(module) },
                 )
@@ -363,6 +373,7 @@ private fun NoMountModulesTab(
 @Composable
 private fun ModuleCard(
     module: NoMountModule,
+    modifier: Modifier = Modifier,
     onLoad: () -> Unit,
     onUnload: () -> Unit,
 ) {
@@ -375,7 +386,9 @@ private fun ModuleCard(
     val hotLoadText = stringResource(R.string.nomount_hot_load)
     val hotUnloadText = stringResource(R.string.nomount_hot_unload)
     val notEnabledText = stringResource(R.string.nomount_module_not_enabled)
-    val moduleSummary = stringResource(R.string.nomount_module_summary, module.fileCount, module.loaded)
+    val moduleVersion = stringResource(R.string.nomount_module_version)
+    val moduleAuthor = stringResource(R.string.nomount_module_author)
+    val moduleFiles = stringResource(R.string.nomount_module_summary, module.fileCount, module.loaded)
 
     // 状态 (仿 web 界面): loaded>0 已注入 / disabled 禁用 / 否则未注入
     val statusText = when {
@@ -402,9 +415,9 @@ private fun ModuleCard(
         else -> MaterialTheme.colorScheme.primary
     }
 
-    // 完整仿 ModuleItem (模块管理页卡片): Surface + blur + 名称/状态行 + 操作
+    // 完整仿 ModuleItem (模块管理页卡片): Surface + Column 布局 + 版本/作者/描述 + 标签行 + 操作
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .renderBackgroundBlur(),
@@ -415,49 +428,104 @@ private fun ModuleCard(
                 MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha),
         shape = RoundedCornerShape(16.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(22.dp, 18.dp, 22.dp, 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.padding(22.dp, 18.dp, 22.dp, 12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.fillMaxWidth(0.8f)) {
+                    Text(
+                        text = module.name,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
+                        fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (module.version.isNotEmpty()) {
+                        Text(
+                            text = "$moduleVersion: ${module.version}",
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                            lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
+                            fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    if (module.author.isNotEmpty()) {
+                        Text(
+                            text = "$moduleAuthor: ${module.author}",
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                            lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
+                            fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    Text(
+                        text = statusText,
+                        color = statusColor,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                        lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
+                        fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    TextButton(
+                        enabled = buttonEnabled,
+                        onClick = buttonAction,
+                    ) {
+                        Text(
+                            text = buttonText,
+                            color = if (buttonEnabled) buttonColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
+            if (module.description.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = module.name,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                    fontWeight = FontWeight.SemiBold,
+                    text = module.description,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                    fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
                     lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
-                    fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
-                    maxLines = 1,
+                    fontWeight = MaterialTheme.typography.bodySmall.fontWeight,
                     overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = statusText,
-                    color = statusColor,
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                    lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
-                    fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
-                )
-                Text(
-                    text = moduleSummary,
+                    maxLines = 4,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                    lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
-                    fontFamily = MaterialTheme.typography.bodySmall.fontFamily,
                 )
             }
-            Spacer(Modifier.width(8.dp))
-            TextButton(
-                enabled = buttonEnabled,
-                onClick = buttonAction,
+
+            Spacer(modifier = Modifier.height(12.dp))
+            // 标签行: 模块 id + 文件数 (仿 ModuleItem 的 LabelText 标签)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(
-                    text = buttonText,
-                    color = if (buttonEnabled) buttonColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                LabelText(
+                    label = module.id,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                )
+                LabelText(
+                    label = moduleFiles,
+                    containerColor = MaterialTheme.colorScheme.tertiary,
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NoMountCustomTab(
     uiState: NoMountUiState,
@@ -466,6 +534,13 @@ private fun NoMountCustomTab(
     onRemoveRule: (NoMountRule) -> Unit,
     onClearCustom: () -> Unit,
 ) {
+    if (uiState.isLoading && 1 !in uiState.loadedTabs) {
+        // 局部加载中 (不整页转圈)
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
+            LoadingIndicator()
+        }
+        return
+    }
     val addRuleTitle = stringResource(R.string.nomount_add_rule)
     val addRuleSummary = stringResource(R.string.nomount_add_rule_summary)
     val clearAllTitle = stringResource(R.string.nomount_clear_all)
@@ -603,6 +678,7 @@ private fun NoMountAddRuleDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NoMountExclusionsTab(
     uiState: NoMountUiState,
@@ -610,6 +686,13 @@ private fun NoMountExclusionsTab(
     onAddClick: () -> Unit,
     onRemoveExclusion: (Long) -> Unit,
 ) {
+    if (uiState.isLoading && 2 !in uiState.loadedTabs) {
+        // 局部加载中 (不整页转圈)
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
+            LoadingIndicator()
+        }
+        return
+    }
     val context = LocalContext.current
     val exclusionsTitle = stringResource(R.string.nomount_exclusions_title)
     val exclusionsAddTitle = stringResource(R.string.nomount_exclusions_add)

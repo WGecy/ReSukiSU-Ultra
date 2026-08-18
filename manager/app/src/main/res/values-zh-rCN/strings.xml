@@ -619,4 +619,17 @@
     <string name="susfs_redirect_entry_description">%1$s · %2$s</string>
     <string name="settings_fake_lock">隐藏Bootloader解锁状态</string>
     <string name="settings_fake_lock_summary">一定程度上隐藏Bootloader锁解锁状态</string>
+
+    <string name="netisolate_title">联网隔离</string>
+    <string name="netisolate_summary">禁止指定应用联网（内核级）</string>
+    <string name="netisolate_uid_list">已阻止列表</string>
+    <string name="netisolate_add_uid">添加应用</string>
+    <string name="netisolate_no_uids">暂无已阻止应用</string>
+    <string name="netisolate_loading">加载中...</string>
+    <string name="netisolate_no_data">无数据</string>
+    <string name="netisolate_tab_status">状态</string>
+    <string name="netisolate_tab_uid_list">已阻止应用</string>
+    <string name="netisolate_status_supported">内核支持</string>
+    <string name="netisolate_status_supported_yes">已支持（联网隔离生效）</string>
+    <string name="netisolate_add_uid_summary">被禁止联网的应用</string>
 </resources>

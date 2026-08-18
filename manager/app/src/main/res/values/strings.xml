@@ -636,6 +636,11 @@
     <string name="netisolate_no_uids">暂未阻止任何应用</string>
     <string name="netisolate_loading">Loading...</string>
     <string name="netisolate_no_data">No data</string>
+    <string name="netisolate_tab_status">Status</string>
+    <string name="netisolate_tab_uid_list">Blocked apps</string>
+    <string name="netisolate_status_supported">Kernel support</string>
+    <string name="netisolate_status_supported_yes">Supported (net-isolate active)</string>
+    <string name="netisolate_add_uid_summary">Apps excluded from network access</string>
     <string name="netisolate_add_uid">添加 UID</string>
     <string name="netisolate_input_uid">输入要阻止的 UID</string>
     <string name="netisolate_uid_list">被阻止的应用 (UID)</string>

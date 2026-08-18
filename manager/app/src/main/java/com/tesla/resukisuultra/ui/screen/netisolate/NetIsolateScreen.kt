@@ -1,5 +1,22 @@
 package com.tesla.resukisuultra.ui.screen.netisolate
 
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
+import com.tesla.resukisuultra.ui.theme.ThemeConfig
+import com.tesla.resukisuultra.ui.component.settings.AppBackButton
+import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
+import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
+import com.tesla.resukisuultra.ui.component.settings.SettingsSwitchWidget
+import androidx.compose.material.icons.twotone.Add
+import androidx.compose.material.icons.twotone.Info
+
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
@@ -14,6 +31,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,6 +71,7 @@ import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import org.koin.compose.viewmodel.koinViewModel
 
+import com.tesla.resukisuultra.ui.viewmodel.NetIsolateUiState
 import com.tesla.resukisuultra.ui.viewmodel.NetIsolateViewModel
 
 import com.tesla.resukisuultra.ui.theme.blurEffect
@@ -475,4 +494,272 @@ private fun android.graphics.drawable.Drawable.toBitmap(): android.graphics.Bitm
     setBounds(0, 0, canvas.width, canvas.height)
     draw(canvas)
     return bitmap
+}
+
+// ==================== 网络隔离独立页面 (1:1 仿 SUSFS 界面) ====================
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun NetIsolateConfigScreen() {
+    val themeConfig: ThemeConfig = koinInject()
+    val cardConfig: CardConfig = koinInject()
+    val viewModel: NetIsolateViewModel = koinViewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val navigator = LocalNavigator.current
+    val topAppBarState = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var showPicker by remember { mutableStateOf(false) }
+
+    val subpages = listOf(
+        NetIsolateConfigSubpage(
+            title = stringResource(R.string.netisolate_tab_status),
+        ) { innerPadding, nestedScrollConnection ->
+            NetIsolateStatusSubpage(
+                uiState = uiState,
+                innerPadding = innerPadding,
+                nestedScrollConnection = nestedScrollConnection,
+                onEnabledChange = { viewModel.setEnabled(it) },
+            )
+        },
+        NetIsolateConfigSubpage(
+            title = stringResource(R.string.netisolate_tab_uid_list),
+        ) { innerPadding, nestedScrollConnection ->
+            NetIsolateUidListSubpage(
+                uiState = uiState,
+                innerPadding = innerPadding,
+                nestedScrollConnection = nestedScrollConnection,
+                onAddClick = { showPicker = true },
+                onRemoveUid = { viewModel.toggleUid(it) },
+            )
+        },
+    )
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { subpages.size },
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
+
+    Scaffold(
+        topBar = {
+            Column(modifier = Modifier.blurEffect()) {
+                LargeFlexibleTopAppBar(
+                    title = { Text(stringResource(R.string.netisolate_title)) },
+                    scrollBehavior = scrollBehavior,
+                    navigationIcon = {
+                        AppBackButton(onClick = { navigator.pop() })
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors().copy(
+                        containerColor =
+                            if (themeConfig.isEnableBlur)
+                                Color.Transparent
+                            else
+                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+                        scrolledContainerColor =
+                            if (themeConfig.isEnableBlur)
+                                Color.Transparent
+                            else
+                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+                    ),
+                    windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
+                )
+
+                PrimaryScrollableTabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor =
+                        if (themeConfig.isEnableBlur)
+                            Color.Transparent
+                        else
+                            MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+                    edgePadding = 0.dp,
+                    minTabWidth = 0.dp,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    subpages.forEachIndexed { index, subpage ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            modifier = Modifier.widthIn(
+                                min = TabRowDefaults.ScrollableTabRowMinTabWidth
+                            ),
+                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text = { Text(subpage.title) }
+                        )
+                    }
+                }
+            }
+        },
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        contentWindowInsets = WindowInsets.safeDrawing.only(
+            WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+        ),
+    ) { innerPadding ->
+        HorizontalPager(
+            modifier = Modifier.fillMaxSize(),
+            state = pagerState,
+        ) { page ->
+            subpages[page].content(innerPadding, scrollBehavior.nestedScrollConnection)
+        }
+    }
+
+    if (showPicker) {
+        AppPickerSheet(
+            selectedUids = uiState.selectedUids,
+            onUidToggle = { uid -> viewModel.toggleUid(uid) },
+            onDismiss = { showPicker = false },
+        )
+    }
+}
+
+private class NetIsolateConfigSubpage(
+    val title: String,
+    val content: @Composable (androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.input.nestedscroll.NestedScrollConnection) -> Unit,
+)
+
+@Composable
+private fun NetIsolateStatusSubpage(
+    uiState: NetIsolateUiState,
+    innerPadding: PaddingValues,
+    nestedScrollConnection: NestedScrollConnection,
+    onEnabledChange: (Boolean) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection),
+        contentPadding = PaddingValues(
+            top = innerPadding.calculateTopPadding() + 16.dp,
+            start = 16.dp,
+            end = 16.dp,
+            bottom = 16.dp,
+        ),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            SegmentedColumn {
+                item {
+                    SettingsSwitchWidget(
+                        icon = Icons.TwoTone.WifiOff,
+                        title = stringResource(R.string.netisolate_title),
+                        description = stringResource(R.string.netisolate_summary),
+                        checked = uiState.enabled,
+                        enabled = uiState.loaded,
+                        onCheckedChange = onEnabledChange,
+                    )
+                }
+            }
+        }
+        item {
+            SegmentedColumn {
+                item {
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.Info,
+                        title = stringResource(R.string.netisolate_status_supported),
+                        description = if (uiState.loaded) {
+                            stringResource(R.string.netisolate_status_supported_yes)
+                        } else {
+                            stringResource(R.string.netisolate_no_data)
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NetIsolateUidListSubpage(
+    uiState: NetIsolateUiState,
+    innerPadding: PaddingValues,
+    nestedScrollConnection: NestedScrollConnection,
+    onAddClick: () -> Unit,
+    onRemoveUid: (Int) -> Unit,
+) {
+    val context = LocalContext.current
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection),
+        contentPadding = PaddingValues(
+            top = innerPadding.calculateTopPadding() + 16.dp,
+            start = 16.dp,
+            end = 16.dp,
+            bottom = 16.dp,
+        ),
+    ) {
+        item {
+            SegmentedColumn {
+                item {
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.Add,
+                        title = stringResource(R.string.netisolate_add_uid),
+                        description = stringResource(R.string.netisolate_add_uid_summary),
+                        onClick = { onAddClick() },
+                    )
+                }
+            }
+        }
+        item {
+            Spacer(Modifier.height(16.dp))
+        }
+        if (uiState.selectedUids.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (uiState.loaded) R.string.netisolate_no_uids
+                            else R.string.netisolate_no_data
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        } else {
+            uiState.selectedUids.sorted().forEach { uid ->
+                item {
+                    val pkgs = remember(uid) {
+                        runCatching { context.packageManager.getPackagesForUid(uid) }.getOrNull()
+                    }
+                    val pkgName = pkgs?.firstOrNull()
+                    val label = remember(pkgName) {
+                        pkgName?.let {
+                            runCatching {
+                                context.packageManager.getApplicationInfo(it, 0)
+                                    .loadLabel(context.packageManager).toString()
+                            }.getOrNull()
+                        } ?: "UID $uid"
+                    }
+                    SegmentedColumn {
+                        item {
+                            SettingsBaseWidget(
+                                title = label,
+                                description = pkgName ?: "UID $uid",
+                                onClick = { onRemoveUid(uid) },
+                                trailingContent = {
+                                    Icon(
+                                        imageVector = Icons.TwoTone.Delete,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error,
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

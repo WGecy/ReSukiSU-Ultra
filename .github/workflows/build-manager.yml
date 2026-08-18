@@ -419,13 +419,24 @@ jobs:
       - name: 删除旧 Release (固定 tag v4.3.0-latest)
         continue-on-error: true
         run: |
-          # 固定 tag: get-manager 用稳定 URL 下载 (无需 API/latest 重定向)
-          gh release delete v4.3.0-latest --repo ${{ github.repository }} --yes --cleanup-tag
+          # 一个版本一个 tag (v4.3.0_$VERSION): 资产只本次, 不堆积
+          # delete 加重试 + 验证
+          REPO="${{ github.repository }}"
+          REL_TAG="${{ steps.version.outputs.TAG_NAME }}"
+          for i in 1 2 3; do
+            gh release delete "$REL_TAG" --repo "$REPO" --yes --cleanup-tag && break
+            sleep 8
+          done
+          if gh release view "$REL_TAG" --repo "$REPO" >/dev/null 2>&1; then
+            echo "::error::旧 Release 删除失败 (tag 仍存在), 中止发布"
+            exit 1
+          fi
+          sleep 3
 
       - name: 发布 Release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v4.3.0-latest
+          tag_name: ${{ steps.version.outputs.TAG_NAME }}
           name: "ReSukiSU-Ultra ${{ steps.version.outputs.TAG_NAME }}"
           body: |
             自动构建产物 (ReSukiSU-Ultra 分支)

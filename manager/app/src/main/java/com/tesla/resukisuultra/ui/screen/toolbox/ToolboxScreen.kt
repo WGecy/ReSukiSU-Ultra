@@ -94,14 +94,6 @@ fun ToolboxScreen() {
         }
     }
 
-    // 页面级加载态: 每次进入工具箱开关先显示关闭(灰), 刷新完成后开启 (仿 SUSFS configEnabledLoaded)
-    var pageLoaded by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        pageLoaded = false
-        delay(300)
-        pageLoaded = true
-    }
-
     val subpages = buildList {
         if (netisolateSupported) {
             add(ToolboxSubpage(
@@ -110,11 +102,19 @@ fun ToolboxScreen() {
                 NetIsolateTab(
                     innerPadding = innerPadding,
                     nestedScrollConnection = nestedScrollConnection,
-                    pageLoaded = pageLoaded,
                     onAddClick = { addPicker = true },
                 )
             })
         }
+        // IO 调度器切换 (SUSFS/网络隔离风格)
+        add(ToolboxSubpage(
+            title = stringResource(R.string.iosched_title),
+        ) { innerPadding, nestedScrollConnection ->
+            IoSchedulerTab(
+                innerPadding = innerPadding,
+                nestedScrollConnection = nestedScrollConnection,
+            )
+        })
     }
 
     val pagerState = rememberPagerState(

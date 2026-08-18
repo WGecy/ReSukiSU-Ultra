@@ -638,4 +638,12 @@
     <string name="module_sort_default">默认</string>
     <string name="module_sort_name">按名称</string>
     <string name="module_sort_enabled">按启用</string>
+
+    <string name="iosched_title">IO 调度器</string>
+    <string name="iosched_current">当前调度器</string>
+    <string name="iosched_in_use">使用中</string>
+    <string name="iosched_switch_hint">点击切换</string>
+    <string name="iosched_none">无调度器</string>
+    <string name="iosched_no_data">无数据</string>
+    <string name="iosched_summary">切换 IO 调度器（ADIOS / SSG / mq-deadline 等），日用与游戏可对比体验</string>
 </resources>

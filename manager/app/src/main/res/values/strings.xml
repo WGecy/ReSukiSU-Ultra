@@ -661,4 +661,12 @@
     <string name="module_sort_default">Default</string>
     <string name="module_sort_name">By name</string>
     <string name="module_sort_enabled">By enabled</string>
+
+    <string name="iosched_title">I/O Scheduler</string>
+    <string name="iosched_current">Current scheduler</string>
+    <string name="iosched_in_use">In use</string>
+    <string name="iosched_switch_hint">Tap to switch</string>
+    <string name="iosched_none">No scheduler</string>
+    <string name="iosched_no_data">No data</string>
+    <string name="iosched_summary">Switch I/O scheduler (ADIOS / SSG / mq-deadline...)</string>
 </resources>

@@ -131,7 +131,6 @@ private data class AppListEntry(
 fun NetIsolateTab(
     innerPadding: PaddingValues,
     nestedScrollConnection: NestedScrollConnection,
-    pageLoaded: Boolean,
     onAddClick: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -139,8 +138,12 @@ fun NetIsolateTab(
     val viewModel: NetIsolateViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    // 仿 SUSFS configEnabledLoaded: 页面级加载态 — 进入先关(灰), 刷新真实完成后才开
+    var pageLoaded by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
+        pageLoaded = false
         viewModel.refresh()
+        pageLoaded = true
     }
     val uidListTitle = stringResource(R.string.netisolate_uid_list)
 

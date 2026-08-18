@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tesla.resukisuultra.data.netisolate.NetIsolateRepository
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,24 +24,14 @@ class NetIsolateViewModel(
     private val mutableState = MutableStateFlow(NetIsolateUiState())
     val uiState: StateFlow<NetIsolateUiState> = mutableState.asStateFlow()
 
-    /** 仿 SUSFS: 进入页面后台加载 (占位→数据更新, 不转圈; 缓存命中秒开) */
-    fun refresh() {
-        viewModelScope.launch {
-            // 3s 超时兜底: 防止 shell/su 会话卡死导致永久等待 (阻塞感)
-            withTimeoutOrNull(3000) {
-                runCatching {
-                    val enabledDeferred = async { repository.isEnabled() }
-                    val uidsDeferred = async { repository.getUids() }
-                    val enabled = enabledDeferred.await()
-                    val uids = uidsDeferred.await()
-                    NetIsolateUiState(enabled = enabled, selectedUids = uids, loaded = true)
-                }.onSuccess { newState ->
-                    mutableState.value = newState
-                }
-            } ?: run {
-                // 超时: 标记已加载 (显示当前状态, 避免永久占位)
-                mutableState.update { it.copy(loaded = true) }
-            }
+    /** 仿 SUSFS: 进入页面后台加载 (suspend 可等待 — 页面级 pageLoaded 在真实完成后置位) */
+    suspend fun refresh() {
+        coroutineScope {
+            val enabledDeferred = async { repository.isEnabled() }
+            val uidsDeferred = async { repository.getUids() }
+            val enabled = enabledDeferred.await()
+            val uids = uidsDeferred.await()
+            mutableState.value = NetIsolateUiState(enabled = enabled, selectedUids = uids, loaded = true)
         }
     }
 

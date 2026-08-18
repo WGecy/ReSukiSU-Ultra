@@ -26,6 +26,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Setup clang-format 22 (与本地一致)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang-format-22
+          sudo ln -sf /usr/bin/clang-format-22 /usr/local/bin/clang-format
+          clang-format --version
+
       - name: check
         working-directory: kernel
         run: make check-format

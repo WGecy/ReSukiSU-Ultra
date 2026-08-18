@@ -627,8 +627,23 @@ class KsuCliRepository(context: Context) {
         launchApp(packageName)
     }
 
+    private var noMountBuiltIn: Boolean? = null
+
+    /** NoMount 内置检测 (ksud nomount status) */
+    fun isNoMountBuiltIn(): Boolean {
+        noMountBuiltIn?.let { return it }
+        noMountBuiltIn = runCatching {
+            exec("${getKsuDaemonPath()} nomount status")?.contains("supported: true") == true
+        }.getOrDefault(false)
+        return noMountBuiltIn == true
+    }
+
     fun getMetaModuleImplement(): String {
         try {
+            // NoMount 内置 (ksud 注入) 时, 元模块功能由内核内置替代 → 显示 nomount
+            if (isNoMountBuiltIn()) {
+                return "nomount"
+            }
             val metaModuleProp = SuFile.open("/data/adb/metamodule/module.prop")
             if (!metaModuleProp.isFile) {
                 Log.i(TAG, "Meta module implement: None")

@@ -2,6 +2,7 @@ package com.tesla.resukisuultra.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tesla.resukisuultra.data.AppSettingsRepository
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,11 @@ data class IoSchedulerUiState(
 
 class IoSchedulerViewModel(
     private val ksuCli: KsuCliRepository,
+    private val settingsRepository: AppSettingsRepository,
 ) : ViewModel() {
+    companion object {
+        const val PREF_KEY = "io_scheduler"
+    }
     private val mutableState = MutableStateFlow(IoSchedulerUiState())
     val uiState: StateFlow<IoSchedulerUiState> = mutableState.asStateFlow()
 
@@ -59,6 +64,7 @@ class IoSchedulerViewModel(
                 success
             }
             if (ok) {
+                settingsRepository.putString(PREF_KEY, name)
                 refresh()
             } else {
                 mutableState.update { it.copy(error = "切换失败") }
@@ -77,7 +83,7 @@ class IoSchedulerViewModel(
             // 输出如: none mq-deadline [adios] kyber bfq cpq
             val available = sched.split(" ")
                 .map { it.trim('[', ']') }
-                .filter { it.isNotBlank() && it != "none" }
+                .filter { it.isNotBlank() && it != "none" && it != "cpq" }
             val current = sched.substringAfter('[', "").substringBefore(']').trim()
             if (available.isEmpty()) null
             else IoBlockDevice(name = name, current = current, available = available)

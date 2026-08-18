@@ -21,6 +21,12 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             return;
         }
         try {
+            // 开机应用 IO 调度器配置固化 (管理器选择 → root 写 sysfs)
+            IoSchedBootApplier.INSTANCE.apply(context.getApplicationContext());
+        } catch (Throwable e) {
+            Log.e(TAG, "Failed to apply io scheduler config from boot action: " + action, e);
+        }
+        try {
             context.startService(new Intent(context, MagicaService.class));
             Log.i(TAG, "MagicaService started from boot action: " + action);
         } catch (Throwable e) {

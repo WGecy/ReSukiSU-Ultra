@@ -82,7 +82,7 @@ class ScalePredictiveBackAnimation(
             if (pageKey == currentPageKey.toString() || exitingPageKey == pageKey) {
                 // Calculate the page scale
                 val animatedScale by transition.animateFloat(
-                    transitionSpec = { tween(300) },
+                    transitionSpec = { tween(200) },
                     label = "PredictiveScale"
                 ) { state ->
                     when (state) {

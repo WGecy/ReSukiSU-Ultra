@@ -2,6 +2,7 @@ package com.tesla.resukisuultra.ui.animation.predictiveback
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
@@ -33,22 +34,22 @@ class KernelSUClassicPredictiveBackAnimation : PredictiveBackAnimationHandler {
         swipeEdge: Int
     ): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }),
-            initialContentExit = scaleOut(targetScale = 0.9f) + fadeOut(),
+            targetContentEnter = slideInHorizontally(tween(200), initialOffsetX = { fullWidth -> -fullWidth }),
+            initialContentExit = scaleOut(tween(200), targetScale = 0.9f) + fadeOut(tween(200)),
             sizeTransform = null
         )
 
     override fun AnimatedContentTransitionScope<Scene<NavKey>>.onPopTransitionSpec(): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }),
-            initialContentExit = scaleOut(targetScale = 0.9f) + fadeOut(),
+            targetContentEnter = slideInHorizontally(tween(200), initialOffsetX = { fullWidth -> -fullWidth }),
+            initialContentExit = scaleOut(tween(200), targetScale = 0.9f) + fadeOut(tween(200)),
             sizeTransform = null
         )
 
     override fun AnimatedContentTransitionScope<Scene<NavKey>>.onTransitionSpec(): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }),
-            initialContentExit = slideOutHorizontally(targetOffsetX = { fullWidth -> -fullWidth }),
+            targetContentEnter = slideInHorizontally(tween(200), initialOffsetX = { fullWidth -> fullWidth }),
+            initialContentExit = slideOutHorizontally(tween(200), targetOffsetX = { fullWidth -> -fullWidth }),
             sizeTransform = null
         )
 }

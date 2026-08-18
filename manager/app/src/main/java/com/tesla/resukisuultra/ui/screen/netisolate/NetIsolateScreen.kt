@@ -199,7 +199,7 @@ fun NetIsolateTab(
                     // 仿 SUSFS: 加载前显示"无数据"占位 (不转圈不误导)
                     item {
                         Text(
-                            text = stringResource(R.string.netisolate_loading),
+                            text = stringResource(R.string.netisolate_no_data),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(16.dp)

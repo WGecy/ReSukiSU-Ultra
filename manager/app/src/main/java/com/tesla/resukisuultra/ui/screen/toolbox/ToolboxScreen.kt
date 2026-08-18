@@ -67,9 +67,9 @@ fun ToolboxScreen() {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
     val coroutineScope = rememberCoroutineScope()
 
-    // 内核支持检测: netisolate 只在内核集成时显示 (异步检测, 避免主线程 exec 阻塞)
+    // 默认直接显示网络隔离 (秒开), 后台检测纠正 (内核不支持才隐藏)
     val context = LocalContext.current
-    var netisolateSupported by remember { mutableStateOf(false) }
+    var netisolateSupported by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
         netisolateSupported = withContext(Dispatchers.IO) {
             runCatching {

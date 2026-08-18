@@ -185,6 +185,31 @@ fun NetIsolateTab(
             }
         }
 
+        // 标题行: 已阻止列表 + 右侧添加 UID 按钮
+        item(key = "title_row") {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = uidListTitle,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(onClick = { onAddClick() }) {
+                    Icon(
+                        imageVector = Icons.TwoTone.Add,
+                        contentDescription = stringResource(R.string.netisolate_add_uid),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+        }
+
         // 已阻止列表 (仿 SUSFS susfsEntryList 机制: 添加行 + 列表项连一起, 缝分隔)
         if (uiState.selectedUids.isEmpty()) {
             item(key = "empty") {
@@ -226,22 +251,8 @@ fun NetIsolateTab(
                     }
                 }
             }
-            // 空态时也提供添加入口 (SUSFS susfsEntryList 机制)
-            item {
-                SegmentedColumn {
-                    item {
-                        SettingsJumpPageWidget(
-                            iconPlaceholder = false,
-                            title = stringResource(R.string.netisolate_add_uid),
-                            trailingIcon = Icons.TwoTone.Add,
-                            onClick = { onAddClick() },
-                        )
-                    }
-                }
-            }
         } else {
             lazySegmentColumn(
-                title = uidListTitle,
                 items = uiState.selectedUids.sorted(),
                 key = { _, uid -> uid },
             ) { _, uid ->

@@ -679,4 +679,6 @@
     <string name="settings_soft_reboot">Soft reboot</string>
     <string name="settings_soft_reboot_summary">Prefer soft reboot when restarting (keeps jailbreak, still applies module changes)</string>
 
+
+    <string name="netisolate_add_app">Add app</string>
 </resources>

@@ -677,4 +677,6 @@
     <string name="settings_fake_lock_enabled">已启用伪装</string>
     <string name="settings_fake_lock_disabled">已禁用伪装</string>
 
+
+    <string name="netisolate_add_app">添加应用</string>
 </resources>

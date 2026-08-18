@@ -190,30 +190,40 @@ fun NoMountConfigScreen() {
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     // 仿 SUSFS: 进入只显示"模块"tab, 数据加载完成后其余 tab 展开
+                    // 注意: tab 0 不包 AnimatedVisibility (TabRow 内部 tab 集合不能瞬时空 — 会 IndexOutOfBounds 崩溃)
                     val tabsLoaded = uiState.loadedTabs.size >= 3
-                    listOf(0, 1, 2).forEach { tabIndex ->
-                        val tabVisible = tabIndex == 0 || tabsLoaded
+                    Tab(
+                        selected = pagerState.currentPage == 0,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
+                        modifier = Modifier.widthIn(min = TabRowDefaults.ScrollableTabRowMinTabWidth),
+                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = { Text(stringResource(R.string.nomount_tab_modules)) },
+                    )
+                    if (tabsLoaded) {
                         AnimatedVisibility(
-                            visible = tabVisible,
+                            visible = true,
                             enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
                             exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
                         ) {
                             Tab(
-                                selected = tabVisible && pagerState.currentPage == tabIndex,
-                                onClick = { scope.launch { pagerState.animateScrollToPage(tabIndex) } },
+                                selected = pagerState.currentPage == 1,
+                                onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
                                 modifier = Modifier.widthIn(min = TabRowDefaults.ScrollableTabRowMinTabWidth),
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                text = {
-                                    Text(
-                                        stringResource(
-                                            when (tabIndex) {
-                                                0 -> R.string.nomount_tab_modules
-                                                1 -> R.string.nomount_tab_custom
-                                                else -> R.string.nomount_tab_exclusions
-                                            }
-                                        )
-                                    )
-                                },
+                                text = { Text(stringResource(R.string.nomount_tab_custom)) },
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
+                            exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
+                        ) {
+                            Tab(
+                                selected = pagerState.currentPage == 2,
+                                onClick = { scope.launch { pagerState.animateScrollToPage(2) } },
+                                modifier = Modifier.widthIn(min = TabRowDefaults.ScrollableTabRowMinTabWidth),
+                                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                text = { Text(stringResource(R.string.nomount_tab_exclusions)) },
                             )
                         }
                     }

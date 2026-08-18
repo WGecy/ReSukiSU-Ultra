@@ -650,4 +650,6 @@
     <string name="iosched_pin">固化调度器</string>
     <string name="iosched_pinned_desc">开机自动应用：%1$s</string>
     <string name="iosched_unpinned_desc">切换仅本次生效（重启恢复默认）</string>
+
+    <string name="iosched_about">关于</string>
 </resources>

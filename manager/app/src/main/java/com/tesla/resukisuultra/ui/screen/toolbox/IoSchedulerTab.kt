@@ -61,7 +61,7 @@ fun IoSchedulerTab(
             Spacer(Modifier.height(innerPadding.calculateTopPadding()))
         }
 
-        // 固化开关 (当前调度器上面 — 开机自动应用)
+        // 大列 (连着, item 间留缝): 固化 + 当前 + 关于
         item {
             SegmentedColumn {
                 item {
@@ -96,15 +96,6 @@ fun IoSchedulerTab(
                         },
                     )
                 }
-            }
-        }
-        item {
-            Spacer(Modifier.height(20.dp))
-        }
-
-        // 状态卡: 当前调度器
-        item {
-            SegmentedColumn {
                 item {
                     SettingsBaseWidget(
                         icon = Icons.TwoTone.Speed,
@@ -115,6 +106,13 @@ fun IoSchedulerTab(
                         } else {
                             stringResource(R.string.iosched_no_data)
                         },
+                    )
+                }
+                item {
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.Info,
+                        title = stringResource(R.string.iosched_about),
+                        description = stringResource(R.string.iosched_summary),
                     )
                 }
             }
@@ -139,7 +137,7 @@ fun IoSchedulerTab(
                 }
             } else {
                 item {
-                    SegmentedColumn {
+                    SegmentedColumn(title = stringResource(R.string.iosched_title)) {
                         uiState.available.forEach { name ->
                             item {
                                 val isCurrent = name == uiState.current
@@ -167,20 +165,6 @@ fun IoSchedulerTab(
                                     },
                                 )
                             }
-                        }
-                    }
-                }
-                item {
-                    Spacer(Modifier.height(16.dp))
-                }
-                item {
-                    SegmentedColumn {
-                        item {
-                            SettingsBaseWidget(
-                                icon = Icons.TwoTone.Info,
-                                title = stringResource(R.string.iosched_title),
-                                description = stringResource(R.string.iosched_summary),
-                            )
                         }
                     }
                 }

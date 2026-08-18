@@ -673,4 +673,6 @@
     <string name="iosched_pin">Pin scheduler</string>
     <string name="iosched_pinned_desc">Boot auto-applies: %1$s</string>
     <string name="iosched_unpinned_desc">Switch applies for this session only (restores default after reboot)</string>
+
+    <string name="iosched_about">About</string>
 </resources>

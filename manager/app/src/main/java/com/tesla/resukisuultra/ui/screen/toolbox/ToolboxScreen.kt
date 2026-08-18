@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
@@ -33,7 +34,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.WifiOff
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,9 +47,15 @@ import androidx.compose.ui.unit.dp
 import com.tesla.resukisuultra.R
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
+import com.tesla.resukisuultra.ui.navigation.Route
 import org.koin.compose.koinInject
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateTab
+import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
+import com.tesla.resukisuultra.ui.component.settings.SettingsSwitchWidget
+import com.tesla.resukisuultra.ui.viewmodel.NetIsolateViewModel
+import androidx.compose.foundation.lazy.LazyColumn
+import org.koin.compose.viewmodel.koinViewModel
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
@@ -83,11 +93,37 @@ fun ToolboxScreen() {
         if (netisolateSupported) {
             add(ToolboxSubpage(
                 title = stringResource(R.string.netisolate_title),
-            ) { innerPadding, nestedScrollConnection ->
-                NetIsolateTab(
-                    innerPadding = innerPadding,
-                    nestedScrollConnection = nestedScrollConnection,
-                )
+            ) { innerPadding, _ ->
+                // 入口卡片: 仿 SUSFS 开关样式 (✔/❌ 显示启用状态), 点击进入独立页面
+                val netIsolateViewModel: NetIsolateViewModel = koinViewModel()
+                val netIsolateState by netIsolateViewModel.uiState.collectAsStateWithLifecycle()
+                LaunchedEffect(Unit) {
+                    netIsolateViewModel.refresh()
+                }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        top = innerPadding.calculateTopPadding() + 16.dp,
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 16.dp,
+                    ),
+                ) {
+                    item {
+                        SegmentedColumn {
+                            item {
+                                SettingsSwitchWidget(
+                                    icon = Icons.TwoTone.WifiOff,
+                                    title = stringResource(R.string.netisolate_title),
+                                    description = stringResource(R.string.netisolate_summary),
+                                    checked = netIsolateState.enabled,
+                                    enabled = netIsolateState.loaded,
+                                    onCheckedChange = { navigator.push(Route.NetIsolate) },
+                                )
+                            }
+                        }
+                    }
+                }
             })
         }
     }

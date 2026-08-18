@@ -97,6 +97,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tesla.resukisuultra.R
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -511,6 +512,14 @@ fun NetIsolateConfigScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var showPicker by remember { mutableStateOf(false) }
+    // 页面级加载态: 每次进入开关先显示关闭(灰色), 刷新完成后开启 (仿 SUSFS)
+    var pageLoaded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+        delay(300)
+        pageLoaded = true
+    }
 
     val subpages = listOf(
         NetIsolateConfigSubpage(
@@ -520,6 +529,7 @@ fun NetIsolateConfigScreen() {
                 uiState = uiState,
                 innerPadding = innerPadding,
                 nestedScrollConnection = nestedScrollConnection,
+                pageLoaded = pageLoaded,
                 onEnabledChange = { viewModel.setEnabled(it) },
             )
         },
@@ -539,10 +549,6 @@ fun NetIsolateConfigScreen() {
         initialPage = 0,
         pageCount = { subpages.size },
     )
-
-    LaunchedEffect(Unit) {
-        viewModel.refresh()
-    }
 
     Scaffold(
         topBar = {
@@ -630,6 +636,7 @@ private fun NetIsolateStatusSubpage(
     uiState: NetIsolateUiState,
     innerPadding: PaddingValues,
     nestedScrollConnection: NestedScrollConnection,
+    pageLoaded: Boolean,
     onEnabledChange: (Boolean) -> Unit,
 ) {
     LazyColumn(
@@ -651,8 +658,9 @@ private fun NetIsolateStatusSubpage(
                         icon = Icons.TwoTone.WifiOff,
                         title = stringResource(R.string.netisolate_title),
                         description = stringResource(R.string.netisolate_summary),
-                        checked = uiState.enabled,
-                        enabled = uiState.loaded,
+                        // 每次进入: 先显示关闭(灰色), 刷新完成后显示真实状态 (仿 SUSFS)
+                        checked = if (pageLoaded) uiState.enabled else false,
+                        enabled = pageLoaded && uiState.loaded,
                         onCheckedChange = onEnabledChange,
                     )
                 }
@@ -752,7 +760,7 @@ private fun NetIsolateUidListSubpage(
                                     Icon(
                                         imageVector = Icons.TwoTone.Delete,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.error,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 },
                             )

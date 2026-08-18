@@ -50,7 +50,9 @@ import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.navigation.Route
 import org.koin.compose.koinInject
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
-import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateTab
+import com.tesla.resukisuultra.ui.screen.netisolate.AppPickerSheet
+import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateStatusSubpage
+import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateUidListSubpage
 import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
 import com.tesla.resukisuultra.ui.component.settings.SettingsSwitchWidget
 import com.tesla.resukisuultra.ui.viewmodel.NetIsolateViewModel
@@ -76,6 +78,7 @@ fun ToolboxScreen() {
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
     val coroutineScope = rememberCoroutineScope()
+    var addPicker by remember { mutableStateOf(false) }
 
     // 默认直接显示网络隔离 (秒开), 后台检测纠正 (内核不支持才隐藏)
     val context = LocalContext.current
@@ -91,39 +94,35 @@ fun ToolboxScreen() {
 
     val subpages = buildList {
         if (netisolateSupported) {
+            // 打开工具箱直接显示网络隔离内容 (SUSFS 式两个子页: 状态 / 已阻止应用)
             add(ToolboxSubpage(
-                title = stringResource(R.string.netisolate_title),
-            ) { innerPadding, _ ->
-                // 入口卡片: 仿 SUSFS 开关样式 (✔/❌ 显示启用状态), 点击进入独立页面
+                title = stringResource(R.string.netisolate_tab_status),
+            ) { innerPadding, nestedScrollConnection ->
                 val netIsolateViewModel: NetIsolateViewModel = koinViewModel()
                 val netIsolateState by netIsolateViewModel.uiState.collectAsStateWithLifecycle()
                 LaunchedEffect(Unit) {
                     netIsolateViewModel.refresh()
                 }
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        top = innerPadding.calculateTopPadding() + 16.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp,
-                    ),
-                ) {
-                    item {
-                        SegmentedColumn {
-                            item {
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.WifiOff,
-                                    title = stringResource(R.string.netisolate_title),
-                                    description = stringResource(R.string.netisolate_summary),
-                                    checked = netIsolateState.enabled,
-                                    enabled = netIsolateState.loaded,
-                                    onCheckedChange = { navigator.push(Route.NetIsolate) },
-                                )
-                            }
-                        }
-                    }
-                }
+                NetIsolateStatusSubpage(
+                    uiState = netIsolateState,
+                    innerPadding = innerPadding,
+                    nestedScrollConnection = nestedScrollConnection,
+                    pageLoaded = netIsolateState.loaded,
+                    onEnabledChange = { netIsolateViewModel.setEnabled(it) },
+                )
+            })
+            add(ToolboxSubpage(
+                title = stringResource(R.string.netisolate_tab_uid_list),
+            ) { innerPadding, nestedScrollConnection ->
+                val netIsolateViewModel: NetIsolateViewModel = koinViewModel()
+                val netIsolateState by netIsolateViewModel.uiState.collectAsStateWithLifecycle()
+                NetIsolateUidListSubpage(
+                    uiState = netIsolateState,
+                    innerPadding = innerPadding,
+                    nestedScrollConnection = nestedScrollConnection,
+                    onAddClick = { addPicker = true },
+                    onRemoveUid = { netIsolateViewModel.toggleUid(it) },
+                )
             })
         }
     }
@@ -217,6 +216,16 @@ fun ToolboxScreen() {
                 subpages[page].content(innerPadding, scrollBehavior.nestedScrollConnection)
             }
         }
+    }
+
+    if (addPicker) {
+        val netIsolateViewModel: NetIsolateViewModel = koinViewModel()
+        val netIsolateState by netIsolateViewModel.uiState.collectAsStateWithLifecycle()
+        AppPickerSheet(
+            selectedUids = netIsolateState.selectedUids,
+            onUidToggle = { uid -> netIsolateViewModel.toggleUid(uid) },
+            onDismiss = { addPicker = false },
+        )
     }
 }
 

@@ -140,9 +140,6 @@ sealed interface Route : NavKey, Parcelable {
     @Serializable
     data object Toolbox : Route
 
-    @Parcelize
-    @Serializable
-    data object NetIsolate : Route
 
     @Parcelize
     @Serializable

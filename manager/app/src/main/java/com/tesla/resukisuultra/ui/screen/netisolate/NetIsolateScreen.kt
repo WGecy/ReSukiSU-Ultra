@@ -304,7 +304,7 @@ fun NetIsolateTab(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppPickerSheet(
+internal fun AppPickerSheet(
     selectedUids: Set<Int>,
     onUidToggle: (Int) -> Unit,
     onDismiss: () -> Unit,
@@ -497,142 +497,10 @@ private fun android.graphics.drawable.Drawable.toBitmap(): android.graphics.Bitm
     return bitmap
 }
 
-// ==================== 网络隔离独立页面 (1:1 仿 SUSFS 界面) ====================
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun NetIsolateConfigScreen() {
-    val themeConfig: ThemeConfig = koinInject()
-    val cardConfig: CardConfig = koinInject()
-    val viewModel: NetIsolateViewModel = koinViewModel()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val navigator = LocalNavigator.current
-    val topAppBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var showPicker by remember { mutableStateOf(false) }
-    // 页面级加载态: 每次进入开关先显示关闭(灰色), 刷新完成后开启 (仿 SUSFS)
-    var pageLoaded by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        viewModel.refresh()
-        delay(300)
-        pageLoaded = true
-    }
-
-    val subpages = listOf(
-        NetIsolateConfigSubpage(
-            title = stringResource(R.string.netisolate_tab_status),
-        ) { innerPadding, nestedScrollConnection ->
-            NetIsolateStatusSubpage(
-                uiState = uiState,
-                innerPadding = innerPadding,
-                nestedScrollConnection = nestedScrollConnection,
-                pageLoaded = pageLoaded,
-                onEnabledChange = { viewModel.setEnabled(it) },
-            )
-        },
-        NetIsolateConfigSubpage(
-            title = stringResource(R.string.netisolate_tab_uid_list),
-        ) { innerPadding, nestedScrollConnection ->
-            NetIsolateUidListSubpage(
-                uiState = uiState,
-                innerPadding = innerPadding,
-                nestedScrollConnection = nestedScrollConnection,
-                onAddClick = { showPicker = true },
-                onRemoveUid = { viewModel.toggleUid(it) },
-            )
-        },
-    )
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { subpages.size },
-    )
-
-    Scaffold(
-        topBar = {
-            Column(modifier = Modifier.blurEffect()) {
-                LargeFlexibleTopAppBar(
-                    title = { Text(stringResource(R.string.netisolate_title)) },
-                    scrollBehavior = scrollBehavior,
-                    navigationIcon = {
-                        AppBackButton(onClick = { navigator.pop() })
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors().copy(
-                        containerColor =
-                            if (themeConfig.isEnableBlur)
-                                Color.Transparent
-                            else
-                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
-                        scrolledContainerColor =
-                            if (themeConfig.isEnableBlur)
-                                Color.Transparent
-                            else
-                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
-                    ),
-                    windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
-                )
-
-                PrimaryScrollableTabRow(
-                    selectedTabIndex = pagerState.currentPage,
-                    containerColor =
-                        if (themeConfig.isEnableBlur)
-                            Color.Transparent
-                        else
-                            MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
-                    edgePadding = 0.dp,
-                    minTabWidth = 0.dp,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    subpages.forEachIndexed { index, subpage ->
-                        Tab(
-                            selected = pagerState.currentPage == index,
-                            onClick = {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            },
-                            modifier = Modifier.widthIn(
-                                min = TabRowDefaults.ScrollableTabRowMinTabWidth
-                            ),
-                            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            text = { Text(subpage.title) }
-                        )
-                    }
-                }
-            }
-        },
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        contentWindowInsets = WindowInsets.safeDrawing.only(
-            WindowInsetsSides.Top + WindowInsetsSides.Horizontal
-        ),
-    ) { innerPadding ->
-        HorizontalPager(
-            modifier = Modifier.fillMaxSize(),
-            state = pagerState,
-        ) { page ->
-            subpages[page].content(innerPadding, scrollBehavior.nestedScrollConnection)
-        }
-    }
-
-    if (showPicker) {
-        AppPickerSheet(
-            selectedUids = uiState.selectedUids,
-            onUidToggle = { uid -> viewModel.toggleUid(uid) },
-            onDismiss = { showPicker = false },
-        )
-    }
-}
-
-private class NetIsolateConfigSubpage(
-    val title: String,
-    val content: @Composable (androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.input.nestedscroll.NestedScrollConnection) -> Unit,
-)
+// ==================== SUSFS 式子页组件 (工具箱内嵌复用) ====================
 
 @Composable
-private fun NetIsolateStatusSubpage(
+internal fun NetIsolateStatusSubpage(
     uiState: NetIsolateUiState,
     innerPadding: PaddingValues,
     nestedScrollConnection: NestedScrollConnection,
@@ -658,7 +526,6 @@ private fun NetIsolateStatusSubpage(
                         icon = Icons.TwoTone.WifiOff,
                         title = stringResource(R.string.netisolate_title),
                         description = stringResource(R.string.netisolate_summary),
-                        // 每次进入: 先显示关闭(灰色), 刷新完成后显示真实状态 (仿 SUSFS)
                         checked = if (pageLoaded) uiState.enabled else false,
                         enabled = pageLoaded && uiState.loaded,
                         onCheckedChange = onEnabledChange,
@@ -685,7 +552,7 @@ private fun NetIsolateStatusSubpage(
 }
 
 @Composable
-private fun NetIsolateUidListSubpage(
+internal fun NetIsolateUidListSubpage(
     uiState: NetIsolateUiState,
     innerPadding: PaddingValues,
     nestedScrollConnection: NestedScrollConnection,

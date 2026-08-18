@@ -57,10 +57,12 @@ class IoSchedulerViewModel(
     fun setScheduler(name: String) {
         viewModelScope.launch {
             val ok = withContext(Dispatchers.IO) {
+                // echo 写 sysfs 无输出 (exec 返回 null), 必须写后读回验证真实状态
                 var success = false
                 for (dev in mutableState.value.devices) {
-                    val cmd = "echo $name > /sys/block/${dev.name}/queue/scheduler"
-                    if (ksuCli.exec(cmd) != null) {
+                    ksuCli.exec("echo $name > /sys/block/${dev.name}/queue/scheduler")
+                    val cur = ksuCli.exec("cat /sys/block/${dev.name}/queue/scheduler").orEmpty()
+                    if (cur.contains("[$name]")) {
                         success = true
                     }
                 }
@@ -102,7 +104,7 @@ class IoSchedulerViewModel(
             // 输出如: none mq-deadline [adios] kyber bfq cpq
             val available = sched.split(" ")
                 .map { it.trim('[', ']') }
-                .filter { it.isNotBlank() && it != "none" && it != "cpq" }
+                .filter { it.isNotBlank() && it != "none" }
             val current = sched.substringAfter('[', "").substringBefore(']').trim()
             if (available.isEmpty()) null
             else IoBlockDevice(name = name, current = current, available = available)

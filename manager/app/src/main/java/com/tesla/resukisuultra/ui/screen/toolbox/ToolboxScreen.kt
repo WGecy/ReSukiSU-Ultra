@@ -51,6 +51,7 @@ import com.tesla.resukisuultra.ui.navigation.Route
 import org.koin.compose.koinInject
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.ui.screen.netisolate.AppPickerSheet
+import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateTab
 import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateStatusSubpage
 import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateUidListSubpage
 import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
@@ -62,6 +63,7 @@ import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -92,36 +94,24 @@ fun ToolboxScreen() {
         }
     }
 
+    // 页面级加载态: 每次进入工具箱开关先显示关闭(灰), 刷新完成后开启 (仿 SUSFS configEnabledLoaded)
+    var pageLoaded by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        pageLoaded = false
+        delay(300)
+        pageLoaded = true
+    }
+
     val subpages = buildList {
         if (netisolateSupported) {
-            // 打开工具箱直接显示网络隔离内容 (SUSFS 式两个子页: 状态 / 已阻止应用)
             add(ToolboxSubpage(
-                title = stringResource(R.string.netisolate_tab_status),
+                title = stringResource(R.string.netisolate_title),
             ) { innerPadding, nestedScrollConnection ->
-                val netIsolateViewModel: NetIsolateViewModel = koinViewModel()
-                val netIsolateState by netIsolateViewModel.uiState.collectAsStateWithLifecycle()
-                LaunchedEffect(Unit) {
-                    netIsolateViewModel.refresh()
-                }
-                NetIsolateStatusSubpage(
-                    uiState = netIsolateState,
+                NetIsolateTab(
                     innerPadding = innerPadding,
                     nestedScrollConnection = nestedScrollConnection,
-                    pageLoaded = netIsolateState.loaded,
-                    onEnabledChange = { netIsolateViewModel.setEnabled(it) },
-                )
-            })
-            add(ToolboxSubpage(
-                title = stringResource(R.string.netisolate_tab_uid_list),
-            ) { innerPadding, nestedScrollConnection ->
-                val netIsolateViewModel: NetIsolateViewModel = koinViewModel()
-                val netIsolateState by netIsolateViewModel.uiState.collectAsStateWithLifecycle()
-                NetIsolateUidListSubpage(
-                    uiState = netIsolateState,
-                    innerPadding = innerPadding,
-                    nestedScrollConnection = nestedScrollConnection,
+                    pageLoaded = pageLoaded,
                     onAddClick = { addPicker = true },
-                    onRemoveUid = { netIsolateViewModel.toggleUid(it) },
                 )
             })
         }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
+import com.tesla.resukisuultra.ui.component.PackageIcon
 import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.SettingsSwitchWidget
@@ -126,179 +127,144 @@ private data class AppListEntry(
 fun NetIsolateTab(
     innerPadding: PaddingValues,
     nestedScrollConnection: NestedScrollConnection,
+    pageLoaded: Boolean,
+    onAddClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var showPicker by remember { mutableStateOf(false) }
-
     // 仿 SUSFS: state 提升到 ViewModel (组合销毁不丢, 进入秒开, 后台刷新不闪)
     val viewModel: NetIsolateViewModel = koinViewModel()
-    val netIsolateState by viewModel.uiState.collectAsStateWithLifecycle()
-    val enabled = netIsolateState.enabled
-    val selectedUids = netIsolateState.selectedUids
-    val loaded = netIsolateState.loaded
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
     }
 
+    // 仿 SUSFS StatusTab: 无 contentPadding 左右 (settings 组件自带间距), Spacer 顶部
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding)
             .nestedScroll(nestedScrollConnection),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        item {
+            Spacer(Modifier.height(innerPadding.calculateTopPadding()))
+        }
+
+        // 开关卡片 (先关闭后开启 — 仿 SUSFS configEnabledLoaded)
+        item {
+            SegmentedColumn {
+                item {
+                    SettingsSwitchWidget(
+                        icon = Icons.TwoTone.WifiOff,
+                        title = stringResource(R.string.netisolate_title),
+                        description = stringResource(R.string.netisolate_summary),
+                        checked = if (pageLoaded) uiState.enabled else false,
+                        enabled = pageLoaded && uiState.loaded,
+                        onCheckedChange = { viewModel.setEnabled(it) },
+                    )
+                }
+                item {
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.Info,
+                        title = stringResource(R.string.netisolate_status_supported),
+                        description = if (uiState.loaded) {
+                            stringResource(R.string.netisolate_status_supported_yes)
+                        } else {
+                            stringResource(R.string.netisolate_no_data)
+                        },
+                    )
+                }
+            }
+        }
+
+        // 已阻止列表 (标题 + 添加)
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.netisolate_uid_list),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = onAddClick) {
+                    Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(stringResource(R.string.netisolate_add_uid))
+                }
+            }
+        }
+
+        if (uiState.selectedUids.isEmpty()) {
             item {
-                // 开关卡片 (圆角)
+                Text(
+                    text = stringResource(
+                        if (uiState.loaded) R.string.netisolate_no_uids
+                        else R.string.netisolate_no_data
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp),
+                )
+            }
+        } else {
+            items(uiState.selectedUids.sorted()) { uid ->
+                val pkgs = remember(uid) {
+                    runCatching { context.packageManager.getPackagesForUid(uid) }.getOrNull()
+                }
+                val pkgName = pkgs?.firstOrNull()
+                val label = remember(pkgName) {
+                    pkgName?.let {
+                        runCatching {
+                            context.packageManager.getApplicationInfo(it, 0)
+                                .loadLabel(context.packageManager).toString()
+                        }.getOrNull()
+                    } ?: "UID $uid"
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        imageVector = Icons.TwoTone.WifiOff,
+                    PackageIcon(
+                        packageName = pkgName ?: "",
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)),
                     )
-                    Spacer(Modifier.width(16.dp))
+                    Spacer(Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = stringResource(R.string.netisolate_title),
-                            style = MaterialTheme.typography.titleMedium
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            text = stringResource(R.string.netisolate_summary),
+                            text = pkgName ?: "UID $uid",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
-                    Switch(
-                        checked = enabled,
-                        enabled = loaded,
-                        onCheckedChange = { viewModel.setEnabled(it) }
+                    Text(
+                        text = "UID $uid",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                }
-            }
-
-            if (enabled) {
-                item {
-                    // 已阻止列表标题 + 添加按钮
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.netisolate_uid_list),
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.weight(1f)
+                    IconButton(onClick = { viewModel.toggleUid(uid) }) {
+                        Icon(
+                            imageVector = Icons.TwoTone.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        TextButton(onClick = { showPicker = true }) {
-                            Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text(stringResource(R.string.netisolate_add_uid))
-                        }
-                    }
-                }
-
-                if (selectedUids.isEmpty() && loaded) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.netisolate_no_uids),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                } else if (!loaded) {
-                    // 仿 SUSFS: 加载前显示"无数据"占位 (不转圈不误导)
-                    item {
-                        Text(
-                            text = stringResource(R.string.netisolate_no_data),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                } else {
-                    items(selectedUids.toList()) { uid ->
-                        val pkgs = remember(uid) {
-                            runCatching { context.packageManager.getPackagesForUid(uid) }.getOrNull()
-                        }
-                        val pkgName = pkgs?.firstOrNull()
-                        val label = remember(pkgName) {
-                            pkgName?.let {
-                                runCatching {
-                                    context.packageManager.getApplicationInfo(it, 0)
-                                        .loadLabel(context.packageManager).toString()
-                                }.getOrNull()
-                            } ?: "UID $uid"
-                        }
-
-                        // 已阻止应用卡片 (圆角 + 图标)
-                        val pkgInfo = remember(pkgName) {
-                            pkgName?.let {
-                                runCatching { context.packageManager.getPackageInfo(it, 0) }.getOrNull()
-                            }
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.surface)
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AppIcon(
-                                packageInfo = pkgInfo,
-                                context = context,
-                                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp))
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = pkgName ?: "UID $uid",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            Text(
-                                text = "UID $uid",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            IconButton(onClick = { viewModel.toggleUid(uid) }) {
-                                Icon(
-                                    imageVector = Icons.TwoTone.Delete,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        }
                     }
                 }
             }
-    }
-
-    if (showPicker) {
-        AppPickerSheet(
-            selectedUids = selectedUids,
-            onUidToggle = { uid -> viewModel.toggleUid(uid) },
-            onDismiss = { showPicker = false }
-        )
+        }
     }
 }
 

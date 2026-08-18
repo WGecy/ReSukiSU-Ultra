@@ -310,7 +310,10 @@ pub fn add(virtual_path: &str, real_path: &str) -> Result<()> {
     payload.extend_from_slice(&(r.len() as u16).to_ne_bytes());
     payload.extend_from_slice(v);
     payload.extend_from_slice(r);
-    s.mutate_rule(2, &payload)
+    s.mutate_rule(2, &payload)?;
+    // 手动规则持久化 (开机重放)
+    persist_add_rule(virtual_path, real_path);
+    Ok(())
 }
 
 pub fn remove(virtual_path: &str) -> Result<()> {
@@ -319,10 +322,161 @@ pub fn remove(virtual_path: &str) -> Result<()> {
     let mut payload = Vec::with_capacity(2 + v.len());
     payload.extend_from_slice(&(v.len() as u16).to_ne_bytes());
     payload.extend_from_slice(v);
-    s.mutate_rule(3, &payload)
+    s.mutate_rule(3, &payload)?;
+    persist_remove_rules(&[virtual_path.to_string()]);
+    Ok(())
+}
+
+/// 批量移除规则 (cmd 3, 负载为多条 [u16:v_len][v] 拼接) — 同步持久化
+pub fn remove_rules_batch(virtuals: &[String]) -> Result<()> {
+    if virtuals.is_empty() {
+        return Ok(());
+    }
+    let s = NmSocket::new()?;
+    let mut payload = Vec::new();
+    for v in virtuals {
+        payload.extend_from_slice(&encode_del_payload(v));
+    }
+    let rx = s.send_cmd(3, 6, &payload, NLM_F_REQUEST | NLM_F_ACK)?;
+    check_error(&rx)?;
+    persist_remove_rules(virtuals);
+    Ok(())
+}
+
+fn encode_del_payload(v: &str) -> Vec<u8> {
+    let vb = v.as_bytes();
+    let mut payload = Vec::with_capacity(2 + vb.len());
+    payload.extend_from_slice(&(vb.len() as u16).to_ne_bytes());
+    payload.extend_from_slice(vb);
+    payload
 }
 
 pub fn clear() -> Result<()> {
     let s = NmSocket::new()?;
-    s.clear()
+    s.clear()?;
+    let _ = std::fs::remove_file(CUSTOM_RULES_FILE);
+    Ok(())
+}
+
+/// UID 排除: 指定 uid 的进程不做路径重定向 (cmd 5=block, 6=unblock, atype 4, payload uid)
+pub fn block_uid(uid: u32) -> Result<()> {
+    let s = NmSocket::new()?;
+    let rx = s.send_cmd(5, 4, &uid.to_ne_bytes(), NLM_F_REQUEST | NLM_F_ACK)?;
+    check_error(&rx)?;
+    Ok(())
+}
+
+pub fn unblock_uid(uid: u32) -> Result<()> {
+    let s = NmSocket::new()?;
+    let rx = s.send_cmd(6, 4, &uid.to_ne_bytes(), NLM_F_REQUEST | NLM_F_ACK)?;
+    check_error(&rx)?;
+    Ok(())
+}
+
+/// 持久化排除列表 (web 界面: /data/adb/nomount/.exclusion_list — uid 空白/逗号分隔)
+pub const EXCLUSION_FILE: &str = "/data/adb/nomount/.exclusion_list";
+
+/// 手动自定义规则持久化文件 (v<TAB>r 每行) — 开机重放
+pub const CUSTOM_RULES_FILE: &str = "/data/adb/nomount/custom_rules";
+
+fn read_custom_rules() -> Vec<(String, String)> {
+    let content = match std::fs::read_to_string(CUSTOM_RULES_FILE) {
+        Ok(c) => c,
+        Err(_) => return Vec::new(),
+    };
+    content
+        .lines()
+        .filter_map(|line| {
+            let (v, r) = line.split_once('\t')?;
+            if v.is_empty() || r.is_empty() {
+                None
+            } else {
+                Some((v.to_string(), r.to_string()))
+            }
+        })
+        .collect()
+}
+
+fn write_custom_rules(rules: &[(String, String)]) {
+    let content = rules
+        .iter()
+        .map(|(v, r)| format!("{v}\t{r}"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let _ = std::fs::create_dir_all("/data/adb/nomount");
+    if let Err(e) = std::fs::write(CUSTOM_RULES_FILE, content) {
+        log::warn!("nomount: 写 custom_rules 失败: {e}");
+    }
+}
+
+fn persist_add_rule(v: &str, r: &str) {
+    let mut rules = read_custom_rules();
+    rules.retain(|(ov, _)| ov != v);
+    rules.push((v.to_string(), r.to_string()));
+    write_custom_rules(&rules);
+}
+
+fn persist_remove_rules(virtuals: &[String]) {
+    let mut rules = read_custom_rules();
+    rules.retain(|(ov, _)| !virtuals.contains(ov));
+    write_custom_rules(&rules);
+}
+
+/// 开机重放手动自定义规则 (在模块注入后调用)
+pub fn replay_custom_rules() -> Result<()> {
+    let rules = read_custom_rules();
+    if rules.is_empty() {
+        return Ok(());
+    }
+    let s = NmSocket::new()?;
+    s.add_rules_batch(&rules)?;
+    log::info!("nomount: 重放 {} 条自定义规则", rules.len());
+    Ok(())
+}
+
+fn read_exclusions() -> Result<Vec<u32>> {
+    let content = match std::fs::read_to_string(EXCLUSION_FILE) {
+        Ok(c) => c,
+        Err(_) => return Ok(Vec::new()),
+    };
+    let mut uids = Vec::new();
+    for part in content.split(|c: char| c.is_whitespace() || c == ',') {
+        if let Ok(uid) = part.trim().parse::<u32>() {
+            if !uids.contains(&uid) {
+                uids.push(uid);
+            }
+        }
+    }
+    Ok(uids)
+}
+
+fn write_exclusions(uids: &[u32]) -> Result<()> {
+    std::fs::create_dir_all("/data/adb/nomount")?;
+    let content = uids
+        .iter()
+        .map(|u| u.to_string())
+        .collect::<Vec<_>>()
+        .join("\n");
+    std::fs::write(EXCLUSION_FILE, content)?;
+    Ok(())
+}
+
+pub fn exclude_list() -> Result<Vec<u32>> {
+    read_exclusions()
+}
+
+pub fn exclude_add(uid: u32) -> Result<()> {
+    let mut uids = read_exclusions()?;
+    if !uids.contains(&uid) {
+        uids.push(uid);
+        write_exclusions(&uids)?;
+    }
+    block_uid(uid)
+}
+
+pub fn exclude_remove(uid: u32) -> Result<()> {
+    let mut uids = read_exclusions()?;
+    uids.retain(|&u| u != uid);
+    write_exclusions(&uids)?;
+    unblock_uid(uid)
 }

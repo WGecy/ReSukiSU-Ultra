@@ -26,6 +26,10 @@ class NoMountRepository(
         helper.clearRules()
     }
 
+    suspend fun removeRules(virtualPaths: List<String>): Boolean = mutex.withLock {
+        helper.removeRules(virtualPaths)
+    }
+
     suspend fun listModules(): List<NoMountModule> = helper.listModules()
 
     suspend fun loadModule(moduleId: String): Boolean = mutex.withLock {
@@ -34,5 +38,15 @@ class NoMountRepository(
 
     suspend fun unloadModule(moduleId: String): Boolean = mutex.withLock {
         helper.unloadModule(moduleId)
+    }
+
+    suspend fun listExclusions(): List<Long> = helper.listExclusions()
+
+    suspend fun addExclusion(uid: Long): Boolean = mutex.withLock {
+        helper.addExclusion(uid)
+    }
+
+    suspend fun removeExclusion(uid: Long): Boolean = mutex.withLock {
+        helper.removeExclusion(uid)
     }
 }

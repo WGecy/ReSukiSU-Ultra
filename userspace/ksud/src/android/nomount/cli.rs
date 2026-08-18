@@ -53,6 +53,35 @@ pub enum NoMountSubCommands {
         /// 模块 id (目录名)
         module_id: String,
     },
+    /// 批量移除规则 (只清自定义, 不动模块注入)
+    RemoveMany {
+        /// 虚拟路径列表
+        #[arg(required = true)]
+        virtual_paths: Vec<String>,
+    },
+    /// 切换模块禁用状态 (写 disable 文件)
+    ModuleDisable {
+        /// 模块 id (目录名)
+        module_id: String,
+        /// 1=禁用 0=启用
+        disabled: u8,
+    },
+    /// UID 排除列表
+    ExcludeList {
+        /// JSON 输出
+        #[arg(long)]
+        json: bool,
+    },
+    /// 添加 UID 排除 (该 uid 进程不做重定向)
+    ExcludeAdd {
+        /// uid
+        uid: u32,
+    },
+    /// 移除 UID 排除
+    ExcludeRemove {
+        /// uid
+        uid: u32,
+    },
 }
 
 pub fn run_main(args: NoMountArgs) -> Result<()> {
@@ -154,6 +183,45 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
         NoMountSubCommands::Unload { module_id } => {
             let n = nomount::mount::unload_module(&module_id)?;
             println!("unloaded: {n}");
+            Ok(())
+        }
+        NoMountSubCommands::RemoveMany { virtual_paths } => {
+            nomount::remove_rules_batch(&virtual_paths)?;
+            println!("ok");
+            Ok(())
+        }
+        NoMountSubCommands::ModuleDisable { module_id, disabled } => {
+            let flag = std::path::Path::new("/data/adb/modules")
+                .join(&module_id)
+                .join("disable");
+            if disabled == 1 {
+                std::fs::write(&flag, "")?;
+            } else {
+                let _ = std::fs::remove_file(&flag);
+            }
+            println!("ok");
+            Ok(())
+        }
+        NoMountSubCommands::ExcludeList { json } => {
+            let uids = nomount::exclude_list()?;
+            if json {
+                let arr = uids.iter().map(|u| u.to_string()).collect::<Vec<_>>().join(",");
+                println!("[{arr}]");
+            } else {
+                for u in &uids {
+                    println!("{u}");
+                }
+            }
+            Ok(())
+        }
+        NoMountSubCommands::ExcludeAdd { uid } => {
+            nomount::exclude_add(uid)?;
+            println!("ok");
+            Ok(())
+        }
+        NoMountSubCommands::ExcludeRemove { uid } => {
+            nomount::exclude_remove(uid)?;
+            println!("ok");
             Ok(())
         }
     }

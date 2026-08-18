@@ -113,6 +113,10 @@ pub fn on_post_data_fs() -> Result<()> {
     if let Err(e) = crate::android::nomount::mount::inject_modules() {
         warn!("nomount: 模块注入失败: {e:#}");
     }
+    // 重放手动自定义规则 (持久化文件)
+    if let Err(e) = crate::android::nomount::replay_custom_rules() {
+        warn!("nomount: 自定义规则重放失败: {e:#}");
+    }
 
     // execute metamodule post-fs-data script first (priority)
     if let Err(e) = metamodule::exec_stage_script("post-fs-data", true) {

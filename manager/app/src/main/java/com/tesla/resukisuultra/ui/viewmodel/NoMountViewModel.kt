@@ -23,6 +23,7 @@ data class NoMountUiState(
     val moduleRules: List<NoMountModuleRules> = emptyList(),
     val customRules: List<NoMountRule> = emptyList(),
     val modules: List<NoMountModule> = emptyList(),
+    val exclusions: List<Long> = emptyList(),
     val isLoading: Boolean = true,
     val error: String? = null,
 )
@@ -34,6 +35,8 @@ sealed interface NoMountUiAction {
     data object ClearRules : NoMountUiAction
     data class LoadModule(val moduleId: String) : NoMountUiAction
     data class UnloadModule(val moduleId: String) : NoMountUiAction
+    data class AddExclusion(val uid: Long) : NoMountUiAction
+    data class RemoveExclusion(val uid: Long) : NoMountUiAction
 }
 
 class NoMountViewModel(
@@ -67,7 +70,9 @@ class NoMountViewModel(
 
             NoMountUiAction.ClearRules -> {
                 viewModelScope.launch {
-                    if (repository.clearRules()) {
+                    // 只清自定义规则 (remove-many), 不动模块注入规则
+                    val customVirtuals = mutableState.value.customRules.map { it.virtual }
+                    if (repository.removeRules(customVirtuals)) {
                         refresh()
                     }
                 }
@@ -88,6 +93,22 @@ class NoMountViewModel(
                     }
                 }
             }
+
+            is NoMountUiAction.AddExclusion -> {
+                viewModelScope.launch {
+                    if (repository.addExclusion(action.uid)) {
+                        refresh()
+                    }
+                }
+            }
+
+            is NoMountUiAction.RemoveExclusion -> {
+                viewModelScope.launch {
+                    if (repository.removeExclusion(action.uid)) {
+                        refresh()
+                    }
+                }
+            }
         }
     }
 
@@ -98,6 +119,7 @@ class NoMountViewModel(
                 val status = repository.getStatus()
                 val rules = repository.listRules()
                 val modules = repository.listModules()
+                val exclusions = repository.listExclusions()
                 val modulePrefix = "/data/adb/modules/"
                 // 模块注入规则: real 路径以 /data/adb/modules/<模块名>/ 开头 → 按模块分组
                 val moduleMap = LinkedHashMap<String, MutableList<NoMountRule>>()
@@ -120,6 +142,7 @@ class NoMountViewModel(
                     },
                     customRules = custom,
                     modules = modules,
+                    exclusions = exclusions,
                     isLoading = false,
                 )
             }.onSuccess { mutableState.value = it }

@@ -68,6 +68,13 @@ class NoMountHelper(
 
     suspend fun clearRules(): Boolean = execNomount("clear").success
 
+    /** 批量移除规则 (清空自定义用 — 不动模块注入规则) */
+    suspend fun removeRules(virtualPaths: List<String>): Boolean {
+        if (virtualPaths.isEmpty()) return true
+        val args = virtualPaths.joinToString(" ") { shellQuote(it) }
+        return execNomount("remove-many $args").success
+    }
+
     suspend fun listModules(): List<NoMountModule> {
         val result = execNomount("modules --json")
         if (!result.success || result.stdout.isBlank()) return emptyList()
@@ -101,6 +108,32 @@ class NoMountHelper(
     suspend fun unloadModule(moduleId: String): Boolean {
         if (moduleId.isBlank()) return false
         return execNomount("unload ${shellQuote(moduleId)}").success
+    }
+
+    suspend fun listExclusions(): List<Long> {
+        val result = execNomount("exclude-list --json")
+        if (!result.success || result.stdout.isBlank()) return emptyList()
+        return runCatching {
+            val array = JSONArray(result.stdout)
+            buildList {
+                for (i in 0 until array.length()) {
+                    array.optLong(i).takeIf { it >= 0 }?.let { add(it) }
+                }
+            }
+        }.getOrElse {
+            Log.e(TAG, "解析 exclude-list 失败", it)
+            emptyList()
+        }
+    }
+
+    suspend fun addExclusion(uid: Long): Boolean {
+        if (uid < 0) return false
+        return execNomount("exclude-add $uid").success
+    }
+
+    suspend fun removeExclusion(uid: Long): Boolean {
+        if (uid < 0) return false
+        return execNomount("exclude-remove $uid").success
     }
 
     private suspend fun execNomount(command: String): CommandResult = withContext(Dispatchers.IO) {

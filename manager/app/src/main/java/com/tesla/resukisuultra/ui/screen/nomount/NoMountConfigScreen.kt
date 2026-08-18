@@ -1,7 +1,10 @@
 package com.tesla.resukisuultra.ui.screen.nomount
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -25,6 +29,10 @@ import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.Info
 import androidx.compose.material.icons.twotone.Folder
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -48,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -82,10 +91,12 @@ fun NoMountConfigScreen() {
     val cardConfig: CardConfig = koinInject()
     val scope = rememberCoroutineScope()
     var showAddDialog by remember { mutableStateOf(false) }
+    var showExclusionDialog by remember { mutableStateOf(false) }
+    var showExclusionPicker by remember { mutableStateOf(false) }
     val confirmDialog = rememberConfirmDialog()
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
 
     val removeConfirmTitle = stringResource(R.string.nomount_remove_confirm_title)
     val removeConfirmMessage = stringResource(R.string.nomount_remove_confirm_message)
@@ -153,6 +164,13 @@ fun NoMountConfigScreen() {
                         unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         text = { Text(stringResource(R.string.nomount_tab_custom)) },
                     )
+                    Tab(
+                        selected = pagerState.currentPage == 2,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(2) } },
+                        modifier = Modifier.widthIn(min = TabRowDefaults.ScrollableTabRowMinTabWidth),
+                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = { Text(stringResource(R.string.nomount_tab_exclusions)) },
+                    )
                 }
             }
         },
@@ -178,21 +196,12 @@ fun NoMountConfigScreen() {
                     0 -> NoMountModulesTab(
                         uiState = uiState,
                         innerPadding = innerPadding,
-                        onModuleClick = { module ->
-                            confirmThen(
-                                moduleActionTitle,
-                                if (module.loaded > 0) {
-                                    moduleUnloadConfirm.format(module.name)
-                                } else {
-                                    moduleLoadConfirm.format(module.name)
-                                },
-                            ) {
-                                if (module.loaded > 0) {
-                                    viewModel.dispatch(NoMountUiAction.UnloadModule(module.id))
-                                } else {
-                                    viewModel.dispatch(NoMountUiAction.LoadModule(module.id))
-                                }
-                            }
+                        onModuleClick = {},
+                        onLoadModule = { module ->
+                            viewModel.dispatch(NoMountUiAction.LoadModule(module.id))
+                        },
+                        onUnloadModule = { module ->
+                            viewModel.dispatch(NoMountUiAction.UnloadModule(module.id))
                         },
                     )
 
@@ -211,6 +220,15 @@ fun NoMountConfigScreen() {
                             }
                         },
                     )
+
+                    2 -> NoMountExclusionsTab(
+                        uiState = uiState,
+                        innerPadding = innerPadding,
+                        onAddClick = { showExclusionPicker = true },
+                        onRemoveExclusion = { uid ->
+                            viewModel.dispatch(NoMountUiAction.RemoveExclusion(uid))
+                        },
+                    )
                 }
             }
         }
@@ -225,6 +243,20 @@ fun NoMountConfigScreen() {
             },
         )
     }
+
+    if (showExclusionPicker) {
+        NoMountExclusionPickerSheet(
+            excludedUids = uiState.exclusions.toSet(),
+            onToggle = { uid ->
+                if (uid in uiState.exclusions) {
+                    viewModel.dispatch(NoMountUiAction.RemoveExclusion(uid))
+                } else {
+                    viewModel.dispatch(NoMountUiAction.AddExclusion(uid))
+                }
+            },
+            onDismiss = { showExclusionPicker = false },
+        )
+    }
 }
 
 @Composable
@@ -232,6 +264,8 @@ private fun NoMountModulesTab(
     uiState: NoMountUiState,
     innerPadding: PaddingValues,
     onModuleClick: (NoMountModule) -> Unit,
+    onLoadModule: (NoMountModule) -> Unit,
+    onUnloadModule: (NoMountModule) -> Unit,
 ) {
     val statusSupportedTitle = stringResource(R.string.nomount_status_supported)
     val modulesTitle = stringResource(R.string.nomount_module_rules_title)
@@ -288,19 +322,84 @@ private fun NoMountModulesTab(
                 items = uiState.modules,
                 key = { _, m -> m.id },
             ) { _, module ->
-                SettingsBaseWidget(
-                    icon = Icons.TwoTone.Folder,
-                    title = module.name,
-                    description = stringResource(
-                        R.string.nomount_module_summary,
-                        module.fileCount,
-                        module.loaded,
-                    ),
-                    onClick = { onModuleClick(module) },
+                ModuleCard(
+                    module = module,
+                    onLoad = { onLoadModule(module) },
+                    onUnload = { onUnloadModule(module) },
                 )
             }
         }
     }
+}
+
+@Composable
+private fun ModuleCard(
+    module: NoMountModule,
+    onLoad: () -> Unit,
+    onUnload: () -> Unit,
+) {
+    val loadedText = stringResource(R.string.nomount_module_status_loaded)
+    val disabledText = stringResource(R.string.nomount_module_status_disabled)
+    val inactiveText = stringResource(R.string.nomount_module_status_inactive)
+    val loadedDisabledText = stringResource(R.string.nomount_module_status_loaded_disabled)
+    val hotLoadText = stringResource(R.string.nomount_hot_load)
+    val hotUnloadText = stringResource(R.string.nomount_hot_unload)
+    val notEnabledText = stringResource(R.string.nomount_module_not_enabled)
+    val moduleSummary = stringResource(R.string.nomount_module_summary, module.fileCount, module.loaded)
+
+    // 状态 (仿 web 界面): loaded>0 已注入 / disabled 禁用 / 否则未注入
+    val statusText = when {
+        module.loaded > 0 && !module.disabled -> loadedText
+        module.loaded > 0 && module.disabled -> loadedDisabledText
+        module.disabled -> disabledText
+        else -> inactiveText
+    }
+    val statusColor = when {
+        module.loaded > 0 && !module.disabled -> MaterialTheme.colorScheme.primary
+        module.disabled -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    // 按钮三态: 已注入→热卸载 / 禁用→未启用(不可点) / 其他→热加载
+    val buttonText = when {
+        module.loaded > 0 -> hotUnloadText
+        module.disabled -> notEnabledText
+        else -> hotLoadText
+    }
+    val buttonEnabled = module.loaded > 0 || !module.disabled
+    val buttonAction = if (module.loaded > 0) onUnload else onLoad
+    val buttonColor = when {
+        module.loaded > 0 -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    SettingsBaseWidget(
+        icon = Icons.TwoTone.Folder,
+        title = module.name,
+        descriptionColumnContent = {
+            Text(
+                text = statusText,
+                color = statusColor,
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Text(
+                text = moduleSummary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        },
+        onClick = {},
+        trailingContent = {
+            TextButton(
+                enabled = buttonEnabled,
+                onClick = buttonAction,
+            ) {
+                Text(
+                    text = buttonText,
+                    color = if (buttonEnabled) buttonColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+    )
 }
 
 @Composable
@@ -383,6 +482,9 @@ private fun NoMountCustomTab(
                 )
             }
         }
+        item {
+            Spacer(Modifier.height(16.dp))
+        }
     }
 }
 
@@ -444,5 +546,195 @@ private fun NoMountAddRuleDialog(
         },
     )
 }
+
+@Composable
+private fun NoMountExclusionsTab(
+    uiState: NoMountUiState,
+    innerPadding: PaddingValues,
+    onAddClick: () -> Unit,
+    onRemoveExclusion: (Long) -> Unit,
+) {
+    val context = LocalContext.current
+    val exclusionsTitle = stringResource(R.string.nomount_exclusions_title)
+    val exclusionsAddTitle = stringResource(R.string.nomount_exclusions_add)
+    val exclusionsEmpty = stringResource(R.string.nomount_exclusions_empty)
+    val addSummary = stringResource(R.string.nomount_exclusions_add_summary)
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            top = innerPadding.calculateTopPadding() + 16.dp,
+            start = 16.dp,
+            end = 16.dp,
+            bottom = 16.dp,
+        ),
+    ) {
+        item {
+            SegmentedColumn {
+                item {
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.Add,
+                        title = exclusionsAddTitle,
+                        description = addSummary,
+                        onClick = { onAddClick() },
+                    )
+                }
+            }
+        }
+        item {
+            Spacer(Modifier.height(16.dp))
+        }
+        if (uiState.exclusions.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = exclusionsEmpty,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        } else {
+            item {
+                Text(
+                    text = exclusionsTitle,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
+                )
+            }
+            lazySegmentColumn(
+                items = uiState.exclusions,
+                key = { _, uid -> "excl:$uid" },
+            ) { _, uid ->
+                val pkgs = remember(uid) {
+                    runCatching { context.packageManager.getPackagesForUid(uid.toInt()) }.getOrNull()
+                }
+                val label = remember(pkgs) {
+                    pkgs?.firstOrNull()?.let { pkg ->
+                        runCatching {
+                            context.packageManager.getApplicationInfo(pkg, 0).loadLabel(context.packageManager).toString()
+                        }.getOrNull()
+                    }
+                }
+                SettingsBaseWidget(
+                    icon = Icons.TwoTone.Folder,
+                    title = label ?: "UID: $uid",
+                    description = pkgs?.firstOrNull() ?: stringResource(R.string.nomount_exclusions_uid_desc),
+                    onClick = { onRemoveExclusion(uid) },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NoMountExclusionPickerSheet(
+    excludedUids: Set<Long>,
+    onToggle: (Long) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    val pm = context.packageManager
+    var searchQuery by remember { mutableStateOf("") }
+    var showSystem by remember { mutableStateOf(false) }
+
+    val allApps = remember {
+        pm.getInstalledApplications(0)
+            .map { appInfo ->
+                ExclusionAppEntry(
+                    uid = appInfo.uid.toLong(),
+                    packageName = appInfo.packageName,
+                    label = appInfo.loadLabel(pm).toString(),
+                    isSystemApp = (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0 ||
+                        (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0,
+                )
+            }
+            .distinctBy { it.uid }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label })
+    }
+
+    val filteredApps = remember(searchQuery, showSystem) {
+        allApps
+            .filter { showSystem || !it.isSystemApp }
+            .let { apps ->
+                if (searchQuery.isBlank()) apps
+                else apps.filter {
+                    it.packageName.contains(searchQuery, true) ||
+                        it.label.contains(searchQuery, true) ||
+                        it.uid.toString().contains(searchQuery, true)
+                }
+            }
+    }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.7f)
+                .padding(horizontal = 16.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.nomount_exclusions_picker_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text(stringResource(R.string.search_apps)) },
+                    singleLine = true,
+                )
+                TextButton(onClick = { showSystem = !showSystem }) {
+                    Text(
+                        text = stringResource(R.string.show_system_apps),
+                        color = if (showSystem) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 24.dp),
+            ) {
+                items(filteredApps, key = { it.uid }) { app ->
+                    val excluded = app.uid in excludedUids
+                    SettingsBaseWidget(
+                        iconPlaceholder = false,
+                        title = app.label,
+                        description = app.packageName,
+                        onClick = { onToggle(app.uid) },
+                        trailingContent = {
+                            Checkbox(
+                                checked = excluded,
+                                onCheckedChange = { onToggle(app.uid) },
+                            )
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+private data class ExclusionAppEntry(
+    val uid: Long,
+    val packageName: String,
+    val label: String,
+    val isSystemApp: Boolean,
+)
 
 private fun String.format(vararg args: Any): String = java.lang.String.format(this, *args)

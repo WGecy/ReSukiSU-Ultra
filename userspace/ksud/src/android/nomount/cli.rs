@@ -95,20 +95,18 @@ pub enum NoMountSubCommands {
 
 pub fn run_main(args: NoMountArgs) -> Result<()> {
     match args.command {
-        NoMountSubCommands::Status => {
-            match nomount::version() {
-                Ok(v) => {
-                    println!("supported: true");
-                    println!("version: {v}");
-                    Ok(())
-                }
-                Err(e) => {
-                    println!("supported: false");
-                    println!("error: {e}");
-                    Ok(())
-                }
+        NoMountSubCommands::Status => match nomount::version() {
+            Ok(v) => {
+                println!("supported: true");
+                println!("version: {v}");
+                Ok(())
             }
-        }
+            Err(e) => {
+                println!("supported: false");
+                println!("error: {e}");
+                Ok(())
+            }
+        },
         NoMountSubCommands::List { json } => {
             let rules = nomount::list()?;
             if json {
@@ -135,7 +133,10 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
             }
             Ok(())
         }
-        NoMountSubCommands::Add { virtual_path, real_path } => {
+        NoMountSubCommands::Add {
+            virtual_path,
+            real_path,
+        } => {
             nomount::add(&virtual_path, &real_path)?;
             println!("ok");
             Ok(())
@@ -179,10 +180,7 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
                 println!("{out}");
             } else {
                 for m in &mods {
-                    println!(
-                        "{}\t{}\t{}\t{}",
-                        m.id, m.name, m.file_count, m.loaded
-                    );
+                    println!("{}\t{}\t{}\t{}", m.id, m.name, m.file_count, m.loaded);
                 }
             }
             Ok(())
@@ -208,7 +206,14 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
             Ok(())
         }
         NoMountSubCommands::IsEnabled => {
-            println!("{}", if nomount::is_enabled() { "true" } else { "false" });
+            println!(
+                "{}",
+                if nomount::is_enabled() {
+                    "true"
+                } else {
+                    "false"
+                }
+            );
             Ok(())
         }
         NoMountSubCommands::Snapshot => {
@@ -216,7 +221,10 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
             println!("{s}");
             Ok(())
         }
-        NoMountSubCommands::ModuleDisable { module_id, disabled } => {
+        NoMountSubCommands::ModuleDisable {
+            module_id,
+            disabled,
+        } => {
             let flag = std::path::Path::new("/data/adb/modules")
                 .join(&module_id)
                 .join("disable");
@@ -231,7 +239,11 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
         NoMountSubCommands::ExcludeList { json } => {
             let uids = nomount::exclude_list()?;
             if json {
-                let arr = uids.iter().map(|u| u.to_string()).collect::<Vec<_>>().join(",");
+                let arr = uids
+                    .iter()
+                    .map(|u| u.to_string())
+                    .collect::<Vec<_>>()
+                    .join(",");
                 println!("[{arr}]");
             } else {
                 for u in &uids {

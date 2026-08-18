@@ -91,5 +91,3 @@ pub(crate) fn apply_from_files() -> Result<()> {
     log::info!("netisolate: applied from files (enabled={enabled})");
     Ok(())
 }
-
-

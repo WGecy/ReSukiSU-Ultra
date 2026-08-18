@@ -12,8 +12,6 @@ use std::time::Duration;
 use anyhow::{Context, Result};
 use log::{info, warn};
 
-
-
 const FLAG_FILE: &str = "/data/adb/ksu/io_scheduler";
 
 /// 开关文件存在时应用固化调度器 (开机自动调用)

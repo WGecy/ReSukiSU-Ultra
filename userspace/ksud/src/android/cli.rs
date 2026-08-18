@@ -201,7 +201,6 @@ pub enum IoSchedOp {
     Clear,
 }
 
-
 #[derive(clap::Subcommand, Debug)]
 enum UmountConfigOp {
     /// Add an new umount config to configuration file

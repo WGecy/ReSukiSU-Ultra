@@ -71,12 +71,8 @@ impl FeatureId {
             Self::SelinuxHide => {
                 "SELinux Hide - sanitize /sys/fs/selinux access results for app UIDs"
             }
-            Self::NetIsolate => {
-                "UID network isolation"
-            }
-            Self::Fusebpf => {
-                "FUSE-BPF lookup direct fix"
-            }
+            Self::NetIsolate => "UID network isolation",
+            Self::Fusebpf => "FUSE-BPF lookup direct fix",
         }
     }
 }

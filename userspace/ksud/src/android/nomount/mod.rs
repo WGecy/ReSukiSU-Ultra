@@ -33,7 +33,10 @@ impl NmSocket {
     fn new() -> Result<Self> {
         let fd = unsafe { libc::socket(libc::AF_NETLINK, libc::SOCK_RAW, libc::NETLINK_GENERIC) };
         if fd < 0 {
-            bail!("netlink socket 创建失败: {}", std::io::Error::last_os_error());
+            bail!(
+                "netlink socket 创建失败: {}",
+                std::io::Error::last_os_error()
+            );
         }
         let mut addr: libc::sockaddr_nl = unsafe { std::mem::zeroed() };
         addr.nl_family = libc::AF_NETLINK as u16;
@@ -55,13 +58,7 @@ impl NmSocket {
     }
 
     /// 发送 genl 命令, 返回首个响应 buffer
-    fn send_cmd(
-        &self,
-        cmd: u8,
-        atype: u16,
-        payload: &[u8],
-        flags: u16,
-    ) -> Result<Vec<u8>> {
+    fn send_cmd(&self, cmd: u8, atype: u16, payload: &[u8], flags: u16) -> Result<Vec<u8>> {
         let has_attr = !payload.is_empty() || atype != 0;
         let total_len = NLMSG_HDRLEN + GENL_HDRLEN + if has_attr { 4 + payload.len() } else { 0 };
         let mut buf = vec![0u8; total_len];
@@ -80,7 +77,8 @@ impl NmSocket {
             buf[24..].copy_from_slice(payload);
         }
 
-        let written = unsafe { libc::write(self.fd, buf.as_ptr() as *const libc::c_void, buf.len()) };
+        let written =
+            unsafe { libc::write(self.fd, buf.as_ptr() as *const libc::c_void, buf.len()) };
         if written < 0 {
             bail!("netlink write 失败: {}", std::io::Error::last_os_error());
         }
@@ -171,9 +169,8 @@ impl NmSocket {
             }
             // 继续读 (dump 多消息)
             let mut rx = vec![0u8; RX_BUF_SIZE];
-            let n = unsafe {
-                libc::read(self.fd, rx.as_mut_ptr() as *mut libc::c_void, RX_BUF_SIZE)
-            };
+            let n =
+                unsafe { libc::read(self.fd, rx.as_mut_ptr() as *mut libc::c_void, RX_BUF_SIZE) };
             if n <= 0 {
                 break;
             }
@@ -282,11 +279,7 @@ fn get_attr_string(msg: &[u8], atype: u16) -> Option<String> {
     let p = get_attr_payload(msg, atype)?;
     let s = String::from_utf8_lossy(p).into_owned();
     let s = s.trim_end_matches('\0').to_string();
-    if s.is_empty() {
-        None
-    } else {
-        Some(s)
-    }
+    if s.is_empty() { None } else { Some(s) }
 }
 
 pub fn version() -> Result<String> {

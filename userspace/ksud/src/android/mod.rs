@@ -3,6 +3,7 @@ mod debug;
 mod dynamic_manager;
 mod feature;
 mod fakelock;
+pub mod iosched;
 mod fusebpf;
 mod init_event;
 mod netisolate;

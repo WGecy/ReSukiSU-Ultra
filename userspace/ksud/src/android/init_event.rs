@@ -213,6 +213,10 @@ pub fn on_boot_completed() {
     if let Err(e) = crate::android::fakelock::apply_if_enabled() {
         warn!("apply fakelock failed: {e}");
     }
+    // ReSukiSU-Ultra: 开机应用固化 IO 调度器 (覆盖厂商 init 的 cpq 写入)
+    if let Err(e) = crate::android::iosched::apply_if_enabled() {
+        warn!("apply iosched failed: {e}");
+    }
 }
 
 const fn resetprop() -> ResetProp {

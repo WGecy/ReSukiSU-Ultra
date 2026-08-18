@@ -31,9 +31,6 @@ class IoSchedulerViewModel(
     private val ksuCli: KsuCliRepository,
     private val settingsRepository: AppSettingsRepository,
 ) : ViewModel() {
-    companion object {
-        const val PREF_KEY = "io_scheduler"
-    }
     private val mutableState = MutableStateFlow(IoSchedulerUiState())
     val uiState: StateFlow<IoSchedulerUiState> = mutableState.asStateFlow()
 
@@ -88,6 +85,7 @@ class IoSchedulerViewModel(
             if (ok) {
                 if (mutableState.value.pinned != null) {
                     settingsRepository.putString(PREF_KEY, name)
+                    ksuCli.exec("echo $name > $FLAG_FILE")
                 }
                 refresh()
             } else {
@@ -96,17 +94,25 @@ class IoSchedulerViewModel(
         }
     }
 
-    /** 固化当前调度器 (开机自动应用) */
+    companion object {
+        const val PREF_KEY = "io_scheduler"
+        const val FLAG_FILE = "/data/adb/ksu/io_scheduler"
+    }
+
+    /** 固化当前调度器 (开机自动应用 — ksud 开机读标志文件) */
     fun pinCurrent() {
         val current = mutableState.value.current
         if (current.isBlank()) return
         settingsRepository.putString(PREF_KEY, current)
+        // ksud 开机应用 (Greezer 会拦 App 广播, 必须走 ksud 侧)
+        ksuCli.exec("mkdir -p /data/adb/ksu && echo $current > $FLAG_FILE")
         mutableState.update { it.copy(pinned = current) }
     }
 
     /** 取消固化 (开机回默认) */
     fun unpin() {
         settingsRepository.putString(PREF_KEY, null)
+        ksuCli.exec("rm -f $FLAG_FILE")
         mutableState.update { it.copy(pinned = null) }
     }
 

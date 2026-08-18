@@ -174,6 +174,13 @@ enum Commands {
     /// ReSukiSU-Ultra: 联网隔离 (读取配置文件应用到内核 supercall)
     NetIsolate,
 
+    /// ReSukiSU-Ultra: IO 调度器固化 (apply/clear)
+    #[command(name = "iosched")]
+    IoSched {
+        #[command(subcommand)]
+        op: IoSchedOp,
+    },
+
     /// ReSukiSU-Ultra: FUSEBPF 直通修复开关
     Fusebpf {
         #[command(subcommand)]
@@ -186,6 +193,14 @@ enum Commands {
         command: Initrc,
     },
 }
+#[derive(clap::Subcommand, Debug)]
+pub enum IoSchedOp {
+    /// 应用并固化调度器
+    Apply { scheduler: String },
+    /// 清除固化
+    Clear,
+}
+
 
 #[derive(clap::Subcommand, Debug)]
 enum UmountConfigOp {
@@ -619,6 +634,10 @@ pub fn run() -> Result<()> {
         Commands::Susfs(args) => crate::android::susfs::cli::run_main(args),
         Commands::NoMount(args) => nomount::cli::run_main(args),
         Commands::NetIsolate => crate::android::netisolate::apply_from_files(),
+        Commands::IoSched { op } => match op {
+            IoSchedOp::Apply { scheduler } => crate::android::iosched::apply_now(&scheduler),
+            IoSchedOp::Clear => crate::android::iosched::clear(),
+        },
         Commands::Fusebpf { command } => match command {
             FusebpfOp::Enable => crate::android::fusebpf::set(true),
             FusebpfOp::Disable => crate::android::fusebpf::set(false),

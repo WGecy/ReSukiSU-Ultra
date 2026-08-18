@@ -109,6 +109,11 @@ pub fn on_post_data_fs() -> Result<()> {
     // Load susfs config entries that must capture metadata before mounts/overlays.
     crate::android::susfs::init_event::on_post_fs_data();
 
+    // NoMount 内置注入: 遍历模块文件注入 VFS 重定向规则 (替代 metamount.sh)
+    if let Err(e) = crate::android::nomount::mount::inject_modules() {
+        warn!("nomount: 模块注入失败: {e:#}");
+    }
+
     // execute metamodule post-fs-data script first (priority)
     if let Err(e) = metamodule::exec_stage_script("post-fs-data", true) {
         warn!("exec metamodule post-fs-data script failed: {e}");

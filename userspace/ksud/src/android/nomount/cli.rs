@@ -35,6 +35,24 @@ pub enum NoMountSubCommands {
     },
     /// 清空全部规则
     Clear,
+    /// 手动触发模块注入 (开机自动执行, 手动用于重新注入)
+    Inject,
+    /// 模块列表 (可注入模块 + 规则数, JSON)
+    Modules {
+        /// JSON 输出
+        #[arg(long)]
+        json: bool,
+    },
+    /// 热加载模块 (注入其全部文件规则)
+    Load {
+        /// 模块 id (目录名)
+        module_id: String,
+    },
+    /// 热卸载模块 (移除其全部规则)
+    Unload {
+        /// 模块 id (目录名)
+        module_id: String,
+    },
 }
 
 pub fn run_main(args: NoMountArgs) -> Result<()> {
@@ -92,6 +110,50 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
         NoMountSubCommands::Clear => {
             nomount::clear()?;
             println!("ok");
+            Ok(())
+        }
+        NoMountSubCommands::Inject => {
+            nomount::mount::inject_modules()?;
+            println!("injected");
+            Ok(())
+        }
+        NoMountSubCommands::Modules { json } => {
+            let mods = nomount::mount::modules()?;
+            if json {
+                let mut out = String::from("[");
+                for (i, m) in mods.iter().enumerate() {
+                    if i > 0 {
+                        out.push(',');
+                    }
+                    out.push_str(&format!(
+                        "{{\"id\": \"{}\", \"name\": \"{}\", \"disabled\": {}, \"file_count\": {}, \"loaded\": {}}}",
+                        escape_json(&m.id),
+                        escape_json(&m.name),
+                        m.disabled,
+                        m.file_count,
+                        m.loaded
+                    ));
+                }
+                out.push(']');
+                println!("{out}");
+            } else {
+                for m in &mods {
+                    println!(
+                        "{}\t{}\t{}\t{}",
+                        m.id, m.name, m.file_count, m.loaded
+                    );
+                }
+            }
+            Ok(())
+        }
+        NoMountSubCommands::Load { module_id } => {
+            let n = nomount::mount::load_module(&module_id)?;
+            println!("loaded: {n}");
+            Ok(())
+        }
+        NoMountSubCommands::Unload { module_id } => {
+            let n = nomount::mount::unload_module(&module_id)?;
+            println!("unloaded: {n}");
             Ok(())
         }
     }

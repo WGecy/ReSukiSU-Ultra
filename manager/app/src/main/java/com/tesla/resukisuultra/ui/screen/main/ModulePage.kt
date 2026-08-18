@@ -53,7 +53,7 @@ import androidx.compose.material.icons.twotone.Cloud
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.Download
 import androidx.compose.material.icons.twotone.Extension
-import androidx.compose.material.icons.twotone.Link
+import androidx.compose.material.icons.twotone.Inventory2
 import androidx.compose.material.icons.twotone.MoreVert
 import androidx.compose.material.icons.twotone.Photo
 import androidx.compose.material.icons.twotone.PlayArrow
@@ -330,7 +330,7 @@ fun ModulePage(bottomPadding: Dp) {
                             onClick = { navigator.push(Route.NoMountConfig) },
                         ) {
                             Icon(
-                                imageVector = Icons.TwoTone.Link,
+                                imageVector = Icons.TwoTone.Inventory2,
                                 contentDescription = stringResource(id = R.string.nomount_title),
                             )
                         }

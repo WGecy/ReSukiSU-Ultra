@@ -540,6 +540,13 @@
     <string name="susfs_operation_failed">Operation failed</string>
     <string name="nomount_title">NoMount</string>
     <string name="nomount_tab_status">Status</string>
+    <string name="nomount_tab_modules">Modules</string>
+    <string name="nomount_tab_custom">Custom</string>
+    <string name="nomount_modules_empty">No injectable modules</string>
+    <string name="nomount_module_summary">%1$d files · %2$d loaded</string>
+    <string name="nomount_module_action_title">Module action</string>
+    <string name="nomount_module_load_confirm">Inject %1$s now?</string>
+    <string name="nomount_module_unload_confirm">Unload %1$s now?</string>
     <string name="nomount_tab_rules">Rules</string>
     <string name="nomount_status_supported">Kernel support</string>
     <string name="nomount_status_supported_yes">Supported (netlink responding)</string>
@@ -552,6 +559,8 @@
     <string name="nomount_clear_all">Clear all rules</string>
     <string name="nomount_clear_all_summary">Remove every redirect rule</string>
     <string name="nomount_rules_title">Redirect rules</string>
+    <string name="nomount_custom_rules_title">Custom rules</string>
+    <string name="nomount_module_rules_title">Module injected</string>
     <string name="nomount_rules_empty">No redirect rules</string>
     <string name="nomount_rule_virtual">Virtual path</string>
     <string name="nomount_rule_real">Real path</string>

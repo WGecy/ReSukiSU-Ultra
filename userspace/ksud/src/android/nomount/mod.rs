@@ -2,6 +2,7 @@
 //! 通过 NETLINK_GENERIC 家族 "nomount" 与内核通信
 
 pub mod cli;
+pub mod mount;
 
 use std::mem::size_of;
 
@@ -98,6 +99,26 @@ impl NmSocket {
         let rx = self.send_cmd(1, 0, &[], NLM_F_REQUEST | NLM_F_ACK)?;
         check_error(&rx)?;
         get_attr_u32(&rx, 5).ok_or_else(|| anyhow!("版本属性缺失"))
+    }
+
+    /// 批量添加重定向规则 (cmd 2, 负载为多条 [u32:0][u16:v_len][u16:r_len][v][r] 拼接)
+    pub fn add_rules_batch(&self, rules: &[(String, String)]) -> Result<()> {
+        if rules.is_empty() {
+            return Ok(());
+        }
+        let mut payload = Vec::new();
+        for (v, r) in rules {
+            let vb = v.as_bytes();
+            let rb = r.as_bytes();
+            payload.extend_from_slice(&0u32.to_ne_bytes());
+            payload.extend_from_slice(&(vb.len() as u16).to_ne_bytes());
+            payload.extend_from_slice(&(rb.len() as u16).to_ne_bytes());
+            payload.extend_from_slice(vb);
+            payload.extend_from_slice(rb);
+        }
+        let rx = self.send_cmd(2, 6, &payload, NLM_F_REQUEST | NLM_F_ACK)?;
+        check_error(&rx)?;
+        Ok(())
     }
 
     /// 清空 (cmd 4)

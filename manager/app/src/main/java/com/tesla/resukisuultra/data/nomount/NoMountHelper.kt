@@ -24,7 +24,12 @@ class NoMountHelper(
         val result = execNomount("status")
         if (!result.success || result.stdout.isBlank()) return null
         return runCatching {
-            val version = result.stdout.lineSequence().firstOrNull { it.isNotBlank() } ?: return@runCatching null
+            // ksud 输出两行: supported: true / version: N — 取 version 值
+            val version = result.stdout.lineSequence()
+                .firstOrNull { it.startsWith("version:") }
+                ?.substringAfter("version:")
+                ?.trim()
+                ?: return@runCatching null
             NoMountStatus(version = version)
         }.getOrNull()
     }
@@ -63,6 +68,41 @@ class NoMountHelper(
 
     suspend fun clearRules(): Boolean = execNomount("clear").success
 
+    suspend fun listModules(): List<NoMountModule> {
+        val result = execNomount("modules --json")
+        if (!result.success || result.stdout.isBlank()) return emptyList()
+        return runCatching {
+            val array = JSONArray(result.stdout)
+            buildList {
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    add(
+                        NoMountModule(
+                            id = obj.optString("id"),
+                            name = obj.optString("name"),
+                            disabled = obj.optBoolean("disabled"),
+                            fileCount = obj.optInt("file_count"),
+                            loaded = obj.optInt("loaded"),
+                        )
+                    )
+                }
+            }
+        }.getOrElse {
+            Log.e(TAG, "解析 nomount modules 失败", it)
+            emptyList()
+        }
+    }
+
+    suspend fun loadModule(moduleId: String): Boolean {
+        if (moduleId.isBlank()) return false
+        return execNomount("load ${shellQuote(moduleId)}").success
+    }
+
+    suspend fun unloadModule(moduleId: String): Boolean {
+        if (moduleId.isBlank()) return false
+        return execNomount("unload ${shellQuote(moduleId)}").success
+    }
+
     private suspend fun execNomount(command: String): CommandResult = withContext(Dispatchers.IO) {
         try {
             val stdout = ArrayList<String>()
@@ -91,3 +131,11 @@ class NoMountHelper(
 data class NoMountStatus(val version: String)
 
 data class NoMountRule(val virtual: String, val real: String)
+
+data class NoMountModule(
+    val id: String,
+    val name: String,
+    val disabled: Boolean,
+    val fileCount: Int,
+    val loaded: Int,
+)

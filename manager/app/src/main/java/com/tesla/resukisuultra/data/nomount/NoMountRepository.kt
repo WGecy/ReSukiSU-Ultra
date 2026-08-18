@@ -25,4 +25,14 @@ class NoMountRepository(
     suspend fun clearRules(): Boolean = mutex.withLock {
         helper.clearRules()
     }
+
+    suspend fun listModules(): List<NoMountModule> = helper.listModules()
+
+    suspend fun loadModule(moduleId: String): Boolean = mutex.withLock {
+        helper.loadModule(moduleId)
+    }
+
+    suspend fun unloadModule(moduleId: String): Boolean = mutex.withLock {
+        helper.unloadModule(moduleId)
+    }
 }

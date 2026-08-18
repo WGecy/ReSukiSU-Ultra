@@ -497,6 +497,13 @@
     <string name="susfs_entry_cancel">取消</string>
     <string name="nomount_title">NoMount</string>
     <string name="nomount_tab_status">状态</string>
+    <string name="nomount_tab_modules">模块</string>
+    <string name="nomount_tab_custom">自定义</string>
+    <string name="nomount_modules_empty">没有可注入的模块</string>
+    <string name="nomount_module_summary">%1$d 个文件 · %2$d 已注入</string>
+    <string name="nomount_module_action_title">模块操作</string>
+    <string name="nomount_module_load_confirm">立即注入 %1$s？</string>
+    <string name="nomount_module_unload_confirm">立即卸载 %1$s？</string>
     <string name="nomount_tab_rules">规则</string>
     <string name="nomount_status_supported">内核支持</string>
     <string name="nomount_status_supported_yes">已支持 (netlink 响应正常)</string>
@@ -509,6 +516,8 @@
     <string name="nomount_clear_all">清空全部规则</string>
     <string name="nomount_clear_all_summary">移除所有重定向规则</string>
     <string name="nomount_rules_title">重定向规则</string>
+    <string name="nomount_custom_rules_title">自定义规则</string>
+    <string name="nomount_module_rules_title">模块注入</string>
     <string name="nomount_rules_empty">暂无重定向规则</string>
     <string name="nomount_rule_virtual">虚拟路径</string>
     <string name="nomount_rule_real">真实路径</string>

@@ -91,6 +91,7 @@ class KsuCliRepository(context: Context) {
     fun createRootShell(globalMnt: Boolean = false): Shell {
         Shell.enableVerboseLogging = BuildConfig.DEBUG
         val builder = Shell.Builder.create()
+            .setTimeout(15)  // 命令超时 15s, 防止 su 会话卡死导致 exec 永久阻塞
         return try {
             if (globalMnt) {
                 builder.build(getKsuDaemonPath(), "debug", "su", "-g")

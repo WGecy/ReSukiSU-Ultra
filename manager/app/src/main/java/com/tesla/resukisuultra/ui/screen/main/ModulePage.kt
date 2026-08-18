@@ -206,12 +206,15 @@ fun ModulePage(bottomPadding: Dp) {
     var showDropdown by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
-    // NoMount 内核支持检测 (ksud nomount status 成功才显示入口)
-    val isNoMountSupported = remember(context) {
-        runCatching {
-            KsuCliRepository(context).exec("${KsuCliRepository(context).getKsuDaemonPath()} nomount status")
-                ?.isNotBlank() == true
-        }.getOrDefault(false)
+    // NoMount 内核支持检测 (异步检测, 避免主线程 exec 阻塞)
+    var isNoMountSupported by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isNoMountSupported = withContext(Dispatchers.IO) {
+            runCatching {
+                KsuCliRepository(context).exec("${KsuCliRepository(context).getKsuDaemonPath()} nomount status")
+                    ?.isNotBlank() == true
+            }.getOrDefault(false)
+        }
     }
 
     var showConfirmationDialog by remember { mutableStateOf(false) }

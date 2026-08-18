@@ -79,6 +79,8 @@ import androidx.compose.ui.unit.dp
 import com.tesla.resukisuultra.R
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import com.tesla.resukisuultra.data.netisolate.NetIsolateRepository
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
@@ -293,23 +295,27 @@ private fun AppPickerSheet(
     var searchQuery by remember { mutableStateOf("") }
     var showSystem by remember { mutableStateOf(false) }
 
-    val allApps = remember {
-        pm.getInstalledApplications(0)
-            .map { appInfo ->
-                AppListEntry(
-                    uid = appInfo.uid,
-                    packageName = appInfo.packageName,
-                    label = appInfo.loadLabel(pm).toString(),
-                    packageInfo = runCatching { pm.getPackageInfo(appInfo.packageName, 0) }.getOrNull(),
-                    isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
-                        (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0,
-                )
-            }
-            .distinctBy { it.uid }
-            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label })
+    // 应用列表异步加载 (主线程查询几百应用会卡)
+    var allApps by remember { mutableStateOf<List<AppListEntry>>(emptyList()) }
+    LaunchedEffect(Unit) {
+        allApps = withContext(Dispatchers.IO) {
+            pm.getInstalledApplications(0)
+                .map { appInfo ->
+                    AppListEntry(
+                        uid = appInfo.uid,
+                        packageName = appInfo.packageName,
+                        label = appInfo.loadLabel(pm).toString(),
+                        packageInfo = runCatching { pm.getPackageInfo(appInfo.packageName, 0) }.getOrNull(),
+                        isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
+                            (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0,
+                    )
+                }
+                .distinctBy { it.uid }
+                .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label })
+        }
     }
 
-    val filteredApps = remember(searchQuery, showSystem) {
+    val filteredApps = remember(searchQuery, showSystem, allApps) {
         allApps
             .filter { showSystem || !it.isSystemApp }
             .let { apps ->

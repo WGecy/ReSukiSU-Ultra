@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.launch
 
 data class NetIsolateUiState(
@@ -25,14 +26,20 @@ class NetIsolateViewModel(
     /** 仿 SUSFS: 进入页面后台加载 (占位→数据更新, 不转圈; 缓存命中秒开) */
     fun refresh() {
         viewModelScope.launch {
-            runCatching {
-                val enabledDeferred = async { repository.isEnabled() }
-                val uidsDeferred = async { repository.getUids() }
-                val enabled = enabledDeferred.await()
-                val uids = uidsDeferred.await()
-                NetIsolateUiState(enabled = enabled, selectedUids = uids, loaded = true)
-            }.onSuccess { newState ->
-                mutableState.value = newState
+            // 3s 超时兜底: 防止 shell/su 会话卡死导致永久等待 (阻塞感)
+            withTimeoutOrNull(3000) {
+                runCatching {
+                    val enabledDeferred = async { repository.isEnabled() }
+                    val uidsDeferred = async { repository.getUids() }
+                    val enabled = enabledDeferred.await()
+                    val uids = uidsDeferred.await()
+                    NetIsolateUiState(enabled = enabled, selectedUids = uids, loaded = true)
+                }.onSuccess { newState ->
+                    mutableState.value = newState
+                }
+            } ?: run {
+                // 超时: 标记已加载 (显示当前状态, 避免永久占位)
+                mutableState.update { it.copy(loaded = true) }
             }
         }
     }

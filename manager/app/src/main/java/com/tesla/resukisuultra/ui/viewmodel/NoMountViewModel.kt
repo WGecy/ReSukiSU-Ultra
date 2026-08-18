@@ -6,6 +6,7 @@ import com.tesla.resukisuultra.data.nomount.NoMountModule
 import com.tesla.resukisuultra.data.nomount.NoMountRepository
 import com.tesla.resukisuultra.data.nomount.NoMountRule
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -51,8 +52,9 @@ class NoMountViewModel(
         if (mutableState.value.isLoading) return
         viewModelScope.launch {
             mutableState.update { it.copy(isLoading = true, error = null) }
+            // 3s 超时兜底: 防止 shell 卡死导致永久等待
+            val snap = withTimeoutOrNull(3000) { repository.getSnapshot() }
             runCatching {
-                val snap = repository.getSnapshot()
                 val (moduleRules, custom) = groupRules(snap?.rules.orEmpty())
                 NoMountUiState(
                     version = snap?.version.orEmpty(),

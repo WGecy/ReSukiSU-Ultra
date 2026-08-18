@@ -108,6 +108,8 @@ import com.tesla.resukisuultra.ui.theme.renderBackgroundBlur
 import com.tesla.resukisuultra.ui.viewmodel.NoMountUiAction
 import com.tesla.resukisuultra.ui.viewmodel.NoMountUiState
 import com.tesla.resukisuultra.ui.viewmodel.NoMountViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
@@ -831,22 +833,26 @@ private fun NoMountExclusionPickerSheet(
     var searchQuery by remember { mutableStateOf("") }
     var showSystem by remember { mutableStateOf(false) }
 
-    val allApps = remember {
-        pm.getInstalledApplications(0)
-            .map { appInfo ->
-                ExclusionAppEntry(
-                    uid = appInfo.uid.toLong(),
-                    packageName = appInfo.packageName,
-                    label = appInfo.loadLabel(pm).toString(),
-                    isSystemApp = (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0 ||
-                        (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0,
-                )
-            }
-            .distinctBy { it.uid }
-            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label })
+    // 应用列表异步加载 (主线程查询几百应用会卡)
+    var allApps by remember { mutableStateOf<List<ExclusionAppEntry>>(emptyList()) }
+    LaunchedEffect(Unit) {
+        allApps = withContext(Dispatchers.IO) {
+            pm.getInstalledApplications(0)
+                .map { appInfo ->
+                    ExclusionAppEntry(
+                        uid = appInfo.uid.toLong(),
+                        packageName = appInfo.packageName,
+                        label = appInfo.loadLabel(pm).toString(),
+                        isSystemApp = (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0 ||
+                            (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0,
+                    )
+                }
+                .distinctBy { it.uid }
+                .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label })
+        }
     }
 
-    val filteredApps = remember(searchQuery, showSystem) {
+    val filteredApps = remember(searchQuery, showSystem, allApps) {
         allApps
             .filter { showSystem || !it.isSystemApp }
             .let { apps ->

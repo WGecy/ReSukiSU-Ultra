@@ -25,6 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,7 +46,9 @@ import com.tesla.resukisuultra.ui.screen.netisolate.NetIsolateTab
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * 附加功能 (工具箱): SUSFS 同款 Tab 布局
@@ -59,13 +64,16 @@ fun ToolboxScreen() {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
     val coroutineScope = rememberCoroutineScope()
 
-    // 内核支持检测: netisolate 只在内核集成时显示 (ksud feature check)
+    // 内核支持检测: netisolate 只在内核集成时显示 (异步检测, 避免主线程 exec 阻塞)
     val context = LocalContext.current
-    val netisolateSupported = remember {
-        runCatching {
-            KsuCliRepository(context).exec("/data/adb/ksu/bin/ksud feature check netisolate")
-                ?.contains("supported") == true
-        }.getOrDefault(false)
+    var netisolateSupported by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        netisolateSupported = withContext(Dispatchers.IO) {
+            runCatching {
+                KsuCliRepository(context).exec("/data/adb/ksu/bin/ksud feature check netisolate")
+                    ?.contains("supported") == true
+            }.getOrDefault(false)
+        }
     }
 
     val subpages = buildList {

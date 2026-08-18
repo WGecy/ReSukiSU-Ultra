@@ -629,11 +629,14 @@ class KsuCliRepository(context: Context) {
 
     private var noMountBuiltIn: Boolean? = null
 
-    /** NoMount 内置检测 (ksud nomount status) */
+    /** NoMount 内置检测: 内核支持 && 内置挂载已启用 (enabled 标志) */
     fun isNoMountBuiltIn(): Boolean {
         noMountBuiltIn?.let { return it }
         noMountBuiltIn = runCatching {
-            exec("${getKsuDaemonPath()} nomount status")?.contains("supported: true") == true
+            val supported = exec("${getKsuDaemonPath()} nomount status")
+                ?.contains("supported: true") == true
+            val enabled = SuFile.open("/data/adb/nomount/enabled").exists()
+            supported && enabled
         }.getOrDefault(false)
         return noMountBuiltIn == true
     }

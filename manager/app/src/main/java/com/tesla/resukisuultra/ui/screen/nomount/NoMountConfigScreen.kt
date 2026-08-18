@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -26,16 +27,21 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material.icons.twotone.Delete
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.twotone.Info
 import androidx.compose.material.icons.twotone.Folder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -55,15 +61,25 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tesla.resukisuultra.R
 import com.tesla.resukisuultra.data.nomount.NoMountModule
 import com.tesla.resukisuultra.data.nomount.NoMountRule
 import com.tesla.resukisuultra.ui.component.ConfirmResult
+import com.tesla.resukisuultra.ui.component.PackageIcon
 import com.tesla.resukisuultra.ui.component.rememberConfirmDialog
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
@@ -338,6 +354,8 @@ private fun ModuleCard(
     onLoad: () -> Unit,
     onUnload: () -> Unit,
 ) {
+    val themeConfig: ThemeConfig = koinInject()
+    val cardConfig: CardConfig = koinInject()
     val loadedText = stringResource(R.string.nomount_module_status_loaded)
     val disabledText = stringResource(R.string.nomount_module_status_disabled)
     val inactiveText = stringResource(R.string.nomount_module_status_inactive)
@@ -372,23 +390,46 @@ private fun ModuleCard(
         else -> MaterialTheme.colorScheme.primary
     }
 
-    SettingsBaseWidget(
-        icon = Icons.TwoTone.Folder,
-        title = module.name,
-        descriptionColumnContent = {
-            Text(
-                text = statusText,
-                color = statusColor,
-                style = MaterialTheme.typography.labelMedium,
+    // 仿 ModuleItem (模块管理页卡片): Surface 圆角卡片 + 图标 + 名称 + 状态 + 操作
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color =
+            if (themeConfig.isEnableBlurExp)
+                Color.Transparent
+            else
+                MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.TwoTone.Folder,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.primary,
             )
-            Text(
-                text = moduleSummary,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        },
-        onClick = {},
-        trailingContent = {
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = module.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = statusText,
+                    color = statusColor,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                Text(
+                    text = moduleSummary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Spacer(Modifier.width(8.dp))
             TextButton(
                 enabled = buttonEnabled,
                 onClick = buttonAction,
@@ -398,8 +439,8 @@ private fun ModuleCard(
                     color = if (buttonEnabled) buttonColor else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-        },
-    )
+        }
+    }
 }
 
 @Composable
@@ -558,7 +599,6 @@ private fun NoMountExclusionsTab(
     val exclusionsTitle = stringResource(R.string.nomount_exclusions_title)
     val exclusionsAddTitle = stringResource(R.string.nomount_exclusions_add)
     val exclusionsEmpty = stringResource(R.string.nomount_exclusions_empty)
-    val addSummary = stringResource(R.string.nomount_exclusions_add_summary)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -570,61 +610,92 @@ private fun NoMountExclusionsTab(
         ),
     ) {
         item {
-            SegmentedColumn {
-                item {
-                    SettingsBaseWidget(
-                        icon = Icons.TwoTone.Add,
-                        title = exclusionsAddTitle,
-                        description = addSummary,
-                        onClick = { onAddClick() },
-                    )
-                }
-            }
-        }
-        item {
-            Spacer(Modifier.height(16.dp))
-        }
-        if (uiState.exclusions.isEmpty()) {
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = exclusionsEmpty,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        } else {
-            item {
+            // 标题行 + 添加按钮 (仿 NetIsolate)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
                     text = exclusionsTitle,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = { onAddClick() }) {
+                    Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(exclusionsAddTitle)
+                }
+            }
+        }
+
+        if (uiState.exclusions.isEmpty()) {
+            item {
+                Text(
+                    text = exclusionsEmpty,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp),
                 )
             }
-            lazySegmentColumn(
-                items = uiState.exclusions,
-                key = { _, uid -> "excl:$uid" },
-            ) { _, uid ->
+        } else {
+            items(uiState.exclusions) { uid ->
                 val pkgs = remember(uid) {
                     runCatching { context.packageManager.getPackagesForUid(uid.toInt()) }.getOrNull()
                 }
-                val label = remember(pkgs) {
-                    pkgs?.firstOrNull()?.let { pkg ->
+                val pkgName = pkgs?.firstOrNull()
+                val label = remember(pkgName) {
+                    pkgName?.let {
                         runCatching {
-                            context.packageManager.getApplicationInfo(pkg, 0).loadLabel(context.packageManager).toString()
+                            context.packageManager.getApplicationInfo(it, 0)
+                                .loadLabel(context.packageManager).toString()
                         }.getOrNull()
+                    } ?: "UID $uid"
+                }
+
+                // 已排除应用卡片 (仿 NetIsolate: 圆角 + 图标 + 垃圾桶)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    PackageIcon(
+                        packageName = pkgName ?: "",
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)),
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = pkgName ?: "UID $uid",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    Text(
+                        text = "UID $uid",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    IconButton(onClick = { onRemoveExclusion(uid) }) {
+                        Icon(
+                            imageVector = Icons.TwoTone.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                        )
                     }
                 }
-                SettingsBaseWidget(
-                    icon = Icons.TwoTone.Folder,
-                    title = label ?: "UID: $uid",
-                    description = pkgs?.firstOrNull() ?: stringResource(R.string.nomount_exclusions_uid_desc),
-                    onClick = { onRemoveExclusion(uid) },
-                )
             }
         }
     }
@@ -679,51 +750,105 @@ private fun NoMountExclusionPickerSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.7f)
-                .padding(horizontal = 16.dp),
+                .fillMaxHeight(0.7f),
         ) {
-            Text(
-                text = stringResource(R.string.nomount_exclusions_picker_title),
-                style = MaterialTheme.typography.titleMedium,
-            )
+            // 标题行: 选择应用 + 确定 (仿 NetIsolate)
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = stringResource(R.string.nomount_exclusions_picker_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.confirm))
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // 搜索框 (支持文字/UID)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.weight(1f),
                     placeholder = { Text(stringResource(R.string.search_apps)) },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                     singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
                 )
-                TextButton(onClick = { showSystem = !showSystem }) {
-                    Text(
-                        text = stringResource(R.string.show_system_apps),
-                        color = if (showSystem) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 24.dp),
+
+            // 显示系统应用
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                Checkbox(checked = showSystem, onCheckedChange = { showSystem = it })
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = stringResource(R.string.show_system_apps),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+
+            // 应用列表 (复选框 + 图标 + 分隔线, 仿 NetIsolate)
+            val dividerColor = MaterialTheme.colorScheme.outlineVariant
+            LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 items(filteredApps, key = { it.uid }) { app ->
-                    val excluded = app.uid in excludedUids
-                    SettingsBaseWidget(
-                        iconPlaceholder = false,
-                        title = app.label,
-                        description = app.packageName,
-                        onClick = { onToggle(app.uid) },
-                        trailingContent = {
-                            Checkbox(
-                                checked = excluded,
-                                onCheckedChange = { onToggle(app.uid) },
+                    val isExcluded = app.uid in excludedUids
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onToggle(app.uid) }
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .drawBehind {
+                                drawLine(
+                                    dividerColor,
+                                    Offset(0f, size.height),
+                                    Offset(size.width, size.height),
+                                    strokeWidth = 0.5.dp.toPx(),
+                                )
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = isExcluded,
+                            onCheckedChange = { onToggle(app.uid) },
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        PackageIcon(
+                            packageName = app.packageName,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)),
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = app.label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                             )
-                        },
-                    )
+                            Text(
+                                text = app.packageName,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
                 }
             }
         }

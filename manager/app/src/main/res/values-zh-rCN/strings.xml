@@ -632,4 +632,10 @@
     <string name="netisolate_status_supported">内核支持</string>
     <string name="netisolate_status_supported_yes">已支持（联网隔离生效）</string>
     <string name="netisolate_add_uid_summary">被禁止联网的应用</string>
+
+    <string name="module_layout_switch">布局</string>
+    <string name="module_sort">排序</string>
+    <string name="module_sort_default">默认</string>
+    <string name="module_sort_name">按名称</string>
+    <string name="module_sort_enabled">按启用</string>
 </resources>

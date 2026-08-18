@@ -1,5 +1,14 @@
 package com.tesla.resukisuultra.ui.screen.main
 
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material.icons.twotone.ViewAgenda
+import androidx.compose.material.icons.twotone.ViewModule
+import androidx.compose.material.icons.twotone.Sort
+import androidx.compose.foundation.clickable
+
 import android.annotation.SuppressLint
 import android.app.Activity.CLIPBOARD_SERVICE
 import android.app.Activity.RESULT_OK
@@ -202,7 +211,12 @@ fun ModulePage(bottomPadding: Dp) {
     var lastClickTime by remember { mutableStateOf(0L) }
 
     var showDropdown by remember { mutableStateOf(false) }
+    var showSortMenu by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
+    // 布局模式: list / grid (仿 FolkPatch 双列网格)
+    var layoutMode by rememberSaveable { mutableStateOf("list") }
+    // 排序: default / name / enabled
+    var sortMode by rememberSaveable { mutableStateOf("default") }
 
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var pendingZipFiles by remember { mutableStateOf<List<ZipFileInfo>>(emptyList()) }
@@ -314,6 +328,34 @@ fun ModulePage(bottomPadding: Dp) {
                     viewModel.dispatch(ModuleUiAction.Search(query))
                 },
                 dropdownContent = {
+                    // 布局切换 (列表/双列网格 — 仿 FolkPatch)
+                    IconButton(
+                        onClick = { layoutMode = if (layoutMode == "list") "grid" else "list" },
+                    ) {
+                        Icon(
+                            imageVector = if (layoutMode == "list") {
+                                Icons.TwoTone.ViewAgenda
+                            } else {
+                                Icons.TwoTone.ViewModule
+                            },
+                            contentDescription = stringResource(id = R.string.module_layout_switch),
+                        )
+                    }
+                    // 排序菜单
+                    IconButton(
+                        onClick = { showSortMenu = true },
+                    ) {
+                        Icon(
+                            imageVector = Icons.TwoTone.Sort,
+                            contentDescription = stringResource(id = R.string.module_sort),
+                        )
+                        ModuleSortMenu(
+                            expanded = showSortMenu,
+                            onDismissRequest = { showSortMenu = false },
+                            sortMode = sortMode,
+                            onSortModeChange = { sortMode = it },
+                        )
+                    }
                     IconButton(
                         onClick = { showDropdown = true },
                     ) {
@@ -475,6 +517,8 @@ fun ModulePage(bottomPadding: Dp) {
                     snackBarHost = snackBarHost,
                     bottomPadding = bottomPadding + innerPadding.calculateBottomPadding(),
                     topPadding = innerPadding.calculateTopPadding(),
+                    layoutMode = layoutMode,
+                    sortMode = sortMode,
                 )
             }
         }
@@ -579,6 +623,8 @@ private fun ModuleList(
     snackBarHost: SnackbarHostState,
     bottomPadding : Dp,
     topPadding : Dp,
+    layoutMode: String,
+    sortMode: String,
 ) {
     val Shortcut = koinInject<Shortcut>()
     var showMetaModuleWarning by rememberSaveable { mutableStateOf(true) }
@@ -898,6 +944,50 @@ private fun ModuleList(
             }
         }
 
+        // 排序 (本地: 名称 / 启用优先)
+        val sortedModules = remember(uiState.moduleList, sortMode) {
+            when (sortMode) {
+                "name" -> uiState.moduleList.sortedWith(
+                    compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                )
+                "enabled" -> uiState.moduleList.sortedBy { !it.enabled }
+                else -> uiState.moduleList
+            }
+        }
+
+        if (layoutMode == "grid") {
+            // 双列网格 (仿 FolkPatch TwoColumnGrid)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                state = rememberLazyGridState(),
+                modifier = modifier,
+                contentPadding = remember {
+                    PaddingValues(
+                        start = 16.dp,
+                        top = 0.dp,
+                        end = 16.dp,
+                        bottom = 72.dp + 5.dp + 5.dp
+                    )
+                },
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(topPadding))
+                }
+                items(
+                    items = sortedModules,
+                    key = { it.dirId },
+                ) { module ->
+                    GridModuleItem(
+                        module = module,
+                        onCheckChanged = { enabled ->
+                            viewModel.dispatch(ModuleUiAction.SetEnabled(module.dirId, enabled))
+                            true
+                        },
+                        onClick = { onClickModule(module.dirId, module.name, module.hasWebUi) },
+                    )
+                }
+            }
+        } else {
         LazyColumn(
             state = listState,
             modifier = modifier,
@@ -975,6 +1065,7 @@ private fun ModuleList(
             item {
                 Spacer(modifier = Modifier.height(bottomPadding))
             }
+        }
         }
     }
 
@@ -1534,4 +1625,148 @@ fun ModuleItemPreview() {
         false,
         false
     )
+}
+
+// ==================== 双列网格卡片 (仿 FolkPatch TwoColumnGrid) ====================
+
+@Composable
+private fun GridModuleItem(
+    module: InstalledModule,
+    onCheckChanged: (Boolean) -> Boolean,
+    onClick: () -> Unit,
+) {
+    val themeConfig: ThemeConfig = koinInject()
+    val cardConfig: CardConfig = koinInject()
+    val scope = rememberCoroutineScope()
+    var isEnabled by remember(module.dirId) { mutableStateOf(module.enabled) }
+    var isChangingEnabled by remember(module.dirId) { mutableStateOf(false) }
+
+    LaunchedEffect(module.enabled) {
+        isEnabled = module.enabled
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .renderBackgroundBlur(),
+        color =
+            if (themeConfig.isEnableBlurExp)
+                Color.Transparent
+            else
+                MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .clickable { onClick() }
+                .padding(16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = module.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, false),
+                )
+                if (module.update) {
+                    LabelText(
+                        label = stringResource(R.string.module_update),
+                        containerColor = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+            Text(
+                text = if (module.version.isNotBlank()) "v${module.version}" else module.dirId,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (module.hasWebUi || module.hasActionScript) {
+                    LabelText(
+                        label = if (module.hasWebUi) "WEBUI" else "ACTION",
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                    )
+                } else {
+                    Spacer(Modifier.weight(1f))
+                }
+                Switch(
+                    checked = isEnabled,
+                    enabled = !isChangingEnabled,
+                    onCheckedChange = { enabled ->
+                        scope.launch {
+                            isChangingEnabled = true
+                            try {
+                                if (onCheckChanged(enabled)) {
+                                    isEnabled = enabled
+                                }
+                            } finally {
+                                isChangingEnabled = false
+                            }
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
+
+// ==================== 排序菜单 ====================
+
+@Composable
+private fun ModuleSortMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    sortMode: String,
+    onSortModeChange: (String) -> Unit,
+) {
+    DropdownMenuPopup(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+    ) {
+        DropdownMenuGroup(
+            shapes = MenuDefaults.groupShapes(),
+        ) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.module_sort_default)) },
+                onClick = { onSortModeChange("default"); onDismissRequest() },
+                leadingIcon = {
+                    if (sortMode == "default") {
+                        Icon(Icons.TwoTone.Check, contentDescription = null)
+                    }
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.module_sort_name)) },
+                onClick = { onSortModeChange("name"); onDismissRequest() },
+                leadingIcon = {
+                    if (sortMode == "name") {
+                        Icon(Icons.TwoTone.Check, contentDescription = null)
+                    }
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.module_sort_enabled)) },
+                onClick = { onSortModeChange("enabled"); onDismissRequest() },
+                leadingIcon = {
+                    if (sortMode == "enabled") {
+                        Icon(Icons.TwoTone.Check, contentDescription = null)
+                    }
+                },
+            )
+        }
+    }
 }

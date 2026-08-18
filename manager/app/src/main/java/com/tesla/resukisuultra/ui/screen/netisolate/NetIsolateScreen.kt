@@ -51,6 +51,10 @@ import androidx.compose.foundation.layout.add
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.theme.CardConfig
+import org.koin.compose.viewmodel.koinViewModel
+
+import com.tesla.resukisuultra.ui.viewmodel.NetIsolateViewModel
+
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -102,24 +106,18 @@ fun NetIsolateTab(
     nestedScrollConnection: NestedScrollConnection,
 ) {
     val context = LocalContext.current
-
-    // 真实持久化 (root 读写 /data/adb/ksu/netisolate/)
-    val repository = remember { NetIsolateRepository(context, KsuCliRepository(context)) }
     val scope = rememberCoroutineScope()
-    var enabled by remember { mutableStateOf(false) }
-    var selectedUids by remember { mutableStateOf<Set<Int>>(emptySet()) }
-    var loaded by remember { mutableStateOf(false) }
     var showPicker by remember { mutableStateOf(false) }
 
-    // 启动时加载 (并行, 复用缓存 shell — 快)
+    // 仿 SUSFS: state 提升到 ViewModel (组合销毁不丢, 进入秒开, 后台刷新不闪)
+    val viewModel: NetIsolateViewModel = koinViewModel()
+    val netIsolateState by viewModel.uiState.collectAsStateWithLifecycle()
+    val enabled = netIsolateState.enabled
+    val selectedUids = netIsolateState.selectedUids
+    val loaded = netIsolateState.loaded
+
     LaunchedEffect(Unit) {
-        coroutineScope {
-            val enabledDeferred = async { repository.isEnabled() }
-            val uidsDeferred = async { repository.getUids() }
-            enabled = enabledDeferred.await()
-            selectedUids = uidsDeferred.await()
-            loaded = true
-        }
+        viewModel.refresh()
     }
 
     LazyColumn(
@@ -161,10 +159,7 @@ fun NetIsolateTab(
                     Switch(
                         checked = enabled,
                         enabled = loaded,
-                        onCheckedChange = {
-                            enabled = it
-                            scope.launch { repository.setEnabled(it) }
-                        }
+                        onCheckedChange = { viewModel.setEnabled(it) }
                     )
                 }
             }
@@ -263,11 +258,7 @@ fun NetIsolateTab(
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            IconButton(onClick = {
-                                val newSet = selectedUids - uid
-                                selectedUids = newSet
-                                scope.launch { repository.setUids(newSet) }
-                            }) {
+                            IconButton(onClick = { viewModel.toggleUid(uid) }) {
                                 Icon(
                                     imageVector = Icons.TwoTone.Delete,
                                     contentDescription = null,
@@ -283,12 +274,7 @@ fun NetIsolateTab(
     if (showPicker) {
         AppPickerSheet(
             selectedUids = selectedUids,
-            onUidToggle = { uid ->
-                val newSet = if (uid in selectedUids) selectedUids - uid
-                    else selectedUids + uid
-                selectedUids = newSet
-                scope.launch { repository.setUids(newSet) }
-            },
+            onUidToggle = { uid -> viewModel.toggleUid(uid) },
             onDismiss = { showPicker = false }
         )
     }

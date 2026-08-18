@@ -160,6 +160,7 @@ import com.tesla.resukisuultra.ui.viewmodel.ModuleRepoViewModel
 import com.tesla.resukisuultra.ui.viewmodel.ModuleViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SettingsViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SuSFSViewModel
+import com.tesla.resukisuultra.ui.viewmodel.NetIsolateViewModel
 import com.tesla.resukisuultra.ui.viewmodel.NoMountViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SulogViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SuperUserViewModel
@@ -419,6 +420,7 @@ val viewModelModule = module {
     viewModelOf(::ModuleViewModel)
     viewModelOf(::SuperUserViewModel)
     viewModelOf(::SuSFSViewModel)
+    viewModelOf(::NetIsolateViewModel)
     viewModelOf(::NoMountViewModel)
     viewModelOf(::ModuleRepoViewModel)
     viewModel { parameters -> ModuleDetailViewModel(parameters[0], get()) }

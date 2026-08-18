@@ -14,8 +14,11 @@ import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.component.PackageIcon
 import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
+import com.tesla.resukisuultra.ui.component.settings.SettingsJumpPageWidget
+import com.tesla.resukisuultra.ui.component.settings.lazySegmentColumn
 import com.tesla.resukisuultra.ui.component.settings.SettingsSwitchWidget
 import androidx.compose.material.icons.twotone.Add
+import androidx.compose.material.icons.twotone.Inbox
 import androidx.compose.material.icons.twotone.Info
 
 import android.content.Context
@@ -94,6 +97,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tesla.resukisuultra.R
@@ -138,6 +142,7 @@ fun NetIsolateTab(
     LaunchedEffect(Unit) {
         viewModel.refresh()
     }
+    val uidListTitle = stringResource(R.string.netisolate_uid_list)
 
     // 仿 SUSFS StatusTab: 无 contentPadding 左右 (settings 组件自带间距), Spacer 顶部
     LazyColumn(
@@ -166,9 +171,10 @@ fun NetIsolateTab(
                     SettingsBaseWidget(
                         icon = Icons.TwoTone.Info,
                         title = stringResource(R.string.netisolate_status_supported),
-                        description = if (uiState.loaded) {
+                        description = if (pageLoaded && uiState.loaded) {
                             stringResource(R.string.netisolate_status_supported_yes)
                         } else {
+                            // 仿 SUSFS: 加载前先显示"无数据"
                             stringResource(R.string.netisolate_no_data)
                         },
                     )
@@ -176,39 +182,66 @@ fun NetIsolateTab(
             }
         }
 
-        // 已阻止列表 (标题 + 添加)
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.netisolate_uid_list),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                )
-                TextButton(onClick = onAddClick) {
-                    Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(stringResource(R.string.netisolate_add_uid))
+        // 已阻止列表 (仿 SUSFS susfsEntryList 机制: 添加行 + 列表项连一起, 缝分隔)
+        if (uiState.selectedUids.isEmpty()) {
+            item(key = "empty") {
+                if (!pageLoaded || !uiState.loaded) {
+                    // 加载前"无数据"占位 (仿 SUSFS)
+                    Text(
+                        text = stringResource(R.string.netisolate_no_data),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    )
+                } else {
+                    // 空态 (SUSFS 机制: Inbox 图标 + 标题 + 描述)
+                    Box(
+                        modifier = Modifier
+                            .fillParentMaxWidth()
+                            .fillParentMaxHeight(0.5f)
+                            .padding(horizontal = 32.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.TwoTone.Inbox,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(bottom = 6.dp)
+                                    .size(48.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = stringResource(R.string.netisolate_no_uids),
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
                 }
             }
-        }
-
-        if (uiState.selectedUids.isEmpty()) {
+            // 空态时也提供添加入口 (SUSFS susfsEntryList 机制)
             item {
-                Text(
-                    text = stringResource(
-                        if (uiState.loaded) R.string.netisolate_no_uids
-                        else R.string.netisolate_no_data
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(16.dp),
-                )
+                SegmentedColumn {
+                    item {
+                        SettingsJumpPageWidget(
+                            iconPlaceholder = false,
+                            title = stringResource(R.string.netisolate_add_uid),
+                            trailingIcon = Icons.TwoTone.Add,
+                            onClick = { onAddClick() },
+                        )
+                    }
+                }
             }
         } else {
-            items(uiState.selectedUids.sorted()) { uid ->
+            lazySegmentColumn(
+                title = uidListTitle,
+                items = uiState.selectedUids.sorted(),
+                key = { _, uid -> uid },
+            ) { _, uid ->
                 val pkgs = remember(uid) {
                     runCatching { context.packageManager.getPackagesForUid(uid) }.getOrNull()
                 }
@@ -221,48 +254,25 @@ fun NetIsolateTab(
                         }.getOrNull()
                     } ?: "UID $uid"
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    PackageIcon(
-                        packageName = pkgName ?: "",
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)),
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                SettingsBaseWidget(
+                    title = label,
+                    description = pkgName ?: "UID $uid",
+                    leadingContent = {
+                        PackageIcon(
+                            packageName = pkgName ?: "",
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)),
                         )
-                        Text(
-                            text = pkgName ?: "UID $uid",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    Text(
-                        text = "UID $uid",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    IconButton(onClick = { viewModel.toggleUid(uid) }) {
+                    },
+                    trailingContent = {
                         Icon(
                             imageVector = Icons.TwoTone.Delete,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                    }
-                }
+                    },
+                    onClick = { viewModel.toggleUid(uid) },
+                )
             }
         }
     }

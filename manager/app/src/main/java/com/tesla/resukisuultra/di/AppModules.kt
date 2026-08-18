@@ -29,6 +29,7 @@ import com.tesla.resukisuultra.data.profile.ProfileTemplateRepository
 import com.tesla.resukisuultra.data.settings.LocaleHelper
 import com.tesla.resukisuultra.data.settings.LocaleRepository
 import com.tesla.resukisuultra.data.settings.SettingsPlatformRepository
+import com.tesla.resukisuultra.data.netisolate.NetIsolateRepository
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.data.shell.ShortcutRepository
 import com.tesla.resukisuultra.data.startup.ApplicationInitializationRepository
@@ -223,6 +224,7 @@ val coreModule = module {
 
 val repositoryModule = module {
     single { KsuCliRepository(androidApplication()) }
+    single { NetIsolateRepository(androidApplication(), get()) }
     singleOf(::InstalledPackageCache)
     singleOf(::AppIconDataSource)
     singleOf(::RootServiceRepository)

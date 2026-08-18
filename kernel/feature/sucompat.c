@@ -1,6 +1,7 @@
 #include <linux/version.h>
 #include <linux/preempt.h>
 #include <linux/mm.h>
+#include <linux/fcntl.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
 #include <linux/pgtable.h>
 #else
@@ -141,15 +142,19 @@ extern bool ksu_kernel_umount_enabled;
 
 // WARNING! THERE HAVE TRYING TO CALL SYSCALL INTERNALLY
 // ENSURE CALL IT ONLY IN TRACEPOINT SYSCALL REDIRECT
-int ksu_handle_execve_sucompat_tp_internal(const char __user **filename_user, int orig_nr, const struct pt_regs *regs)
+static int ksu_handle_execve_sucompat_tp_common(const char __user **filename_user,
+                                                const char __user *const __user *argv_user, bool execveat, int orig_nr,
+                                                const struct pt_regs *regs)
 {
     const char su[] = SU_PATH;
     const char __user *fn;
-    const char __user *const __user *argv_user = (const char __user *const __user *)PT_REGS_PARM2(regs);
     struct ksu_sulog_pending_event *pending_sucompat = NULL;
     char path[sizeof(su) + 1];
     long ret;
     unsigned long addr;
+
+    if (execveat && ((int)PT_REGS_PARM1(regs) != AT_FDCWD || (int)PT_REGS_PARM5(regs) != 0))
+        goto do_orig_execve;
 
     if (unlikely(!filename_user))
         goto do_orig_execve;
@@ -194,6 +199,21 @@ int ksu_handle_execve_sucompat_tp_internal(const char __user **filename_user, in
 
 do_orig_execve:
     return ksu_syscall_table[orig_nr](regs);
+}
+
+int ksu_handle_execve_sucompat_tp_internal(const char __user **filename_user, int orig_nr, const struct pt_regs *regs)
+{
+    return ksu_handle_execve_sucompat_tp_common(filename_user,
+                                                (const char __user *const __user *)PT_REGS_PARM2(regs), false, orig_nr,
+                                                regs);
+}
+
+int ksu_handle_execveat_sucompat_tp_internal(const char __user **filename_user, int orig_nr,
+                                             const struct pt_regs *regs)
+{
+    return ksu_handle_execve_sucompat_tp_common(filename_user,
+                                                (const char __user *const __user *)PT_REGS_PARM3(regs), true, orig_nr,
+                                                regs);
 }
 #endif
 

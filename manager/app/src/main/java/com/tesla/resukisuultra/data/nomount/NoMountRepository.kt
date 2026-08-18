@@ -8,6 +8,8 @@ class NoMountRepository(
 ) {
     private val mutex = Mutex()
 
+    suspend fun getSnapshot(): NoMountSnapshot? = helper.getSnapshot()
+
     suspend fun isSupported(): Boolean = helper.isSupported()
 
     suspend fun getStatus(): NoMountStatus? = helper.getStatus()

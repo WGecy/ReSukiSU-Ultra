@@ -505,6 +505,7 @@
     <string name="nomount_hot_load">热加载</string>
     <string name="nomount_hot_unload">热卸载</string>
     <string name="nomount_module_not_enabled">未启用</string>
+    <string name="nomount_no_data">无数据</string>
     <string name="nomount_module_version">版本</string>
     <string name="nomount_module_author">作者</string>
     <string name="nomount_module_status_loaded">已注入</string>

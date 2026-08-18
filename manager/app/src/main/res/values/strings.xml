@@ -548,6 +548,7 @@
     <string name="nomount_hot_load">Hot load</string>
     <string name="nomount_hot_unload">Hot unload</string>
     <string name="nomount_module_not_enabled">Not enabled</string>
+    <string name="nomount_no_data">No data</string>
     <string name="nomount_module_version">Version</string>
     <string name="nomount_module_author">Author</string>
     <string name="nomount_module_status_loaded">Injected</string>
@@ -631,6 +632,7 @@
     <string name="netisolate_enable">启用联网隔离</string>
     <string name="netisolate_disable">禁用联网隔离</string>
     <string name="netisolate_no_uids">暂未阻止任何应用</string>
+    <string name="netisolate_loading">Loading...</string>
     <string name="netisolate_add_uid">添加 UID</string>
     <string name="netisolate_input_uid">输入要阻止的 UID</string>
     <string name="netisolate_uid_list">被阻止的应用 (UID)</string>

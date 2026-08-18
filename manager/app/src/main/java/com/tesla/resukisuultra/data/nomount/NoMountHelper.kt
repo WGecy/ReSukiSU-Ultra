@@ -6,6 +6,7 @@ import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONObject
 
 class NoMountHelper(
     private val ksuCliRepository: KsuCliRepository,
@@ -124,6 +125,53 @@ class NoMountHelper(
         return execNomount("unload ${shellQuote(moduleId)}").success
     }
 
+    /** 聚合快照: 一次调用返回全部数据 (仿 SUSFS 单次 config — 进入页面只调一次) */
+    suspend fun getSnapshot(): NoMountSnapshot? {
+        val result = execNomount("snapshot")
+        if (!result.success || result.stdout.isBlank()) return null
+        return runCatching {
+            val obj = JSONObject(result.stdout)
+            val modules = JSONArray(obj.optString("modules", "[]"))
+            val rules = JSONArray(obj.optString("rules", "[]"))
+            val exclusions = JSONArray(obj.optString("exclusions", "[]"))
+            NoMountSnapshot(
+                supported = obj.optBoolean("supported", true),
+                version = obj.optString("version"),
+                modules = buildList {
+                    for (i in 0 until modules.length()) {
+                        val m = modules.getJSONObject(i)
+                        add(
+                            NoMountModule(
+                                id = m.optString("id"),
+                                name = m.optString("name"),
+                                version = m.optString("version"),
+                                author = m.optString("author"),
+                                description = m.optString("description"),
+                                disabled = m.optBoolean("disabled"),
+                                fileCount = m.optInt("file_count"),
+                                loaded = m.optInt("loaded"),
+                            )
+                        )
+                    }
+                },
+                rules = buildList {
+                    for (i in 0 until rules.length()) {
+                        val r = rules.getJSONObject(i)
+                        add(NoMountRule(r.optString("virtual"), r.optString("real")))
+                    }
+                },
+                exclusions = buildList {
+                    for (i in 0 until exclusions.length()) {
+                        exclusions.optLong(i).takeIf { it >= 0 }?.let { add(it) }
+                    }
+                },
+            )
+        }.getOrElse {
+            Log.e(TAG, "解析 snapshot 失败", it)
+            null
+        }
+    }
+
     suspend fun listExclusions(): List<Long> {
         val result = execNomount("exclude-list --json")
         if (!result.success || result.stdout.isBlank()) return emptyList()
@@ -180,6 +228,14 @@ class NoMountHelper(
 }
 
 data class NoMountStatus(val version: String)
+
+data class NoMountSnapshot(
+    val supported: Boolean,
+    val version: String,
+    val modules: List<NoMountModule>,
+    val rules: List<NoMountRule>,
+    val exclusions: List<Long>,
+)
 
 data class NoMountRule(val virtual: String, val real: String)
 

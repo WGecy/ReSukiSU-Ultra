@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.tesla.resukisuultra.data.nomount.NoMountModule
 import com.tesla.resukisuultra.data.nomount.NoMountRepository
 import com.tesla.resukisuultra.data.nomount.NoMountRule
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,36 +46,24 @@ class NoMountViewModel(
     private val mutableState = MutableStateFlow(NoMountUiState())
     val uiState: StateFlow<NoMountUiState> = mutableState.asStateFlow()
 
-    /** 进入页面并行加载全部数据 (一次刷新 3 个数据源并行, 切 tab 秒开)
-     *  silent=true: 已有数据时静默刷新 (不转圈, 避免每次进入卡顿) */
-    fun refreshAll(silent: Boolean = false) {
-        val current = mutableState.value
-        if (current.isLoading) return
+    /** 仿 SUSFS 载入: 单次 snapshot 调用加载全部 (不转圈, 占位→数据更新) */
+    fun refreshAll() {
+        if (mutableState.value.isLoading) return
         viewModelScope.launch {
-            if (!silent) {
-                mutableState.update { it.copy(isLoading = true, error = null) }
-            }
+            mutableState.update { it.copy(isLoading = true, error = null) }
             runCatching {
-                val statusDeferred = async { repository.getStatus() }
-                val rulesDeferred = async { repository.listRules() }
-                val modulesDeferred = async { repository.listModules() }
-                val exclusionsDeferred = async { repository.listExclusions() }
-
-                val status = statusDeferred.await()
-                val rules = rulesDeferred.await()
-                val modules = modulesDeferred.await()
-                val exclusions = exclusionsDeferred.await()
-                val (moduleRules, custom) = groupRules(rules)
-
+                val snap = repository.getSnapshot()
+                val (moduleRules, custom) = groupRules(snap?.rules.orEmpty())
                 NoMountUiState(
-                    version = status?.version.orEmpty(),
-                    supported = status != null,
-                    rules = rules,
+                    version = snap?.version.orEmpty(),
+                    supported = snap?.supported ?: false,
+                    rules = snap?.rules.orEmpty(),
                     moduleRules = moduleRules,
                     customRules = custom,
-                    modules = modules,
-                    exclusions = exclusions,
+                    modules = snap?.modules.orEmpty(),
+                    exclusions = snap?.exclusions.orEmpty(),
                     loadedTabs = setOf(0, 1, 2),
+                    isLoading = false,
                 )
             }.onSuccess { newState ->
                 mutableState.value = newState

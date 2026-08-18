@@ -92,6 +92,11 @@ import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.SettingsTextFieldWidget
 import com.tesla.resukisuultra.ui.component.settings.lazySegmentColumn
 import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import com.tesla.resukisuultra.ui.screen.LabelText
@@ -125,13 +130,9 @@ fun NoMountConfigScreen() {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
 
-    // 进入页面加载: 首次显示 loading, 再次进入静默刷新 (有缓存数据, 不转圈不卡)
+    // 仿 SUSFS: 进入页面加载 (单次 snapshot, 占位→数据更新, 不转圈)
     LaunchedEffect(Unit) {
-        if (uiState.loadedTabs.size < 3) {
-            viewModel.refreshAll()
-        } else {
-            viewModel.refreshAll(silent = true)
-        }
+        viewModel.refreshAll()
     }
 
     val removeConfirmTitle = stringResource(R.string.nomount_remove_confirm_title)
@@ -186,27 +187,34 @@ fun NoMountConfigScreen() {
                     minTabWidth = 0.dp,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Tab(
-                        selected = pagerState.currentPage == 0,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
-                        modifier = Modifier.widthIn(min = TabRowDefaults.ScrollableTabRowMinTabWidth),
-                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        text = { Text(stringResource(R.string.nomount_tab_modules)) },
-                    )
-                    Tab(
-                        selected = pagerState.currentPage == 1,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
-                        modifier = Modifier.widthIn(min = TabRowDefaults.ScrollableTabRowMinTabWidth),
-                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        text = { Text(stringResource(R.string.nomount_tab_custom)) },
-                    )
-                    Tab(
-                        selected = pagerState.currentPage == 2,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(2) } },
-                        modifier = Modifier.widthIn(min = TabRowDefaults.ScrollableTabRowMinTabWidth),
-                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        text = { Text(stringResource(R.string.nomount_tab_exclusions)) },
-                    )
+                    // 仿 SUSFS: 进入只显示"模块"tab, 数据加载完成后其余 tab 展开
+                    val tabsLoaded = uiState.loadedTabs.size >= 3
+                    listOf(0, 1, 2).forEach { tabIndex ->
+                        val tabVisible = tabIndex == 0 || tabsLoaded
+                        AnimatedVisibility(
+                            visible = tabVisible,
+                            enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
+                            exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
+                        ) {
+                            Tab(
+                                selected = tabVisible && pagerState.currentPage == tabIndex,
+                                onClick = { scope.launch { pagerState.animateScrollToPage(tabIndex) } },
+                                modifier = Modifier.widthIn(min = TabRowDefaults.ScrollableTabRowMinTabWidth),
+                                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                text = {
+                                    Text(
+                                        stringResource(
+                                            when (tabIndex) {
+                                                0 -> R.string.nomount_tab_modules
+                                                1 -> R.string.nomount_tab_custom
+                                                else -> R.string.nomount_tab_exclusions
+                                            }
+                                        )
+                                    )
+                                },
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -314,10 +322,15 @@ private fun NoMountModulesTab(
                     SettingsBaseWidget(
                         icon = Icons.TwoTone.Info,
                         title = statusSupportedTitle,
-                        description = stringResource(
-                            if (uiState.supported) R.string.nomount_status_supported_yes
-                            else R.string.nomount_status_supported_no
-                        ),
+                        description = if (0 in uiState.loadedTabs) {
+                            stringResource(
+                                if (uiState.supported) R.string.nomount_status_supported_yes
+                                else R.string.nomount_status_supported_no
+                            )
+                        } else {
+                            // 仿 SUSFS: 加载前显示"无数据"占位
+                            stringResource(R.string.nomount_no_data)
+                        },
                     )
                 }
             }
@@ -325,7 +338,7 @@ private fun NoMountModulesTab(
         item {
             Spacer(Modifier.height(16.dp))
         }
-        if (uiState.modules.isEmpty()) {
+        if (uiState.modules.isEmpty() && 0 in uiState.loadedTabs) {
             item {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
@@ -337,7 +350,7 @@ private fun NoMountModulesTab(
                     )
                 }
             }
-        } else {
+        } else if (uiState.modules.isNotEmpty()) {
             item {
                 Text(
                     text = modulesTitle,
@@ -534,10 +547,13 @@ private fun NoMountCustomTab(
     onRemoveRule: (NoMountRule) -> Unit,
     onClearCustom: () -> Unit,
 ) {
-    if (uiState.isLoading && 1 !in uiState.loadedTabs) {
-        // 局部加载中 (不整页转圈)
+    if (1 !in uiState.loadedTabs) {
+        // 仿 SUSFS: 加载前显示"无数据"占位 (不转圈)
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-            LoadingIndicator()
+            Text(
+                text = stringResource(R.string.nomount_no_data),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
         return
     }
@@ -686,10 +702,13 @@ private fun NoMountExclusionsTab(
     onAddClick: () -> Unit,
     onRemoveExclusion: (Long) -> Unit,
 ) {
-    if (uiState.isLoading && 2 !in uiState.loadedTabs) {
-        // 局部加载中 (不整页转圈)
+    if (2 !in uiState.loadedTabs) {
+        // 仿 SUSFS: 加载前显示"无数据"占位 (不转圈)
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-            LoadingIndicator()
+            Text(
+                text = stringResource(R.string.nomount_no_data),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
         return
     }

@@ -434,6 +434,55 @@ pub fn replay_custom_rules() -> Result<()> {
     Ok(())
 }
 
+/// 聚合快照: 一次返回全部数据 (仿 SUSFS 单次 config 调用 — 管理器进入页面只调一次)
+pub fn snapshot() -> Result<String> {
+    let s = NmSocket::new()?;
+    let version = s.version().unwrap_or(0);
+    let rules = s.list().unwrap_or_default();
+    let modules = crate::android::nomount::mount::modules().unwrap_or_default();
+    let exclusions = read_exclusions().unwrap_or_default();
+
+    let mut out = String::from("{\"supported\": true, \"version\": ");
+    out.push_str(&version.to_string());
+    out.push_str(", \"modules\": [");
+    for (i, m) in modules.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str(&format!(
+            "{{\"id\": \"{}\", \"name\": \"{}\", \"version\": \"{}\", \"author\": \"{}\", \"description\": \"{}\", \"disabled\": {}, \"file_count\": {}, \"loaded\": {}}}",
+            crate::android::nomount::cli::escape_json(&m.id),
+            crate::android::nomount::cli::escape_json(&m.name),
+            crate::android::nomount::cli::escape_json(&m.version),
+            crate::android::nomount::cli::escape_json(&m.author),
+            crate::android::nomount::cli::escape_json(&m.description),
+            m.disabled,
+            m.file_count,
+            m.loaded
+        ));
+    }
+    out.push_str("], \"rules\": [");
+    for (i, (v, r)) in rules.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str(&format!(
+            "{{\"virtual\": \"{}\", \"real\": \"{}\"}}",
+            crate::android::nomount::cli::escape_json(v),
+            crate::android::nomount::cli::escape_json(r)
+        ));
+    }
+    out.push_str("], \"exclusions\": [");
+    for (i, u) in exclusions.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str(&u.to_string());
+    }
+    out.push_str("]}");
+    Ok(out)
+}
+
 fn read_exclusions() -> Result<Vec<u32>> {
     let content = match std::fs::read_to_string(EXCLUSION_FILE) {
         Ok(c) => c,

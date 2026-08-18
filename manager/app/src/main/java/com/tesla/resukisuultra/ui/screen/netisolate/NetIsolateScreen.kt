@@ -160,6 +160,7 @@ fun NetIsolateTab(
                     }
                     Switch(
                         checked = enabled,
+                        enabled = loaded,
                         onCheckedChange = {
                             enabled = it
                             scope.launch { repository.setEnabled(it) }
@@ -188,10 +189,20 @@ fun NetIsolateTab(
                     }
                 }
 
-                if (selectedUids.isEmpty()) {
+                if (selectedUids.isEmpty() && loaded) {
                     item {
                         Text(
                             text = stringResource(R.string.netisolate_no_uids),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                } else if (!loaded) {
+                    // 仿 SUSFS: 加载前显示"无数据"占位 (不转圈不误导)
+                    item {
+                        Text(
+                            text = stringResource(R.string.netisolate_loading),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(16.dp)

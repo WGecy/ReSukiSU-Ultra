@@ -59,6 +59,8 @@ pub enum NoMountSubCommands {
         #[arg(required = true)]
         virtual_paths: Vec<String>,
     },
+    /// 聚合快照 (一次返回全部数据)
+    Snapshot,
     /// 切换模块禁用状态 (写 disable 文件)
     ModuleDisable {
         /// 模块 id (目录名)
@@ -193,6 +195,11 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
             println!("ok");
             Ok(())
         }
+        NoMountSubCommands::Snapshot => {
+            let s = nomount::snapshot()?;
+            println!("{s}");
+            Ok(())
+        }
         NoMountSubCommands::ModuleDisable { module_id, disabled } => {
             let flag = std::path::Path::new("/data/adb/modules")
                 .join(&module_id)
@@ -230,6 +237,6 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
     }
 }
 
-fn escape_json(s: &str) -> String {
+pub fn escape_json(s: &str) -> String {
     s.replace('\\', "\\\\").replace('"', "\\\"")
 }

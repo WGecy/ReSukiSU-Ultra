@@ -14,7 +14,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Check
 import androidx.compose.material.icons.twotone.Info
 import androidx.compose.material.icons.twotone.Speed
+import androidx.compose.material.icons.twotone.LockClock
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +59,47 @@ fun IoSchedulerTab(
     ) {
         item {
             Spacer(Modifier.height(innerPadding.calculateTopPadding()))
+        }
+
+        // 固化开关 (当前调度器上面 — 开机自动应用)
+        item {
+            SegmentedColumn {
+                item {
+                    val pinned = uiState.pinned
+                    val pinDesc = if (pageLoaded && uiState.loaded && pinned != null) {
+                        stringResource(R.string.iosched_pinned_desc, pinned)
+                    } else {
+                        stringResource(R.string.iosched_unpinned_desc)
+                    }
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.LockClock,
+                        title = stringResource(R.string.iosched_pin),
+                        description = pinDesc,
+                        onClick = {
+                            if (uiState.pinned != null) {
+                                viewModel.unpin()
+                            } else {
+                                viewModel.pinCurrent()
+                            }
+                        },
+                        trailingContent = {
+                            Switch(
+                                checked = uiState.pinned != null,
+                                onCheckedChange = {
+                                    if (it) {
+                                        viewModel.pinCurrent()
+                                    } else {
+                                        viewModel.unpin()
+                                    }
+                                },
+                            )
+                        },
+                    )
+                }
+            }
+        }
+        item {
+            Spacer(Modifier.height(20.dp))
         }
 
         // 状态卡: 当前调度器

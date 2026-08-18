@@ -23,6 +23,7 @@ data class IoSchedulerUiState(
     val current: String = "",
     val available: List<String> = emptyList(),
     val loaded: Boolean = false,
+    val pinned: String? = null,
     val error: String? = null,
 )
 
@@ -42,11 +43,13 @@ class IoSchedulerViewModel(
             val devices = readBlockDevices()
             val primary = devices.firstOrNull { it.name == "sda" }
                 ?: devices.firstOrNull()
+            val pinned = settingsRepository.getString(PREF_KEY)
             mutableState.value = IoSchedulerUiState(
                 devices = devices,
                 current = primary?.current.orEmpty(),
                 available = primary?.available.orEmpty(),
                 loaded = true,
+                pinned = pinned,
             )
         }
     }
@@ -64,12 +67,28 @@ class IoSchedulerViewModel(
                 success
             }
             if (ok) {
-                settingsRepository.putString(PREF_KEY, name)
+                if (mutableState.value.pinned != null) {
+                    settingsRepository.putString(PREF_KEY, name)
+                }
                 refresh()
             } else {
                 mutableState.update { it.copy(error = "切换失败") }
             }
         }
+    }
+
+    /** 固化当前调度器 (开机自动应用) */
+    fun pinCurrent() {
+        val current = mutableState.value.current
+        if (current.isBlank()) return
+        settingsRepository.putString(PREF_KEY, current)
+        mutableState.update { it.copy(pinned = current) }
+    }
+
+    /** 取消固化 (开机回默认) */
+    fun unpin() {
+        settingsRepository.putString(PREF_KEY, null)
+        mutableState.update { it.copy(pinned = null) }
     }
 
     private fun readBlockDevices(): List<IoBlockDevice> {

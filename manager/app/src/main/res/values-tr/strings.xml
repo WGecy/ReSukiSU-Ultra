@@ -586,4 +586,18 @@
     <string name="susfs_status_no_data">Veri Yok</string>
     <string name="susfs_standard_config_enabled">Kalıcı Yapılandırma</string>
     <string name="susfs_tab_open_redirect">Yönlendirmeyi Aç</string>
+
+    <string name="iosched_title">G/Ç zamanlayıcı</string>
+    <string name="iosched_current">Geçerli zamanlayıcı</string>
+    <string name="iosched_in_use">Kullanımda</string>
+    <string name="iosched_switch_hint">Değiştirmek için dokunun</string>
+    <string name="iosched_none">Zamanlayıcı yok</string>
+    <string name="iosched_no_data">Veri yok</string>
+    <string name="iosched_summary">G/Ç zamanlayıcısını değiştir (ADIOS / SSG / mq-deadline...), günlük kullanım ve oyunu karşılaştırın</string>
+    <string name="iosched_pin">Zamanlayıcıyı sabitle</string>
+    <string name="iosched_pinned_desc">Önyüklemede otomatik uygulanır: %1$s</string>
+    <string name="iosched_unpinned_desc">Değişiklik yalnızca bu oturum için geçerlidir (yeniden başlatmadan sonra varsayılana döner)</string>
+    <string name="iosched_about">Hakkında</string>
+    <string name="settings_soft_reboot">Yumuşak yeniden başlatma</string>
+    <string name="settings_soft_reboot_summary">Yeniden başlatmada yumuşak yeniden başlatmayı tercih et (jailbreak korunur, modül değişiklikleri yine de uygulanır)</string>
 </resources>

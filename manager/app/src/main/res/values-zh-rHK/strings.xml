@@ -413,4 +413,18 @@
     <string name="module_shortcut_permission_tip_xiaomi">請喺 Xiaomi 設定中為本應用程式啟用「建立桌面捷徑」權限。</string>
     <string name="module_shortcut_permission_tip_oppo">請喺 OPPO 設定中為本應用程式啟用「桌面捷徑」權限。</string>
     <string name="module_shortcut_permission_tip_default">若建立捷徑失敗，請喺系統設定中為本應用程式啟用桌面捷徑權限。</string>
+
+    <string name="iosched_title">I/O 排程器</string>
+    <string name="iosched_current">目前排程器</string>
+    <string name="iosched_in_use">使用中</string>
+    <string name="iosched_switch_hint">點擊切換</string>
+    <string name="iosched_none">無排程器</string>
+    <string name="iosched_no_data">無資料</string>
+    <string name="iosched_summary">切換 I/O 排程器（ADIOS / SSG / mq-deadline 等），日用與遊戲可對比體驗</string>
+    <string name="iosched_pin">固定排程器</string>
+    <string name="iosched_pinned_desc">開機自動套用：%1$s</string>
+    <string name="iosched_unpinned_desc">切換僅本次生效（重啟恢復預設）</string>
+    <string name="iosched_about">關於</string>
+    <string name="settings_soft_reboot">軟重啟</string>
+    <string name="settings_soft_reboot_summary">重啟時優先軟重啟（保留 jailbreak，仍套用模組變更）</string>
 </resources>

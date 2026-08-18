@@ -75,4 +75,18 @@
     <string name="settings_sucompat_summary">ॲप प्रोफाईलमध्ये सुपरयुझर परवानगी दिलेल्या ॲप्ससाठी /system/bin/su ला ksud वर पुनर्निर्देशित करा; फक्त नवीन प्रक्रियांसाठी प्रभावी.</string>
     <string name="settings_kernel_umount">कर्नल अनमाउंट</string>
     <string name="settings_kernel_umount_summary">KernelSU द्वारे नियंत्रित कर्नल-स्तरीय अनमाउंट वर्तन</string>
+
+    <string name="iosched_title">I/O शेड्यूलर</string>
+    <string name="iosched_current">सध्याचा शेड्यूलर</string>
+    <string name="iosched_in_use">वापरात आहे</string>
+    <string name="iosched_switch_hint">स्विच करण्यासाठी टॅप करा</string>
+    <string name="iosched_none">शेड्यूलर नाही</string>
+    <string name="iosched_no_data">डेटा नाही</string>
+    <string name="iosched_summary">I/O शेड्यूलर बदला (ADIOS / SSG / mq-deadline...), दैनंदिन वापर आणि गेमिंगची तुलना करा</string>
+    <string name="iosched_pin">शेड्यूलर पिन करा</string>
+    <string name="iosched_pinned_desc">बूटवर स्वयंचलितपणे लागू: %1$s</string>
+    <string name="iosched_unpinned_desc">बदल फक्त या सत्रासाठी (रीबूटनंतर डीफॉल्टवर परत येतो)</string>
+    <string name="iosched_about">बद्दल</string>
+    <string name="settings_soft_reboot">सॉफ्ट रीबूट</string>
+    <string name="settings_soft_reboot_summary">रीस्टार्टवर सॉफ्ट रीबूटला प्राधान्य (jailbreak कायम, मॉड्यूल बदल लागू होतात)</string>
 </resources>

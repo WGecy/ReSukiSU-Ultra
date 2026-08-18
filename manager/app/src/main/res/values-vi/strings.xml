@@ -311,4 +311,18 @@
     <string name="umount_path_removed">Đường dẫn đã bị xóa</string>
     <string name="operation_failed">Thao tác thất bại</string>
     <string name="group_contains_apps">Chứa %d ứng dụng</string>
+
+    <string name="iosched_title">Bộ lập lịch I/O</string>
+    <string name="iosched_current">Bộ lập lịch hiện tại</string>
+    <string name="iosched_in_use">Đang sử dụng</string>
+    <string name="iosched_switch_hint">Chạm để chuyển</string>
+    <string name="iosched_none">Không có bộ lập lịch</string>
+    <string name="iosched_no_data">Không có dữ liệu</string>
+    <string name="iosched_summary">Chuyển bộ lập lịch I/O (ADIOS / SSG / mq-deadline...), so sánh sử dụng hàng ngày và chơi game</string>
+    <string name="iosched_pin">Ghim bộ lập lịch</string>
+    <string name="iosched_pinned_desc">Tự động áp dụng khi khởi động: %1$s</string>
+    <string name="iosched_unpinned_desc">Thay đổi chỉ áp dụng cho phiên này (quay lại mặc định sau khi khởi động lại)</string>
+    <string name="iosched_about">Giới thiệu</string>
+    <string name="settings_soft_reboot">Khởi động lại mềm</string>
+    <string name="settings_soft_reboot_summary">Ưu tiên khởi động lại mềm khi khởi động lại (giữ jailbreak, vẫn áp dụng thay đổi mô-đun)</string>
 </resources>

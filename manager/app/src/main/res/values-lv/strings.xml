@@ -116,4 +116,18 @@
     <string name="settings_sucompat_summary">Pārvirzīt /system/bin/su uz ksud lietotnēm, kurām piešķirta Superuser atļauja lietotnes profilā; efektīva tikai jauniem procesiem.</string>
     <string name="settings_kernel_umount">Kodola atvienošana</string>
     <string name="settings_kernel_umount_summary">Kodola līmeņa atvienošanas uzvedība, ko kontrolē KernelSU</string>
+
+    <string name="iosched_title">I/O plānotājs</string>
+    <string name="iosched_current">Pašreizējais plānotājs</string>
+    <string name="iosched_in_use">Izmantošanā</string>
+    <string name="iosched_switch_hint">Pieskarieties, lai mainītu</string>
+    <string name="iosched_none">Nav plānotāja</string>
+    <string name="iosched_no_data">Nav datu</string>
+    <string name="iosched_summary">Mainīt I/O plānotāju (ADIOS / SSG / mq-deadline...), salīdziniet ikdienas lietošanu un spēles</string>
+    <string name="iosched_pin">Piespraust plānotāju</string>
+    <string name="iosched_pinned_desc">Automātiski lieto startējot: %1$s</string>
+    <string name="iosched_unpinned_desc">Izmaiņa ir spēkā tikai šai sesijai (pēc pārstartēšanas atgriežas noklusējums)</string>
+    <string name="iosched_about">Par</string>
+    <string name="settings_soft_reboot">Mīksta pārstartēšana</string>
+    <string name="settings_soft_reboot_summary">Dodiet priekšroku mīkstai pārstartēšanai (saglabā jailbreak, joprojām piemēro moduļu izmaiņas)</string>
 </resources>

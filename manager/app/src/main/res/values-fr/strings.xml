@@ -31,7 +31,7 @@
     <string name="reboot_download">Redémarrer en mode de téléchargement</string>
     <string name="reboot_edl">Redémarrer en mode EDL</string>
     <string name="about">À propos</string>
-    <string name="about_anime_character_sticker"><![CDATA["Les images des fichiers avec un autocollant de personnage d'anime sont protégées par %1$s, la Propriété Intellectuelle de la Marque dans les images appartient à %2$s. Avant d'utiliser ces fichiers, en plus de se conformer à %3$s, vous devez également vous conformer à l'autorisation des deux auteurs d'utiliser ces contenus artistiques."]]></string>
+    <string name="about_anime_character_sticker"><![CDATA["Les images des fichiers avec un autocollant de personnage d\'anime sont protégées par %1$s, la Propriété Intellectuelle de la Marque dans les images appartient à %2$s. Avant d\'utiliser ces fichiers, en plus de se conformer à %3$s, vous devez également vous conformer à l\'autorisation des deux auteurs d\'utiliser ces contenus artistiques."]]></string>
     <string name="module_uninstall_confirm">Êtes-vous sûr(e) de vouloir désinstaller le module %s \?</string>
     <string name="module_uninstall_success">%s a été désinstallé</string>
     <string name="module_uninstall_failed">Échec de la désinstallation : %s</string>
@@ -211,4 +211,18 @@
     <string name="installing_module">Module en cours d\'installation %1$d/%2$d</string>
     <string name="module_failed_count">%d a échoué à installer un nouveau module</string>
     <string name="kernel_flashing">Clignotement du noyau</string>
+
+    <string name="iosched_title">Planificateur E/S</string>
+    <string name="iosched_current">Planificateur actuel</string>
+    <string name="iosched_in_use">En cours d\'utilisation</string>
+    <string name="iosched_switch_hint">Appuyez pour changer</string>
+    <string name="iosched_none">Aucun planificateur</string>
+    <string name="iosched_no_data">Aucune donnée</string>
+    <string name="iosched_summary">Changer de planificateur E/S (ADIOS / SSG / mq-deadline...), comparez usage quotidien et jeux</string>
+    <string name="iosched_pin">Épingler le planificateur</string>
+    <string name="iosched_pinned_desc">Appliqué automatiquement au démarrage : %1$s</string>
+    <string name="iosched_unpinned_desc">Le changement ne s\'applique qu\'à cette session (retour au défaut après redémarrage)</string>
+    <string name="iosched_about">À propos</string>
+    <string name="settings_soft_reboot">Redémarrage logiciel</string>
+    <string name="settings_soft_reboot_summary">Préférer le redémarrage logiciel (conserve jailbreak, applique toujours les changements de modules)</string>
 </resources>

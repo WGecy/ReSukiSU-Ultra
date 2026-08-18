@@ -46,4 +46,18 @@
     <string name="settings_sucompat_summary">অ্যাপ প্রোফাইলে সুপারইউজার অনুমতি সহ অ্যাপের জন্য /system/bin/su কে ksud-এ পুনর্নির্দেশ করুন; শুধুমাত্র নতুন প্রক্রিয়ার জন্য কার্যকর।</string>
     <string name="settings_kernel_umount">কার্নেল আনমাউন্ট</string>
     <string name="settings_kernel_umount_summary">KernelSU দ্বারা নিয়ন্ত্রিত কার্নেল-লেভেল আনমাউন্ট আচরণ</string>
+
+    <string name="iosched_title">I/O শিডিউলার</string>
+    <string name="iosched_current">বর্তমান শিডিউলার</string>
+    <string name="iosched_in_use">ব্যবহৃত হচ্ছে</string>
+    <string name="iosched_switch_hint">সুইচ করতে ট্যাপ করুন</string>
+    <string name="iosched_none">কোনো শিডিউলার নেই</string>
+    <string name="iosched_no_data">কোনো ডেটা নেই</string>
+    <string name="iosched_summary">I/O শিডিউলার পরিবর্তন করুন (ADIOS / SSG / mq-deadline...), দৈনন্দিন ও গেমিং তুলনা করুন</string>
+    <string name="iosched_pin">শিডিউলার পিন করুন</string>
+    <string name="iosched_pinned_desc">বুটে স্বয়ংক্রিয় প্রয়োগ: %1$s</string>
+    <string name="iosched_unpinned_desc">শুধু এই সেশনে প্রযোজ্য (রিবুটে ডিফল্টে ফিরে যায়)</string>
+    <string name="iosched_about">সম্পর্কে</string>
+    <string name="settings_soft_reboot">সফট রিবুট</string>
+    <string name="settings_soft_reboot_summary">রিস্টার্টে সফট রিবুট পছন্দ করুন (jailbreak থাকে, মডিউল পরিবর্তন প্রযোজ্য)</string>
 </resources>

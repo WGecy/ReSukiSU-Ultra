@@ -495,4 +495,18 @@ Lanjutkan?</string>
     <string name="susfs_standard_uname_version">Versi</string>
     <string name="susfs_standard_uname_release">Rilis</string>
     <string name="susfs_standard_uname_tab_manual">Manual</string>
+
+    <string name="iosched_title">Penjadwal I/O</string>
+    <string name="iosched_current">Penjadwal saat ini</string>
+    <string name="iosched_in_use">Sedang digunakan</string>
+    <string name="iosched_switch_hint">Ketuk untuk mengganti</string>
+    <string name="iosched_none">Tidak ada penjadwal</string>
+    <string name="iosched_no_data">Tidak ada data</string>
+    <string name="iosched_summary">Ganti penjadwal I/O (ADIOS / SSG / mq-deadline...), bandingkan penggunaan harian dan game</string>
+    <string name="iosched_pin">Sematkan penjadwal</string>
+    <string name="iosched_pinned_desc">Diterapkan otomatis saat boot: %1$s</string>
+    <string name="iosched_unpinned_desc">Perubahan hanya berlaku untuk sesi ini (kembali ke default setelah reboot)</string>
+    <string name="iosched_about">Tentang</string>
+    <string name="settings_soft_reboot">Reboot lunak</string>
+    <string name="settings_soft_reboot_summary">Utamakan reboot lunak saat restart (jailbreak tetap, perubahan modul tetap diterapkan)</string>
 </resources>

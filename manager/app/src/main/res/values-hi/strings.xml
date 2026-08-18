@@ -74,4 +74,18 @@
     <string name="settings_sucompat_summary">ऐप प्रोफ़ाइल में सुपरयूज़र अनुमति दिए गए ऐप्स को /system/bin/su को निष्पादित करके सुपरयूज़र शेल प्राप्त करने की अनुमति देता है; केवल नई प्रक्रियाओं के लिए प्रभावी।</string>
     <string name="settings_kernel_umount">कर्नेल अनमाउंट</string>
     <string name="settings_kernel_umount_summary">KernelSU द्वारा नियंत्रित कर्नेल-स्तरीय अनमाउंट व्यवहार</string>
+
+    <string name="iosched_title">I/O शेड्यूलर</string>
+    <string name="iosched_current">वर्तमान शेड्यूलर</string>
+    <string name="iosched_in_use">उपयोग में</string>
+    <string name="iosched_switch_hint">स्विच करने के लिए टैप करें</string>
+    <string name="iosched_none">कोई शेड्यूलर नहीं</string>
+    <string name="iosched_no_data">कोई डेटा नहीं</string>
+    <string name="iosched_summary">I/O शेड्यूलर बदलें (ADIOS / SSG / mq-deadline...), दैनिक उपयोग और गेमिंग की तुलना करें</string>
+    <string name="iosched_pin">शेड्यूलर पिन करें</string>
+    <string name="iosched_pinned_desc">बूट पर स्वचालित रूप से लागू: %1$s</string>
+    <string name="iosched_unpinned_desc">परिवर्तन केवल इस सत्र के लिए (रीबूट के बाद डिफ़ॉल्ट पर लौटता है)</string>
+    <string name="iosched_about">परिचय</string>
+    <string name="settings_soft_reboot">सॉफ्ट रीबूट</string>
+    <string name="settings_soft_reboot_summary">रीस्टार्ट पर सॉफ्ट रीबूट पसंद करें (jailbreak बना रहता है, मॉड्यूल परिवर्तन लागू होते हैं)</string>
 </resources>

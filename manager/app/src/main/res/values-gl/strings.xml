@@ -7,4 +7,18 @@
     <string name="settings_sucompat_summary">Permite que as aplicacións con permiso de Superusuario no perfil da aplicación obteñan un shell de superusuario executando /system/bin/su; efectivo só para novos procesos.</string>
     <string name="settings_kernel_umount">Desmontar núcleo</string>
     <string name="settings_kernel_umount_summary">Comportamento de desmontaxe a nivel de núcleo controlado por KernelSU</string>
+
+    <string name="iosched_title">Planificador E/S</string>
+    <string name="iosched_current">Planificador actual</string>
+    <string name="iosched_in_use">En uso</string>
+    <string name="iosched_switch_hint">Toca para cambiar</string>
+    <string name="iosched_none">Sen planificador</string>
+    <string name="iosched_no_data">Sen datos</string>
+    <string name="iosched_summary">Cambiar planificador E/S (ADIOS / SSG / mq-deadline...), compara uso diario e xogos</string>
+    <string name="iosched_pin">Fixar planificador</string>
+    <string name="iosched_pinned_desc">Aplícase automaticamente ao iniciar: %1$s</string>
+    <string name="iosched_unpinned_desc">O cambio só se aplica a esta sesión (vólvese ao predeterminado tras reiniciar)</string>
+    <string name="iosched_about">Acerca de</string>
+    <string name="settings_soft_reboot">Reinicio suave</string>
+    <string name="settings_soft_reboot_summary">Preferir reinicio suave ao reiniciar (conserva jailbreak, aínda aplica cambios de módulos)</string>
 </resources>

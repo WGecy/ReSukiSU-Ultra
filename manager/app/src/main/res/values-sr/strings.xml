@@ -11,4 +11,18 @@
     <string name="settings_sucompat_summary">Preusmeri /system/bin/su na ksud za aplikacije sa dozvolom Superkorisnika u Profilu aplikacije; efektivno samo za nove procese.</string>
     <string name="settings_kernel_umount">Kernel umount</string>
     <string name="settings_kernel_umount_summary">Ponašanje umount-a na nivou kernela kontrolisano od strane KernelSU-a</string>
+
+    <string name="iosched_title">I/O распоређивач</string>
+    <string name="iosched_current">Тренутни распоређивач</string>
+    <string name="iosched_in_use">У употреби</string>
+    <string name="iosched_switch_hint">Додирните за промену</string>
+    <string name="iosched_none">Нема распоређивача</string>
+    <string name="iosched_no_data">Нема података</string>
+    <string name="iosched_summary">Промените I/O распоређивач (ADIOS / SSG / mq-deadline...), упоредите свакодневну употребу и игре</string>
+    <string name="iosched_pin">Закачите распоређивач</string>
+    <string name="iosched_pinned_desc">Аутоматски се примењује при покретању: %1$s</string>
+    <string name="iosched_unpinned_desc">Промена важи само за ову сесију (након поновног покретања враћа се подразумевано)</string>
+    <string name="iosched_about">О апликацији</string>
+    <string name="settings_soft_reboot">Мека поновно покретање</string>
+    <string name="settings_soft_reboot_summary">Преферирајте меко поновно покретање (задржава jailbreak, промене модула се и даље примењују)</string>
 </resources>

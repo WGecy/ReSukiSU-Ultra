@@ -67,4 +67,18 @@
     <string name="save_log">I-save ang mga Log</string>
     <string name="settings_sucompat">Klasikong su command</string>
     <string name="settings_sucompat_summary">Payagan ang root access gamit ang /system/bin/su, sa mga bagong proseso.</string>
+
+    <string name="iosched_title">I/O scheduler</string>
+    <string name="iosched_current">Kasalukuyang scheduler</string>
+    <string name="iosched_in_use">Ginagamit</string>
+    <string name="iosched_switch_hint">I-tap para lumipat</string>
+    <string name="iosched_none">Walang scheduler</string>
+    <string name="iosched_no_data">Walang data</string>
+    <string name="iosched_summary">Palitan ang I/O scheduler (ADIOS / SSG / mq-deadline...), ihambing ang pang-araw-araw at gaming</string>
+    <string name="iosched_pin">I-pin ang scheduler</string>
+    <string name="iosched_pinned_desc">Awtomatikong ilalapat sa boot: %1$s</string>
+    <string name="iosched_unpinned_desc">Ang paglipat ay para sa session na ito lamang (babalik sa default pagkatapos ng reboot)</string>
+    <string name="iosched_about">Tungkol sa</string>
+    <string name="settings_soft_reboot">Malambot na pag-reboot</string>
+    <string name="settings_soft_reboot_summary">Mas gusto ang malambot na pag-reboot kapag nag-restart (napapanatili ang jailbreak, ilalapat pa rin ang mga pagbabago sa module)</string>
 </resources>

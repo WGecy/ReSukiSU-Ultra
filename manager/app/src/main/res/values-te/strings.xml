@@ -21,4 +21,18 @@
     <string name="settings_sucompat_summary">యాప్ ప్రొఫైల్‌లో సూపర్‌యూజర్ అనుమతి ఉన్న యాప్‌ల కోసం /system/bin/su ని ksud కి మళ్ళించండి; కొత్త ప్రాసెస్‌లకు మాత్రమే పని చేస్తుంది.</string>
     <string name="settings_kernel_umount">కెర్నల్ అన్‌మౌంట్</string>
     <string name="settings_kernel_umount_summary">KernelSU ద్వారా నియంత్రించబడే కెర్నల్-స్థాయి అన్‌మౌంట్ ప్రవర్తన</string>
+
+    <string name="iosched_title">I/O షెడ్యూలర్</string>
+    <string name="iosched_current">ప్రస్తుత షెడ్యూలర్</string>
+    <string name="iosched_in_use">వాడుకలో ఉంది</string>
+    <string name="iosched_switch_hint">మార్చడానికి నొక్కండి</string>
+    <string name="iosched_none">షెడ్యూలర్ లేదు</string>
+    <string name="iosched_no_data">డేటా లేదు</string>
+    <string name="iosched_summary">I/O షెడ్యూలర్ మార్చండి (ADIOS / SSG / mq-deadline...), రోజువారీ వినియోగం మరియు గేమింగ్ పోల్చండి</string>
+    <string name="iosched_pin">షెడ్యూలర్ పిన్ చేయండి</string>
+    <string name="iosched_pinned_desc">బూట్‌లో స్వయంచాలకంగా వర్తిస్తుంది: %1$s</string>
+    <string name="iosched_unpinned_desc">మార్పు ఈ సెషన్‌కు మాత్రమే (రీబూట్ తర్వాత డిఫాల్ట్‌కు తిరిగి వస్తుంది)</string>
+    <string name="iosched_about">గురించి</string>
+    <string name="settings_soft_reboot">సాఫ్ట్ రీబూట్</string>
+    <string name="settings_soft_reboot_summary">రీస్టార్ట్‌లో సాఫ్ట్ రీబూట్ ప్రాధాన్యత (jailbreak ఉంటుంది, మాడ్యూల్ మార్పులు వర్తిస్తాయి)</string>
 </resources>

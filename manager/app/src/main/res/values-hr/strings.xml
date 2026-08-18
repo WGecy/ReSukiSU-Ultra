@@ -71,4 +71,18 @@
     <string name="settings_sucompat">Preusmjeri su binarnu datoteku</string>
     <string name="settings_sucompat_summary">Omogućava aplikacijama kojima je dodijeljeno dopuštenje Superuser u Profilu aplikacije da dobiju superuser shell izvršavanjem /system/bin/su; učinkovito samo za nove procese.</string>
     <string name="settings_kernel_umount_summary">Ponašanje umount na razini kernela koje kontrolira KernelSU</string>
+
+    <string name="iosched_title">I/O raspoređivač</string>
+    <string name="iosched_current">Trenutni raspoređivač</string>
+    <string name="iosched_in_use">U upotrebi</string>
+    <string name="iosched_switch_hint">Dodirnite za promjenu</string>
+    <string name="iosched_none">Nema raspoređivača</string>
+    <string name="iosched_no_data">Nema podataka</string>
+    <string name="iosched_summary">Promijenite I/O raspoređivač (ADIOS / SSG / mq-deadline...), usporedite svakodnevnu upotrebu i igranje</string>
+    <string name="iosched_pin">Pričvrstite raspoređivač</string>
+    <string name="iosched_pinned_desc">Automatski se primjenjuje pri pokretanju: %1$s</string>
+    <string name="iosched_unpinned_desc">Promjena vrijedi samo za ovu sesiju (nakon ponovnog pokretanja vraća se na zadano)</string>
+    <string name="iosched_about">O aplikaciji</string>
+    <string name="settings_soft_reboot">Meko ponovno pokretanje</string>
+    <string name="settings_soft_reboot_summary">Preferiraj meko ponovno pokretanje (zadržava jailbreak, primjenjuje promjene modula)</string>
 </resources>

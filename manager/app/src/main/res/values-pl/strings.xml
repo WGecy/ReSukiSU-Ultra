@@ -589,4 +589,18 @@
     <string name="manager_update_details">Wersja: %1$s (%2$d)\nArchitektura: %3$s</string>
     <string name="settings_check_beta_update">Sprawdź aktualizacje beta</string>
     <string name="settings_check_beta_update_summary">Automatycznie sprawdzaj wersje beta z głównej gałęzi</string>
+
+    <string name="iosched_title">Planista I/O</string>
+    <string name="iosched_current">Aktualny planista</string>
+    <string name="iosched_in_use">W użyciu</string>
+    <string name="iosched_switch_hint">Dotknij, aby zmienić</string>
+    <string name="iosched_none">Brak planisty</string>
+    <string name="iosched_no_data">Brak danych</string>
+    <string name="iosched_summary">Zmień planistę I/O (ADIOS / SSG / mq-deadline...), porównaj codzienne użytkowanie i gry</string>
+    <string name="iosched_pin">Przypnij planistę</string>
+    <string name="iosched_pinned_desc">Stosowane automatycznie przy starcie: %1$s</string>
+    <string name="iosched_unpinned_desc">Zmiana dotyczy tylko tej sesji (po ponownym uruchomieniu wraca do domyślnego)</string>
+    <string name="iosched_about">O aplikacji</string>
+    <string name="settings_soft_reboot">Miękki restart</string>
+    <string name="settings_soft_reboot_summary">Preferuj miękki restart (zachowuje jailbreak, zmiany modułów nadal obowiązują)</string>
 </resources>

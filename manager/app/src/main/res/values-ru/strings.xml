@@ -445,4 +445,18 @@
     <string name="notification_permission_denied">Загрузка не удалась: требуется разрешение на уведомления</string>
     <string name="storage_permission_description">Необходимо разрешение на внешнее хранилище для записи файла.</string>
     <string name="storage_permission_denied">Загрузка не удалась: требуется разрешение на внешнее хранилище</string>
+
+    <string name="iosched_title">Планировщик ввода/вывода</string>
+    <string name="iosched_current">Текущий планировщик</string>
+    <string name="iosched_in_use">Используется</string>
+    <string name="iosched_switch_hint">Нажмите для переключения</string>
+    <string name="iosched_none">Нет планировщика</string>
+    <string name="iosched_no_data">Нет данных</string>
+    <string name="iosched_summary">Переключить планировщик ввода/вывода (ADIOS / SSG / mq-deadline...), сравните повседневное использование и игры</string>
+    <string name="iosched_pin">Закрепить планировщик</string>
+    <string name="iosched_pinned_desc">Автоматически применяется при загрузке: %1$s</string>
+    <string name="iosched_unpinned_desc">Изменение действует только для этой сессии (после перезагрузки вернётся стандартный)</string>
+    <string name="iosched_about">О программе</string>
+    <string name="settings_soft_reboot">Мягкая перезагрузка</string>
+    <string name="settings_soft_reboot_summary">Предпочитать мягкую перезагрузку (сохраняет jailbreak, изменения модулей всё равно применяются)</string>
 </resources>

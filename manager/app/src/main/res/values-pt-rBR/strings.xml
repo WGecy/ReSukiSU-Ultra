@@ -119,4 +119,18 @@
     <string name="settings_sucompat_summary">Permite que aplicativos com permissão de Superusuário no Perfil do App obtenham um shell de superusuário executando /system/bin/su; efetivo apenas para novos processos.</string>
     <string name="settings_kernel_umount">Desmontar kernel</string>
     <string name="settings_kernel_umount_summary">Comportamento de desmontagem no nível do kernel controlado pelo KernelSU</string>
+
+    <string name="iosched_title">Agendador de E/S</string>
+    <string name="iosched_current">Agendador atual</string>
+    <string name="iosched_in_use">Em uso</string>
+    <string name="iosched_switch_hint">Toque para alternar</string>
+    <string name="iosched_none">Sem agendador</string>
+    <string name="iosched_no_data">Sem dados</string>
+    <string name="iosched_summary">Alternar agendador de E/S (ADIOS / SSG / mq-deadline...), compare uso diário e jogos</string>
+    <string name="iosched_pin">Fixar agendador</string>
+    <string name="iosched_pinned_desc">Aplicado automaticamente na inicialização: %1$s</string>
+    <string name="iosched_unpinned_desc">A alteração vale apenas para esta sessão (volta ao padrão após reiniciar)</string>
+    <string name="iosched_about">Sobre</string>
+    <string name="settings_soft_reboot">Reinicialização suave</string>
+    <string name="settings_soft_reboot_summary">Prefira reinicialização suave ao reiniciar (mantém jailbreak, ainda aplica alterações de módulos)</string>
 </resources>

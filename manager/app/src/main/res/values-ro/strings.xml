@@ -113,4 +113,18 @@
     <string name="settings_sucompat_summary">Permite aplicațiilor cu permisiune de Superutilizator în Profilul Aplicației să obțină un shell de superutilizator executând /system/bin/su; eficient doar pentru procesele noi.</string>
     <string name="settings_kernel_umount">Demontare kernel</string>
     <string name="settings_kernel_umount_summary">Comportament de demontare la nivel de kernel controlat de KernelSU</string>
+
+    <string name="iosched_title">Planificator I/O</string>
+    <string name="iosched_current">Planificatorul actual</string>
+    <string name="iosched_in_use">În uz</string>
+    <string name="iosched_switch_hint">Atingeți pentru a schimba</string>
+    <string name="iosched_none">Niciun planificator</string>
+    <string name="iosched_no_data">Nicio dată</string>
+    <string name="iosched_summary">Schimbați planificatorul I/O (ADIOS / SSG / mq-deadline...), comparați utilizarea zilnică și jocurile</string>
+    <string name="iosched_pin">Fixați planificatorul</string>
+    <string name="iosched_pinned_desc">Aplicat automat la pornire: %1$s</string>
+    <string name="iosched_unpinned_desc">Modificarea se aplică doar acestei sesiuni (revine la implicit după repornire)</string>
+    <string name="iosched_about">Despre</string>
+    <string name="settings_soft_reboot">Repornire soft</string>
+    <string name="settings_soft_reboot_summary">Preferați repornirea soft (păstrează jailbreak, aplică în continuare modificările modulelor)</string>
 </resources>

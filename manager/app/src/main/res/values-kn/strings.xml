@@ -60,4 +60,18 @@
     <string name="settings_sucompat_summary">ಆಪ್ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಸೂಪರ್‌ಯೂಸರ್ ಅನುಮತಿ ಪಡೆದ ಅಪ್ಲಿಕೇಶನ್‌ಗಳಿಗೆ /system/bin/su ಅನ್ನು ksud ಗೆ ಮರು ನಿರ್ದೇಶಿಸಿ; ಹೊಸ ಪ್ರಕ್ರಿಯೆಗಳಿಗೆ ಮಾತ್ರ ಪರಿಣಾಮಕಾರಿ.</string>
     <string name="settings_kernel_umount">ಕರ್ನಲ್ ಅನ್‌ಮೌಂಟ್</string>
     <string name="settings_kernel_umount_summary">KernelSU ನಿಂದ ನಿಯಂತ್ರಿಸಲ್ಪಡುವ ಕರ್ನಲ್-ಮಟ್ಟದ ಅನ್‌ಮೌಂಟ್ ನಡವಳಿಕೆ</string>
+
+    <string name="iosched_title">I/O ಶೆಡ್ಯೂಲರ್</string>
+    <string name="iosched_current">ಪ್ರಸ್ತುತ ಶೆಡ್ಯೂಲರ್</string>
+    <string name="iosched_in_use">ಬಳಕೆಯಲ್ಲಿದೆ</string>
+    <string name="iosched_switch_hint">ಬದಲಾಯಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
+    <string name="iosched_none">ಯಾವುದೇ ಶೆಡ್ಯೂಲರ್ ಇಲ್ಲ</string>
+    <string name="iosched_no_data">ಯಾವುದೇ ಡೇಟಾ ಇಲ್ಲ</string>
+    <string name="iosched_summary">I/O ಶೆಡ್ಯೂಲರ್ ಬದಲಿಸಿ (ADIOS / SSG / mq-deadline...), ದೈನಂದಿನ ಬಳಕೆ ಮತ್ತು ಗೇಮಿಂಗ್ ಹೋಲಿಸಿ</string>
+    <string name="iosched_pin">ಶೆಡ್ಯೂಲರ್ ಪಿನ್ ಮಾಡಿ</string>
+    <string name="iosched_pinned_desc">ಬೂಟ್‌ನಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಅನ್ವಯ: %1$s</string>
+    <string name="iosched_unpinned_desc">ಬದಲಾವಣೆ ಈ ಸೆಷನ್‌ಗೆ ಮಾತ್ರ (ರೀಬೂಟ್ ನಂತರ ಡೀಫಾಲ್ಟ್‌ಗೆ ಹಿಂದಿರುಗುತ್ತದೆ)</string>
+    <string name="iosched_about">ಬಗ್ಗೆ</string>
+    <string name="settings_soft_reboot">ಸಾಫ್ಟ್ ರೀಬೂಟ್</string>
+    <string name="settings_soft_reboot_summary">ರೀಸ್ಟಾರ್ಟ್‌ನಲ್ಲಿ ಸಾಫ್ಟ್ ರೀಬೂಟ್ ಆದ್ಯತೆ (jailbreak ಉಳಿಯುತ್ತದೆ, ಮಾಡ್ಯೂಲ್ ಬದಲಾವಣೆಗಳು ಅನ್ವಯವಾಗುತ್ತವೆ)</string>
 </resources>

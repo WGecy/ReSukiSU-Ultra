@@ -73,4 +73,18 @@
     <string name="settings_sucompat_summary">הפנה מחדש את /system/bin/su ל-ksud עבור אפליקציות שקיבלו הרשאת Superuser בפרופיל האפליקציה; יעיל לתהליכים חדשים בלבד.</string>
     <string name="settings_kernel_umount">ביטול טעינת קרנל</string>
     <string name="settings_kernel_umount_summary">התנהגות ביטול טעינה ברמת הקרנל הנשלטת על ידי KernelSU</string>
+
+    <string name="iosched_title">מתזמן קלט/פלט</string>
+    <string name="iosched_current">המתזמן הנוכחי</string>
+    <string name="iosched_in_use">בשימוש</string>
+    <string name="iosched_switch_hint">הקש כדי להחליף</string>
+    <string name="iosched_none">אין מתזמן</string>
+    <string name="iosched_no_data">אין נתונים</string>
+    <string name="iosched_summary">החלף מתזמן קלט/פלט (ADIOS / SSG / mq-deadline...), השווה שימוש יומיומי ומשחקים</string>
+    <string name="iosched_pin">נעל מתזמן</string>
+    <string name="iosched_pinned_desc">מיושם אוטומטית באתחול: %1$s</string>
+    <string name="iosched_unpinned_desc">השינוי חל רק על מפגש זה (חוזר לברירת המחדל לאחר אתחול)</string>
+    <string name="iosched_about">אודות</string>
+    <string name="settings_soft_reboot">אתחול רך</string>
+    <string name="settings_soft_reboot_summary">העדף אתחול רך בעת הפעלה מחדש (שומר על jailbreak, עדיין מחיל שינויי מודולים)</string>
 </resources>

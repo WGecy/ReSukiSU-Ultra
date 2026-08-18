@@ -201,4 +201,18 @@
     <string name="installing_module">Modul wird installiert %1$d/%2$d</string>
     <string name="module_failed_count">%d Fehler bei der Installation eines neuen Moduls</string>
     <string name="kernel_flashing">Kernel-Flashen</string>
+
+    <string name="iosched_title">I/O-Scheduler</string>
+    <string name="iosched_current">Aktueller Scheduler</string>
+    <string name="iosched_in_use">In Verwendung</string>
+    <string name="iosched_switch_hint">Zum Wechseln tippen</string>
+    <string name="iosched_none">Kein Scheduler</string>
+    <string name="iosched_no_data">Keine Daten</string>
+    <string name="iosched_summary">I/O-Scheduler wechseln (ADIOS / SSG / mq-deadline...), vergleiche Alltag und Gaming</string>
+    <string name="iosched_pin">Scheduler festlegen</string>
+    <string name="iosched_pinned_desc">Wird beim Booten automatisch angewendet: %1$s</string>
+    <string name="iosched_unpinned_desc">Wechsel gilt nur für diese Sitzung (nach Neustart wird Standard wiederhergestellt)</string>
+    <string name="iosched_about">Über</string>
+    <string name="settings_soft_reboot">Soft-Neustart</string>
+    <string name="settings_soft_reboot_summary">Bei Neustart Soft-Reboot bevorzugen (behält Jailbreak, wendet Moduländerungen weiterhin an)</string>
 </resources>

@@ -305,4 +305,18 @@
     <string name="confirm_delete">構成を削除</string>
     <string name="operation_failed">操作が失敗しました</string>
     <string name="group_contains_apps">%d 個のアプリが含まれています</string>
+
+    <string name="iosched_title">I/Oスケジューラ</string>
+    <string name="iosched_current">現在のスケジューラ</string>
+    <string name="iosched_in_use">使用中</string>
+    <string name="iosched_switch_hint">タップして切り替え</string>
+    <string name="iosched_none">スケジューラなし</string>
+    <string name="iosched_no_data">データなし</string>
+    <string name="iosched_summary">I/Oスケジューラを切り替え（ADIOS / SSG / mq-deadline...）、日常使用とゲームを比較</string>
+    <string name="iosched_pin">スケジューラを固定</string>
+    <string name="iosched_pinned_desc">起動時に自動適用：%1$s</string>
+    <string name="iosched_unpinned_desc">切り替えはこのセッションのみ有効（再起動後はデフォルトに戻る）</string>
+    <string name="iosched_about">詳細</string>
+    <string name="settings_soft_reboot">ソフト再起動</string>
+    <string name="settings_soft_reboot_summary">再起動時はソフト再起動を優先（jailbreakを維持、モジュール変更は引き続き適用）</string>
 </resources>

@@ -116,4 +116,18 @@
     <string name="settings_sucompat_summary">Võimaldab rakendustel, kellele on antud Superuser luba rakenduse profiilis, saada superuser shell, käivitades /system/bin/su; kehtib ainult uute protsesside puhul.</string>
     <string name="settings_kernel_umount">Kernel umount</string>
     <string name="settings_kernel_umount_summary">Kerneli tasemel lahtihaakimise käitumine, mida kontrollib KernelSU</string>
+
+    <string name="iosched_title">I/O-plaani</string>
+    <string name="iosched_current">Praegune plaan</string>
+    <string name="iosched_in_use">Kasutusel</string>
+    <string name="iosched_switch_hint">Puudutage vahetamiseks</string>
+    <string name="iosched_none">Plaani pole</string>
+    <string name="iosched_no_data">Andmed puuduvad</string>
+    <string name="iosched_summary">Vaheta I/O-plaani (ADIOS / SSG / mq-deadline...), võrdle igapäevast kasutust ja mänge</string>
+    <string name="iosched_pin">Kinnita plaan</string>
+    <string name="iosched_pinned_desc">Rakendatakse käivitamisel automaatselt: %1$s</string>
+    <string name="iosched_unpinned_desc">Kehtib ainult selle seansi jooksul (pärast taaskäivitust taastub vaikimisi)</string>
+    <string name="iosched_about">Teave</string>
+    <string name="settings_soft_reboot">Pehme taaskäivitus</string>
+    <string name="settings_soft_reboot_summary">Eelista taaskäivitamisel pehmet taaskäivitust (jailbreak säilib, mooduli muudatused rakenduvad)</string>
 </resources>

@@ -239,4 +239,18 @@
     <string name="installing_module">تم تثبيت الوحدة %1$d/%2$d</string>
     <string name="module_failed_count">أخفق %d في تثبيت وحدة جديدة</string>
     <string name="kernel_flashing">ضرب النواة</string>
+
+    <string name="iosched_title">مجدول الإدخال/الإخراج</string>
+    <string name="iosched_current">المجدول الحالي</string>
+    <string name="iosched_in_use">قيد الاستخدام</string>
+    <string name="iosched_switch_hint">انقر للتبديل</string>
+    <string name="iosched_none">لا يوجد مجدول</string>
+    <string name="iosched_no_data">لا توجد بيانات</string>
+    <string name="iosched_summary">تبديل مجدول الإدخال/الإخراج (ADIOS / SSG / mq-deadline)، قارن بين الاستخدام اليومي والألعاب</string>
+    <string name="iosched_pin">تثبيت المجدول</string>
+    <string name="iosched_pinned_desc">يُطبَّق تلقائيًا عند التشغيل: %1$s</string>
+    <string name="iosched_unpinned_desc">التبديل لهذه الجلسة فقط (يعود للافتراضي بعد إعادة التشغيل)</string>
+    <string name="iosched_about">حول</string>
+    <string name="settings_soft_reboot">إعادة تشغيل ناعمة</string>
+    <string name="settings_soft_reboot_summary">يفضّل إعادة التشغيل الناعمة عند إعادة التشغيل (يحافظ على jailbreak ويطبّق تغييرات الوحدات)</string>
 </resources>

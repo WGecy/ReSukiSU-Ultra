@@ -574,4 +574,18 @@
     <string name="settings_check_manager_update_summary">Автоматична перевірка оновлень менеджера</string>
     <string name="settings_check_module_update">Перевірити оновлення модуля</string>
     <string name="settings_check_module_update_summary">Автоматична перевірка встановленого модуля оновлень</string>
+
+    <string name="iosched_title">Планувальник введення/виведення</string>
+    <string name="iosched_current">Поточний планувальник</string>
+    <string name="iosched_in_use">Використовується</string>
+    <string name="iosched_switch_hint">Натисніть для перемикання</string>
+    <string name="iosched_none">Немає планувальника</string>
+    <string name="iosched_no_data">Немає даних</string>
+    <string name="iosched_summary">Змінити планувальник введення/виведення (ADIOS / SSG / mq-deadline...), порівняйте повсякденне використання та ігри</string>
+    <string name="iosched_pin">Закріпити планувальник</string>
+    <string name="iosched_pinned_desc">Автоматично застосовується під час завантаження: %1$s</string>
+    <string name="iosched_unpinned_desc">Зміна діє лише для цього сеансу (після перезавантаження повернеться стандартний)</string>
+    <string name="iosched_about">Про програму</string>
+    <string name="settings_soft_reboot">М\'яке перезавантаження</string>
+    <string name="settings_soft_reboot_summary">Надавати перевагу м\'якому перезавантаженню (зберігає jailbreak, зміни модулів все одно застосовуються)</string>
 </resources>

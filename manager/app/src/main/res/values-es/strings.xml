@@ -206,4 +206,18 @@
     <string name="check_log">Por favor, compruebe el registro</string>
     <string name="installing_module">Módulo instalado %1$d/%2$d</string>
     <string name="module_failed_count">%d falló al instalar un nuevo módulo</string>
+
+    <string name="iosched_title">Programador de E/S</string>
+    <string name="iosched_current">Programador actual</string>
+    <string name="iosched_in_use">En uso</string>
+    <string name="iosched_switch_hint">Toca para cambiar</string>
+    <string name="iosched_none">Sin programador</string>
+    <string name="iosched_no_data">Sin datos</string>
+    <string name="iosched_summary">Cambiar programador de E/S (ADIOS / SSG / mq-deadline...), compara uso diario y juegos</string>
+    <string name="iosched_pin">Fijar programador</string>
+    <string name="iosched_pinned_desc">Se aplica automáticamente al iniciar: %1$s</string>
+    <string name="iosched_unpinned_desc">El cambio solo aplica a esta sesión (vuelve al predeterminado tras reiniciar)</string>
+    <string name="iosched_about">Acerca de</string>
+    <string name="settings_soft_reboot">Reinicio suave</string>
+    <string name="settings_soft_reboot_summary">Preferir reinicio suave al reiniciar (conserva jailbreak, aún aplica cambios de módulos)</string>
 </resources>

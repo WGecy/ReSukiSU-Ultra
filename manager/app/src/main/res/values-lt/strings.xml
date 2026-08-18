@@ -77,4 +77,18 @@
     <string name="settings_sucompat_summary">Nukreipti /system/bin/su į ksud programoms, kurioms suteiktas Superuser leidimas programos profilyje; veiksminga tik naujiems procesams.</string>
     <string name="settings_kernel_umount">Branduolio atjungimas</string>
     <string name="settings_kernel_umount_summary">Branduolio lygio atjungimo elgsena, valdoma KernelSU</string>
+
+    <string name="iosched_title">I/O planuoklis</string>
+    <string name="iosched_current">Dabartinis planuoklis</string>
+    <string name="iosched_in_use">Naudojama</string>
+    <string name="iosched_switch_hint">Palieskite norėdami pakeisti</string>
+    <string name="iosched_none">Nėra planuoklio</string>
+    <string name="iosched_no_data">Nėra duomenų</string>
+    <string name="iosched_summary">Pakeisti I/O planuoklį (ADIOS / SSG / mq-deadline...), palyginkite kasdienį naudojimą ir žaidimus</string>
+    <string name="iosched_pin">Prisegti planuoklį</string>
+    <string name="iosched_pinned_desc">Automatiškai taikoma paleidžiant: %1$s</string>
+    <string name="iosched_unpinned_desc">Pakeitimas galioja tik šiai sesijai (po perkrovimo grįžta į numatytąjį)</string>
+    <string name="iosched_about">Apie</string>
+    <string name="settings_soft_reboot">Minkštas perkrovimas</string>
+    <string name="settings_soft_reboot_summary">Pirmenybė minkštam perkrovimui (išlaiko jailbreak, vis tiek taiko modulio pakeitimus)</string>
 </resources>

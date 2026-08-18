@@ -113,4 +113,18 @@
     <string name="settings_sucompat_summary">Stelt apps met Superuser-toestemming in App Profiel in staat om een superuser-shell te verkrijgen door /system/bin/su uit te voeren; alleen effectief voor nieuwe processen.</string>
     <string name="settings_kernel_umount">Kernel ontkoppelen</string>
     <string name="settings_kernel_umount_summary">Kernel-niveau ontkoppelgedrag beheerd door KernelSU</string>
+
+    <string name="iosched_title">I/O-planner</string>
+    <string name="iosched_current">Huidige planner</string>
+    <string name="iosched_in_use">In gebruik</string>
+    <string name="iosched_switch_hint">Tik om te wisselen</string>
+    <string name="iosched_none">Geen planner</string>
+    <string name="iosched_no_data">Geen gegevens</string>
+    <string name="iosched_summary">I/O-planner wisselen (ADIOS / SSG / mq-deadline...), vergelijk dagelijks gebruik en gamen</string>
+    <string name="iosched_pin">Planner vastzetten</string>
+    <string name="iosched_pinned_desc">Automatisch toegepast bij opstarten: %1$s</string>
+    <string name="iosched_unpinned_desc">Wijziging geldt alleen voor deze sessie (na herstart terug naar standaard)</string>
+    <string name="iosched_about">Over</string>
+    <string name="settings_soft_reboot">Soft reboot</string>
+    <string name="settings_soft_reboot_summary">Geef de voorkeur aan soft reboot (behoudt jailbreak, past modulewijzigingen nog steeds toe)</string>
 </resources>

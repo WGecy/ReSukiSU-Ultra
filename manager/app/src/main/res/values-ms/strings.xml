@@ -36,4 +36,18 @@
     <string name="settings_sucompat_summary">Ubaḥ hala /system/bin/su ke ksud untuk aplikasi yang diberikan kebenaran Superuser dalam Profil Aplikasi; berkesan untuk proses baharu sahaja.</string>
     <string name="settings_kernel_umount">Umount kernel</string>
     <string name="settings_kernel_umount_summary">Tingkah laku umount peringkat kernel dikawal oleh KernelSU</string>
+
+    <string name="iosched_title">Penjadual I/O</string>
+    <string name="iosched_current">Penjadual semasa</string>
+    <string name="iosched_in_use">Sedang digunakan</string>
+    <string name="iosched_switch_hint">Ketuk untuk bertukar</string>
+    <string name="iosched_none">Tiada penjadual</string>
+    <string name="iosched_no_data">Tiada data</string>
+    <string name="iosched_summary">Tukar penjadual I/O (ADIOS / SSG / mq-deadline...), bandingkan penggunaan harian dan permainan</string>
+    <string name="iosched_pin">Sematkan penjadual</string>
+    <string name="iosched_pinned_desc">Digunakan automatik semasa but: %1$s</string>
+    <string name="iosched_unpinned_desc">Perubahan hanya untuk sesi ini (kembali ke lalai selepas reboot)</string>
+    <string name="iosched_about">Perihal</string>
+    <string name="settings_soft_reboot">Reboot lembut</string>
+    <string name="settings_soft_reboot_summary">Utamakan reboot lembut semasa restart (jailbreak kekal, perubahan modul tetap digunakan)</string>
 </resources>

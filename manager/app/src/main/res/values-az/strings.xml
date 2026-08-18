@@ -73,4 +73,18 @@
     <string name="settings_sucompat_summary">Tətbiq Profilinə Superuser icazəsi verilmiş proqramları /system/bin/su vasitəsilə superuser shell əldə etməyə icazə verir; yalnız yeni proseslər üçün effektivdir.</string>
     <string name="settings_kernel_umount">Nüvə umount</string>
     <string name="settings_kernel_umount_summary">KernelSU tərəfindən idarə olunan nüvə səviyyəsində umount davranışı</string>
+
+    <string name="iosched_title">G/Ç cədvəlləyicisi</string>
+    <string name="iosched_current">Cari cədvəlləyici</string>
+    <string name="iosched_in_use">İstifadədədir</string>
+    <string name="iosched_switch_hint">Dəyişmək üçün toxunun</string>
+    <string name="iosched_none">Cədvəlləyici yoxdur</string>
+    <string name="iosched_no_data">Məlumat yoxdur</string>
+    <string name="iosched_summary">G/Ç cədvəlləyicisini dəyişdirin (ADIOS / SSG / mq-deadline...), gündəlik və oyun istifadəsini müqayisə edin</string>
+    <string name="iosched_pin">Cədvəlləyicini sabitləyin</string>
+    <string name="iosched_pinned_desc">Açılışda avtomatik tətbiq olunur: %1$s</string>
+    <string name="iosched_unpinned_desc">Yalnız bu sessiya üçün dəyişir (yenidən başlatmada defolta qayıdır)</string>
+    <string name="iosched_about">Haqqında</string>
+    <string name="settings_soft_reboot">Yumşaq yenidən başlatma</string>
+    <string name="settings_soft_reboot_summary">Yenidən başlatmada yumşaq yenidən başlatmaya üstünlük ver (jailbreak qalır, modul dəyişiklikləri tətbiq olunur)</string>
 </resources>

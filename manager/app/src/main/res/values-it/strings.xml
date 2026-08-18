@@ -113,4 +113,18 @@
     <string name="settings_sucompat_summary">Consente alle app con autorizzazione Superuser nel profilo app di ottenere una shell superuser eseguendo /system/bin/su; efficace solo per i nuovi processi.</string>
     <string name="settings_kernel_umount">Umount del kernel</string>
     <string name="settings_kernel_umount_summary">Comportamento di umount a livello di kernel controllato da KernelSU</string>
+
+    <string name="iosched_title">Pianificatore I/O</string>
+    <string name="iosched_current">Pianificatore attuale</string>
+    <string name="iosched_in_use">In uso</string>
+    <string name="iosched_switch_hint">Tocca per cambiare</string>
+    <string name="iosched_none">Nessun pianificatore</string>
+    <string name="iosched_no_data">Nessun dato</string>
+    <string name="iosched_summary">Cambia pianificatore I/O (ADIOS / SSG / mq-deadline...), confronta uso quotidiano e giochi</string>
+    <string name="iosched_pin">Blocca pianificatore</string>
+    <string name="iosched_pinned_desc">Applicato automaticamente all\'avvio: %1$s</string>
+    <string name="iosched_unpinned_desc">Il cambio vale solo per questa sessione (torna al default dopo il riavvio)</string>
+    <string name="iosched_about">Informazioni</string>
+    <string name="settings_soft_reboot">Riavvio soft</string>
+    <string name="settings_soft_reboot_summary">Preferisci riavvio soft al riavvio (mantiene jailbreak, applica comunque le modifiche dei moduli)</string>
 </resources>

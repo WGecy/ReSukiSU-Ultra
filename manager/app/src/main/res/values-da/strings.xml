@@ -62,4 +62,18 @@
     <string name="settings_check_update_summary">Tjek automatisk for opdateringer til modul og manager</string>
     <string name="save_log">Gem Logfiler</string>
     <string name="settings_sucompat">Omdiriger su binary</string>
+
+    <string name="iosched_title">I/O-planlægger</string>
+    <string name="iosched_current">Nuværende planlægger</string>
+    <string name="iosched_in_use">I brug</string>
+    <string name="iosched_switch_hint">Tryk for at skifte</string>
+    <string name="iosched_none">Ingen planlægger</string>
+    <string name="iosched_no_data">Ingen data</string>
+    <string name="iosched_summary">Skift I/O-planlægger (ADIOS / SSG / mq-deadline...), sammenlign daglig brug og spil</string>
+    <string name="iosched_pin">Fastgør planlægger</string>
+    <string name="iosched_pinned_desc">Anvendes automatisk ved opstart: %1$s</string>
+    <string name="iosched_unpinned_desc">Ændring gælder kun for denne session (vender tilbage til standard efter genstart)</string>
+    <string name="iosched_about">Om</string>
+    <string name="settings_soft_reboot">Blød genstart</string>
+    <string name="settings_soft_reboot_summary">Foretræk blød genstart (bevarer jailbreak, anvender stadig modulændringer)</string>
 </resources>

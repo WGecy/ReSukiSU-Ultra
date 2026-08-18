@@ -122,4 +122,18 @@
     <string name="settings_sucompat_summary">อนุญาตให้แอปที่ได้รับอนุญาต Superuser ในโปรไฟล์แอปได้รับเชล superuser โดยการเรียกใช้ /system/bin/su; มีผลเฉพาะกับกระบวนการใหม่เท่านั้น</string>
     <string name="settings_kernel_umount">การเลิกเมานต์เคอร์เนล</string>
     <string name="settings_kernel_umount_summary">พฤติกรรมการเลิกเมานต์ระดับเคอร์เนลที่ควบคุมโดย KernelSU</string>
+
+    <string name="iosched_title">ตัวกำหนดตาราง I/O</string>
+    <string name="iosched_current">ตัวกำหนดตารางปัจจุบัน</string>
+    <string name="iosched_in_use">ใช้งานอยู่</string>
+    <string name="iosched_switch_hint">แตะเพื่อสลับ</string>
+    <string name="iosched_none">ไม่มีตัวกำหนดตาราง</string>
+    <string name="iosched_no_data">ไม่มีข้อมูล</string>
+    <string name="iosched_summary">สลับตัวกำหนดตาราง I/O (ADIOS / SSG / mq-deadline...) เปรียบเทียบการใช้งานประจำวันและเกม</string>
+    <string name="iosched_pin">ปักหมุดตัวกำหนดตาราง</string>
+    <string name="iosched_pinned_desc">นำไปใช้โดยอัตโนมัติเมื่อบูต: %1$s</string>
+    <string name="iosched_unpinned_desc">การเปลี่ยนมีผลเฉพาะเซสชันนี้ (กลับเป็นค่าเริ่มต้นหลังรีบูต)</string>
+    <string name="iosched_about">เกี่ยวกับ</string>
+    <string name="settings_soft_reboot">รีบูตแบบนุ่ม</string>
+    <string name="settings_soft_reboot_summary">เลือกการรีบูตแบบนุ่มเมื่อรีสตาร์ท (รักษา jailbreak ยังคงใช้การเปลี่ยนแปลงโมดูล)</string>
 </resources>

@@ -39,6 +39,7 @@ import androidx.compose.material.icons.twotone.Extension
 import androidx.compose.material.icons.twotone.FolderDelete
 import androidx.compose.material.icons.twotone.FolderOff
 import androidx.compose.material.icons.twotone.GppGood
+import androidx.compose.material.icons.twotone.RestartAlt
 import androidx.compose.material.icons.twotone.Info
 import androidx.compose.material.icons.twotone.DataUsage
 import androidx.compose.material.icons.twotone.Policy
@@ -90,7 +91,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tesla.resukisuultra.BuildConfig
 import com.tesla.resukisuultra.data.fakelock.FakeLockRepository
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
+import com.tesla.resukisuultra.data.AppSettingsRepository
 import com.tesla.resukisuultra.domain.usecase.GenerateBugreportUseCase
+import com.tesla.resukisuultra.domain.usecase.KEY_USE_SOFT_REBOOT
 import com.tesla.resukisuultra.R
 import com.tesla.resukisuultra.ui.component.ConfirmResult
 import com.tesla.resukisuultra.ui.component.DialogHandle
@@ -387,6 +390,30 @@ fun SettingsCoreScreen() {
                                                 enabled
                                             )
                                         )
+                                    },
+                                )
+                            }
+
+                            item {
+                                // 软重启开关 (重启时优先软重启, 保留 jailbreak)
+                                var softReboot by remember { mutableStateOf(false) }
+                                var softRebootLoaded by remember { mutableStateOf(false) }
+                                val settingsRepo = koinInject<AppSettingsRepository>()
+                                LaunchedEffect(Unit) {
+                                    softReboot = settingsRepo.getBoolean(
+                                        KEY_USE_SOFT_REBOOT,
+                                        false
+                                    )
+                                    softRebootLoaded = true
+                                }
+                                SettingsSwitchWidget(
+                                    icon = Icons.TwoTone.RestartAlt,
+                                    title = stringResource(id = R.string.settings_soft_reboot),
+                                    description = stringResource(id = R.string.settings_soft_reboot_summary),
+                                    checked = softRebootLoaded && softReboot,
+                                    onCheckedChange = { enabled ->
+                                        softReboot = enabled
+                                        settingsRepo.putBoolean(KEY_USE_SOFT_REBOOT, enabled)
                                     },
                                 )
                             }

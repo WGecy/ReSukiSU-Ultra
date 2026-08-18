@@ -675,4 +675,7 @@
     <string name="iosched_unpinned_desc">Switch applies for this session only (restores default after reboot)</string>
 
     <string name="iosched_about">About</string>
+
+    <string name="settings_soft_reboot">Soft reboot</string>
+    <string name="settings_soft_reboot_summary">Prefer soft reboot when restarting (keeps jailbreak, still applies module changes)</string>
 </resources>

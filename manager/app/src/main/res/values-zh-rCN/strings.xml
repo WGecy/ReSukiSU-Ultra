@@ -652,4 +652,7 @@
     <string name="iosched_unpinned_desc">切换仅本次生效（重启恢复默认）</string>
 
     <string name="iosched_about">关于</string>
+
+    <string name="settings_soft_reboot">软重启</string>
+    <string name="settings_soft_reboot_summary">重启时优先软重启（保留 jailbreak，仍应用模块改动）</string>
 </resources>

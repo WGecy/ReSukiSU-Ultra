@@ -200,7 +200,7 @@ private fun FloatingBottomBar(
                 shape = CircleShape,
                 color = containerColor,
                 tonalElevation = 3.dp,
-                shadowElevation = 12.dp,
+                shadowElevation = 6.dp,
             ) {
                 Box(
                     modifier = Modifier

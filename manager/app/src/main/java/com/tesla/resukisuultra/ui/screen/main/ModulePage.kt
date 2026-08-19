@@ -1424,7 +1424,7 @@ fun ModuleItem(
             // FolkPatch 交互: 点击卡片展开/收起操作按钮行 (spring 动画)
             AnimatedVisibility(
                 visible = expanded,
-                enter = fadeIn(tween(150)) + expandVertically(
+                enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) + expandVertically(
                     animationSpec = spring(
                         dampingRatio = 0.8f,
                         stiffness = Spring.StiffnessMediumLow,
@@ -1435,7 +1435,7 @@ fun ModuleItem(
                         dampingRatio = 0.8f,
                         stiffness = Spring.StiffnessMediumLow,
                     )
-                ) + fadeOut(tween(150)),
+                ) + fadeOut(spring(stiffness = Spring.StiffnessMediumLow)),
             ) {
                 Column {
                     Spacer(modifier = Modifier.height(16.dp))

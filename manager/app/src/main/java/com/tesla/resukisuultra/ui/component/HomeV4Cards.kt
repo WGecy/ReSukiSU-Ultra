@@ -142,17 +142,21 @@ fun HeroStatusCard(
     onClickInstall: () -> Unit = {},
     onClickJailbreak: () -> Unit = {},
 ) {
-    // 呼吸动画移到 GPU 层 (graphicsLayer alpha), 不再每帧重建渐变 (掉帧源)
-    val infiniteTransition = rememberInfiniteTransition(label = "breathing")
-    val breathAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "breathAlpha"
-    )
+    // 呼吸动画: 仅 working 态常驻 (非 working 静止 — 省 GPU)
+    val breathAlpha = if (isWorking) {
+        val infiniteTransition = rememberInfiniteTransition(label = "breathing")
+        infiniteTransition.animateFloat(
+            initialValue = 0.6f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2400, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "breathAlpha"
+        ).value
+    } else {
+        1f
+    }
 
     // 切换用 spring 物理动画 (灵动跟手, 不生硬)
     val containerColor by animateColorAsState(

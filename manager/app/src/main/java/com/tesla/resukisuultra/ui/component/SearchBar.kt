@@ -87,7 +87,7 @@ private fun CompactSearchBar(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = inputFieldShape,
+    shape: Shape = com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
 ) {
     val cardConfig: CardConfig = koinInject()
     val focusManager = LocalFocusManager.current

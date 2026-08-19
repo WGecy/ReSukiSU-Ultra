@@ -11,16 +11,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.min
-import kotlin.math.pow
 
 /**
- * 自研 G3 超椭圆圆角 (对标 iOS 五次超椭圆 squircle)
+ * 自研 G3 连续曲率圆角 (对标 iOS 观感)
  *
- * 每角直接用超椭圆段 |x/r|^n + |y/r|^n = 1 (n=5) 采样:
- * - 端点曲率 = 0 (与直线 G2 严格连续), 曲率平缓起步 (G3 级过渡)
- * - 整条曲线无拼接, 无穷阶光滑 — 衔接处无任何棱角
+ * 每角 3 段 30° 贝塞尔: 视觉半径与圆弧一致 (圆角大小不变),
+ * 端点曲率=0 (与直线 G2 连续, 衔接平滑), 段间曲率渐进 (无棱角)。
  *
- * @param smoothness 0 = 圆 (n=2), 1 = iOS G3 (n=5), 默认 1.0
+ * @param smoothness 0 = 标准圆弧, 1 = 方润内收, 默认 0.5 (iOS 观感)
  */
 @Immutable
 class ContinuousCornerShape(
@@ -28,18 +26,17 @@ class ContinuousCornerShape(
     private val topEnd: Dp = topStart,
     private val bottomEnd: Dp = topEnd,
     private val bottomStart: Dp = topStart,
-    private val smoothness: Float = 1.0f,
+    private val smoothness: Float = 0.5f,
 ) : Shape {
 
-    // 超椭圆指数: n = 2 + 3*smoothness
     /** 像素 Int 构造 (兼容 RoundedCornerShape(Int) 用法) */
     constructor(
         radius: Int,
-        smoothness: Float = 1.0f,
+        smoothness: Float = 0.5f,
     ) : this(radius.dp, radius.dp, radius.dp, radius.dp, smoothness)
 
-    private val n = 2.0 + 3.0 * smoothness.coerceIn(0f, 1f)
-    private val invN = 1.0 / n
+    // 30° 弧贝塞尔系数 4/3*tan(7.5°)≈0.1754 → G3 内收 0.149
+    private val k = 0.1754f + (0.149f - 0.1754f) * smoothness.coerceIn(0f, 1f)
 
     @Volatile
     private var cacheKey: String? = null
@@ -58,7 +55,6 @@ class ContinuousCornerShape(
         if (rTL == 0f && rTR == 0f && rBR == 0f && rBL == 0f) {
             return Outline.Rectangle(Rect(0f, 0f, size.width, size.height))
         }
-        // 无碰撞 key: size 整数 + 四角半径 (0.01px 精度)
         val key = "${size.width.toInt()}|${size.height.toInt()}|" +
             "${(rTL * 100).toInt()},${(rTR * 100).toInt()}," +
             "${(rBR * 100).toInt()},${(rBL * 100).toInt()}"
@@ -80,63 +76,82 @@ class ContinuousCornerShape(
         val w = size.width
         val h = size.height
         val path = Path()
-        // 动态采样表 (按 n 生成一次, 缓存命中后零开销)
-        val samples = sampleCount
-        val sx = FloatArray(samples)
-        val sy = FloatArray(samples)
-        for (i in 0 until samples) {
-            val t = i / (samples - 1.0)
-            sx[i] = (1.0 - t.pow(n)).pow(invN).toFloat()
-            sy[i] = t.toFloat()
-        }
-
         path.moveTo(rTL, 0f)
         path.lineTo(w - rTR, 0f)
-        addCorner(path, w - rTR, rTR, rTR, 0, sx, sy) // 右上: 顶边→右边
+        addCorner(path, w - rTR, rTR, rTR, 0) // 右上: 顶边→右边
         path.lineTo(w, h - rBR)
-        addCorner(path, w - rBR, h - rBR, rBR, 1, sx, sy) // 右下: 右边→底边
+        addCorner(path, w - rBR, h - rBR, rBR, 1) // 右下: 右边→底边
         path.lineTo(rBL, h)
-        addCorner(path, rBL, h - rBL, rBL, 2, sx, sy) // 左下: 底边→左边
+        addCorner(path, rBL, h - rBL, rBL, 2) // 左下: 底边→左边
         path.lineTo(0f, rTL)
-        addCorner(path, rTL, rTL, rTL, 3, sx, sy) // 左上: 左边→顶边
+        addCorner(path, rTL, rTL, rTL, 3) // 左上: 左边→顶边
         path.close()
         return Outline.Generic(path)
     }
 
-    /** 超椭圆角段 (模式 0右上 1右下 2左下 3左上) */
+    /** 角段: 3 段 30° 贝塞尔 (标准右上角段 + 旋转到四角) */
     private fun addCorner(
         path: Path,
         cx: Float,
         cy: Float,
         r: Float,
         mode: Int,
-        sx: FloatArray,
-        sy: FloatArray,
     ) {
-        for (i in 1 until sx.size) {
-            val fx = sx[i]
-            val fy = sy[i]
-            val px: Float
-            val py: Float
-            when (mode) {
-                0 -> { px = cx + fy * r; py = cy - fx * r }      // 右上: 顶边→右边
-                1 -> { px = cx + fx * r; py = cy + fy * r }      // 右下: 右边→底边
-                2 -> { px = cx - fy * r; py = cy + fx * r }      // 左下: 底边→左边
-                else -> { px = cx - fx * r; py = cy - fy * r }   // 左上: 左边→顶边
-            }
-            path.lineTo(px, py)
+        // 标准右上角段点 (θ=0°,30°,60°,90°): (r·sinθ, -r·cosθ)
+        val pts = arrayOf(
+            floatArrayOf(0f, -r),
+            floatArrayOf(0.5f * r, -0.8660254f * r),
+            floatArrayOf(0.8660254f * r, -0.5f * r),
+            floatArrayOf(r, 0f),
+        )
+        // 各点切线 (旋转 90°): (cosθ, sinθ)
+        val tans = arrayOf(
+            floatArrayOf(1f, 0f),
+            floatArrayOf(0.8660254f, 0.5f),
+            floatArrayOf(0.5f, 0.8660254f),
+            floatArrayOf(0f, 1f),
+        )
+        for (i in 0 until 3) {
+            val kMul = if (i == 0 || i == 2) 0.75f else 1f
+            val (a0x, a0y) = mapPoint(mode, cx, cy, pts[i][0], pts[i][1])
+            val (a3x, a3y) = mapPoint(mode, cx, cy, pts[i + 1][0], pts[i + 1][1])
+            val (t0x, t0y) = mapDir(mode, tans[i][0], tans[i][1])
+            val (t3x, t3y) = mapDir(mode, tans[i + 1][0], tans[i + 1][1])
+            path.cubicTo(
+                a0x + t0x * k * kMul * r, a0y + t0y * k * kMul * r,
+                a3x - t3x * k * kMul * r, a3y - t3y * k * kMul * r,
+                a3x, a3y,
+            )
         }
     }
 
-    private companion object {
-        const val sampleCount = 20
-    }
+    /** 角内点映射到绝对坐标 (0右上 1右下 2左下 3左上) */
+    private fun mapPoint(mode: Int, cx: Float, cy: Float, x: Float, y: Float): Pair<Float, Float> =
+        when (mode) {
+            0 -> cx + x to cy + y
+            1 -> cx - y to cy + x
+            2 -> cx - x to cy - y
+            else -> cx + y to cy - x
+        }
+
+    /** 切线方向映射 (只旋转不平移) */
+    private fun mapDir(mode: Int, tx: Float, ty: Float): Pair<Float, Float> =
+        when (mode) {
+            0 -> tx to ty
+            1 -> -ty to tx
+            2 -> -tx to -ty
+            else -> ty to -tx
+        }
+
+    override fun toString(): String =
+        "ContinuousCornerShape(topStart=$topStart, topEnd=$topEnd, " +
+            "bottomEnd=$bottomEnd, bottomStart=$bottomStart, smoothness=$smoothness)"
 }
 
-/** 全圆胶囊 + 超椭圆端 (底栏等) */
+/** 全圆胶囊 + 连续曲率 (底栏等) */
 @Immutable
 class ContinuousCapsule(
-    private val smoothness: Float = 1.0f,
+    private val smoothness: Float = 0.5f,
 ) : Shape {
     @Volatile
     private var cacheKey: String? = null

@@ -265,7 +265,7 @@ class BackgroundManager(
 
         config.backgroundDim = prefs.getFloat("background_dim", 0f).coerceIn(0f, 1f)
         config.isEnableBlur = prefs.getBoolean("enable_blur", false)
-        config.isEnableBlurExp = prefs.getBoolean("enable_blur_exp", false)
+        config.isEnableBlurExp = false // 玻璃效果已移除 (2026-08-20)
         config.isUseBackgroundSeedColor = prefs.getBoolean("use_background_seed_color", false)
         config.isHighContrastMode = prefs.getBoolean("high_contrast_mode", false)
     }

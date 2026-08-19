@@ -160,11 +160,7 @@ fun SettingsBaseWidget(
         } else this
     }
 
-    val backgroundColor = run {
-        if (isOnBackground && themeConfig.isEnableBlurExp)
-            Color.Transparent
-        else finalContainerColor
-    }
+    val backgroundColor = finalContainerColor
 
     val baseContentColor = if (containerColor != null)
         MaterialTheme.colorScheme.contentColorFor(containerColor)

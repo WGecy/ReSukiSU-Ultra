@@ -195,7 +195,7 @@ private fun FloatingBottomBar(
                     .then(
                         if (liquidState != null) Modifier.liquid(liquidState) else Modifier
                     ),
-                shape = CircleShape,
+                shape = com.tesla.resukisuultra.ui.theme.ContinuousCapsule(),
                 color = containerColor,
                 tonalElevation = 3.dp,
                 shadowElevation = 6.dp,

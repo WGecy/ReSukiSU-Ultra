@@ -216,7 +216,7 @@ fun SegmentedColumn(
                             ).value
                         } else targetBottomRadius
 
-                        val shape = RoundedCornerShape(
+                        val shape = com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(
                             topStart = max(0.dp, currentTopRadius),
                             topEnd = max(0.dp, currentTopRadius),
                             bottomStart = max(0.dp, currentBottomRadius),

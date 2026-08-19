@@ -5,6 +5,8 @@ import android.os.BatteryManager
 import android.os.StatFs
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -51,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -139,23 +142,25 @@ fun HeroStatusCard(
     onClickInstall: () -> Unit = {},
     onClickJailbreak: () -> Unit = {},
 ) {
+    // 呼吸动画移到 GPU 层 (graphicsLayer alpha), 不再每帧重建渐变 (掉帧源)
     val infiniteTransition = rememberInfiniteTransition(label = "breathing")
     val breathAlpha by infiniteTransition.animateFloat(
         initialValue = 0.6f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
+            animation = tween(2400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "breathAlpha"
     )
 
+    // 切换用 spring 物理动画 (灵动跟手, 不生硬)
     val containerColor by animateColorAsState(
         targetValue = when {
             isWorking -> MaterialTheme.colorScheme.primary
             else -> MaterialTheme.colorScheme.errorContainer
         },
-        animationSpec = tween(500),
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "containerColor"
     )
 
@@ -165,13 +170,14 @@ fun HeroStatusCard(
         } else {
             MaterialTheme.colorScheme.onErrorContainer
         },
-        animationSpec = tween(500),
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "contentColor"
     )
 
+    // 静态渐变 (颜色由 animateColorAsState 驱动), 呼吸 alpha 走 GPU
     val gradientBrush = Brush.linearGradient(
         colors = listOf(
-            containerColor.copy(alpha = if (isWorking) breathAlpha else 1f),
+            containerColor,
             containerColor.copy(alpha = 0.8f)
         )
     )
@@ -187,6 +193,9 @@ fun HeroStatusCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .graphicsLayer {
+                    alpha = if (isWorking) breathAlpha else 1f
+                }
                 .background(gradientBrush)
                 .padding(16.dp),
         ) {

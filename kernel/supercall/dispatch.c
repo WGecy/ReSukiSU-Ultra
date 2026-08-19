@@ -27,6 +27,7 @@ extern int netisolate_handle_cmd(unsigned int cmd, void __user **arg);
 
 #include <linux/thread_info.h>
 #include "uapi/supercall.h"
+#include "../kpm/kpm.h"
 #include "supercall/internal.h"
 #include "arch.h"
 #include "policy/allowlist.h"
@@ -189,6 +190,9 @@ static int do_report_event(void __user *arg)
         on_module_mounted();
         break;
     }
+        case KSU_IOCTL_KPM: {
+            return kpm_ioctl_handler((void __user *)arg);
+        }
     default:
         break;
     }
@@ -1455,4 +1459,9 @@ void ksu_supercall_cleanup_state(void)
         kfree(entry);
     }
     up_write(&mount_list_lock);
+}
+
+static int kpm_ioctl_handler(void __user *arg)
+{
+    return do_kpm(arg);
 }

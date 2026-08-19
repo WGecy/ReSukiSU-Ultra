@@ -1,0 +1,125 @@
+package com.tesla.resukisuultra.ui.screen.main
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.Delete
+import androidx.compose.material.icons.twotone.Memory
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tesla.resukisuultra.R
+import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
+import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
+import com.tesla.resukisuultra.ui.viewmodel.KpmViewModel
+import org.koin.compose.viewmodel.koinViewModel
+
+/** KPM 内核补丁模块页 (单独卡片, 仿模块管理) */
+@Composable
+fun KpmPage(bottomPadding: androidx.compose.ui.unit.Dp) {
+    val viewModel: KpmViewModel = koinViewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var pageLoaded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        pageLoaded = false
+        viewModel.refresh()
+        pageLoaded = true
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = bottomPadding + 8.dp),
+    ) {
+        item {
+            Spacer(Modifier.height(12.dp))
+        }
+        // 状态卡
+        item {
+            SegmentedColumn {
+                item {
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.Memory,
+                        title = stringResource(R.string.kpm_title),
+                        description = if (pageLoaded && uiState.loaded) {
+                            stringResource(R.string.kpm_count, uiState.modules.size)
+                        } else {
+                            stringResource(R.string.iosched_no_data)
+                        },
+                    )
+                }
+            }
+        }
+        item {
+            Spacer(Modifier.height(20.dp))
+        }
+        // 模块列表 (骨架先占位)
+        if (!pageLoaded || !uiState.loaded) {
+            item {
+                Text(
+                    text = stringResource(R.string.iosched_no_data),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                )
+            }
+        } else if (uiState.modules.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(R.string.kpm_empty),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        } else {
+            item {
+                SegmentedColumn(title = stringResource(R.string.kpm_modules)) {
+                    uiState.modules.forEach { mod ->
+                        item {
+                            SettingsBaseWidget(
+                                iconPlaceholder = false,
+                                title = mod.name,
+                                description = buildString {
+                                    append(mod.version)
+                                    if (mod.author.isNotBlank()) append(" · ").append(mod.author)
+                                    if (mod.description.isNotBlank()) append("\n").append(mod.description)
+                                },
+                                trailingContent = {
+                                    Icon(
+                                        imageVector = Icons.TwoTone.Delete,
+                                        contentDescription = stringResource(R.string.kpm_unload),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                },
+                                onClick = { viewModel.unload(mod.name) },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

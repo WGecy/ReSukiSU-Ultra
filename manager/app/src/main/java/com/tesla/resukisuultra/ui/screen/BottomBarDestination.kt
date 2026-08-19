@@ -5,12 +5,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.AdminPanelSettings
 import androidx.compose.material.icons.twotone.Extension
 import androidx.compose.material.icons.twotone.Home
+import androidx.compose.material.icons.twotone.Memory
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import com.tesla.resukisuultra.R
 import com.tesla.resukisuultra.ui.screen.main.HomePage
+import com.tesla.resukisuultra.ui.screen.main.KpmPage
 import com.tesla.resukisuultra.ui.screen.main.ModulePage
 import com.tesla.resukisuultra.ui.screen.main.SettingsPage
 import com.tesla.resukisuultra.ui.screen.main.SuperUserPage
@@ -41,6 +43,13 @@ enum class BottomBarDestination(
         R.string.module,
         Icons.TwoTone.Extension,
         Icons.TwoTone.Extension,
+        true
+    ),
+    Kpm(
+        { bottomPadding -> KpmPage(bottomPadding) },
+        R.string.kpm,
+        Icons.TwoTone.Memory,
+        Icons.TwoTone.Memory,
         true
     ),
     Settings(

@@ -181,6 +181,13 @@ enum Commands {
         op: IoSchedOp,
     },
 
+    /// KPM 内核补丁模块管理
+    #[command(name = "kpm")]
+    Kpm {
+        #[command(subcommand)]
+        op: KpmOp,
+    },
+
     /// ReSukiSU-Ultra: FUSEBPF 直通修复开关
     Fusebpf {
         #[command(subcommand)]
@@ -637,6 +644,12 @@ pub fn run() -> Result<()> {
             IoSchedOp::Apply { scheduler } => crate::android::iosched::apply_now(&scheduler),
             IoSchedOp::Clear => crate::android::iosched::clear(),
         },
+        Commands::Kpm { op } => match op {
+            KpmOp::Load { path, args } => crate::android::kpm::load_module(path, args.as_deref()),
+            KpmOp::Unload { name } => crate::android::kpm::unload_module(name),
+            KpmOp::List => crate::android::kpm::list(),
+            KpmOp::Info { name } => crate::android::kpm::info(name),
+        },
         Commands::Fusebpf { command } => match command {
             FusebpfOp::Enable => crate::android::fusebpf::set(true),
             FusebpfOp::Disable => crate::android::fusebpf::set(false),
@@ -966,4 +979,16 @@ pub fn run() -> Result<()> {
         log::error!("Error: {e:?}");
     }
     result
+}
+
+#[derive(clap::Subcommand, Debug)]
+pub enum KpmOp {
+    /// 加载 KPM 模块
+    Load { path: String, args: Option<String> },
+    /// 卸载 KPM 模块
+    Unload { name: String },
+    /// 列出 KPM 模块
+    List,
+    /// 查看 KPM 模块信息
+    Info { name: String },
 }

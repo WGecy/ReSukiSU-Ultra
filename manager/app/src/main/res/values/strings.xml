@@ -681,4 +681,12 @@
 
 
     <string name="netisolate_add_app">Add app</string>
+
+    <string name="kpm">KPM</string>
+
+    <string name="kpm_title">KPM Modules</string>
+    <string name="kpm_count">%1$d loaded</string>
+    <string name="kpm_empty">No KPM modules</string>
+    <string name="kpm_modules">Modules</string>
+    <string name="kpm_unload">Unload</string>
 </resources>

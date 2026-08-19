@@ -638,11 +638,13 @@ class KsuCliRepository(context: Context) {
         }.getOrDefault(false)
     }
 
-    /** KPM 适配检测: 内核支持 KPM ioctl (kpm list 无 Failed 输出即支持) */
+    /** KPM 适配检测: 内核支持 KPM ioctl (kpm list 命令成功即支持, 空输出也代表支持) */
     fun isKpmSupported(): Boolean {
         return runCatching {
-            val out = exec("${getKsuDaemonPath()} kpm list") ?: return false
-            !out.contains("Failed to get kpm list")
+            val shell = getRootShell()
+            shell.newJob()
+                .add("${getKsuDaemonPath()} kpm list")
+                .exec().isSuccess
         }.getOrDefault(false)
     }
 

@@ -149,8 +149,8 @@ class ContinuousCapsule(
 /** 菜单项圆角: 统一 18dp 四角 (与 28dp 菜单组留白, 无直角/无首尾扁平) */
 fun menuItemShapes(index: Int, count: Int): androidx.compose.material3.MenuItemShapes =
     androidx.compose.material3.MenuItemShapes(
-        ContinuousCornerShape(18.dp),
-        ContinuousCornerShape(18.dp),
+        ContinuousCornerShape(28.dp),
+        ContinuousCornerShape(28.dp),
     )
 
 // ===== racra SmoothCorner 数学 (G2 曲率连续: 贝塞尔+圆弧匹配) =====

@@ -86,7 +86,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -139,10 +138,11 @@ fun NetIsolateTab(
     val viewModel: NetIsolateViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // 仿 SUSFS configEnabledLoaded: 页面级加载态 — 进入先关(灰), 刷新真实完成后才开
+    // 仿 SUSFS configEnabledLoaded: 页面级加载态 — 骨架先显示(灰/无数据), 过渡动画结束后再加载
     var pageLoaded by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         pageLoaded = false
+        delay(400) // 等 folkx 过渡动画结束 (避免动画+加载并发掉帧)
         viewModel.refresh()
         pageLoaded = true
     }
@@ -158,42 +158,34 @@ fun NetIsolateTab(
             Spacer(Modifier.height(innerPadding.calculateTopPadding()))
         }
 
-        // 开关卡片 (首帧不组合 — 刷新完成后出现, 进入零组合开销)
-        if (pageLoaded && uiState.loaded) {
-            item {
-                SegmentedColumn {
-                    item {
-                        SettingsSwitchWidget(
-                            icon = Icons.TwoTone.WifiOff,
-                            title = stringResource(R.string.netisolate_title),
-                            description = stringResource(R.string.netisolate_summary),
-                            checked = uiState.enabled,
-                            enabled = true,
-                            onCheckedChange = { viewModel.setEnabled(it) },
-                        )
-                    }
-                    item {
-                        SettingsBaseWidget(
-                            icon = Icons.TwoTone.Info,
-                            title = stringResource(R.string.netisolate_status_supported),
-                            description = stringResource(R.string.netisolate_status_supported_yes),
-                        )
-                    }
+        // 开关卡片 (先关闭后开启 — 仿 SUSFS configEnabledLoaded)
+        item {
+            SegmentedColumn {
+                item {
+                    SettingsSwitchWidget(
+                        icon = Icons.TwoTone.WifiOff,
+                        title = stringResource(R.string.netisolate_title),
+                        description = stringResource(R.string.netisolate_summary),
+                        checked = if (pageLoaded) uiState.enabled else false,
+                        enabled = pageLoaded && uiState.loaded,
+                        onCheckedChange = { viewModel.setEnabled(it) },
+                    )
+                }
+                item {
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.Info,
+                        title = stringResource(R.string.netisolate_status_supported),
+                        description = if (pageLoaded && uiState.loaded) {
+                            stringResource(R.string.netisolate_status_supported_yes)
+                        } else {
+                            // 仿 SUSFS: 加载前先显示"无数据"
+                            stringResource(R.string.netisolate_no_data)
+                        },
+                    )
                 }
             }
         }
 
-        // 整页统一: 加载完成前只显示占位 (仿 SUSFS — 全部内容一次性出现)
-        if (!pageLoaded || !uiState.loaded) {
-            item(key = "loading_placeholder") {
-                Text(
-                    text = stringResource(R.string.netisolate_no_data),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                )
-            }
-        } else {
         // 标题行: 已阻止列表 + 右侧添加 UID 按钮
         item(key = "title_row") {
             Row(
@@ -219,33 +211,44 @@ fun NetIsolateTab(
             }
         }
 
-        // 已阻止列表
+        // 已阻止列表 (仿 SUSFS susfsEntryList 机制: 添加行 + 列表项连一起, 缝分隔)
         if (uiState.selectedUids.isEmpty()) {
             item(key = "empty") {
-                Box(
-                    modifier = Modifier
-                        .fillParentMaxWidth()
-                        .fillParentMaxHeight(0.5f)
-                        .padding(horizontal = 32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                if (!pageLoaded || !uiState.loaded) {
+                    // 加载前"无数据"占位 (仿 SUSFS)
+                    Text(
+                        text = stringResource(R.string.netisolate_no_data),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    )
+                } else {
+                    // 空态 (SUSFS 机制: Inbox 图标 + 标题 + 描述)
+                    Box(
+                        modifier = Modifier
+                            .fillParentMaxWidth()
+                            .fillParentMaxHeight(0.5f)
+                            .padding(horizontal = 32.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            imageVector = Icons.TwoTone.Inbox,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(bottom = 6.dp)
-                                .size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = stringResource(R.string.netisolate_no_uids),
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center,
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.TwoTone.Inbox,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(bottom = 6.dp)
+                                    .size(48.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = stringResource(R.string.netisolate_no_uids),
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
                 }
             }
@@ -286,7 +289,6 @@ fun NetIsolateTab(
                     onClick = { viewModel.toggleUid(uid) },
                 )
             }
-        }
         }
     }
 }

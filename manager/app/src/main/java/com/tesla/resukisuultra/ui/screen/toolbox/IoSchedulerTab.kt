@@ -20,6 +20,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,10 +45,11 @@ fun IoSchedulerTab(
     val viewModel: IoSchedulerViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // 仿 SUSFS configEnabledLoaded: 页面级加载态 — 先"无数据", 刷新真实完成后显示
+    // 仿 SUSFS configEnabledLoaded: 骨架先显示, 过渡动画结束后再加载
     var pageLoaded by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         pageLoaded = false
+        delay(400) // 等 folkx 过渡动画结束
         viewModel.refresh()
         pageLoaded = true
     }

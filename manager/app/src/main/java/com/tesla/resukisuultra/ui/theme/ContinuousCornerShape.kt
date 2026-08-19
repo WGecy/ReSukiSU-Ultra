@@ -28,7 +28,7 @@ class ContinuousCornerShape(
     private val topEnd: Dp = topStart,
     private val bottomEnd: Dp = topEnd,
     private val bottomStart: Dp = topStart,
-    private val smoothness: Float = 0.7f,
+    private val smoothness: Float = 0.5f,
 ) : Shape {
 
     /** 像素 Float 构造 (兼容 RoundedCornerShape(Float) 用法) */
@@ -136,21 +136,26 @@ class ContinuousCornerShape(
         val a3y = cy + dyOut * r
 
         // 每段切线 = 逆时针旋转(该段起点方向): (x,y) → (-y,x)
-        bezierSeg(path, a0x, a0y, -dyIn, dxIn, a1x, a1y, -m1y, m1x, r)
+        bezierSeg(path, a0x, a0y, -dyIn, dxIn, a1x, a1y, -m1y, m1x, r, isFirst = true)
         bezierSeg(path, a1x, a1y, -m1y, m1x, a2x, a2y, -m2y, m2x, r)
-        bezierSeg(path, a2x, a2y, -m2y, m2x, a3x, a3y, -dyOut, dxOut, r)
+        bezierSeg(path, a2x, a2y, -m2y, m2x, a3x, a3y, -dyOut, dxOut, r, isLast = true)
     }
 
-    /** 一段 30° 贝塞尔: P0 → P3, 控制点 = 两端切线方向偏移 k30*r */
+    /** 一段 30° 贝塞尔: P0 → P3, 控制点 = 两端切线方向偏移 (首段起点缓入) */
     private fun bezierSeg(
         path: Path,
         p0x: Float, p0y: Float, t0x: Float, t0y: Float,
         p3x: Float, p3y: Float, t3x: Float, t3y: Float,
         r: Float,
+        isFirst: Boolean = false,
+        isLast: Boolean = false,
     ) {
+        // 首段起点与末段终点: 控制点距离 0.75× (曲率从直线渐变 — 衔接处更顺)
+        val kStart = if (isFirst) k30 * 0.75f else k30
+        val kEnd = if (isLast) k30 * 0.75f else k30
         path.cubicTo(
-            p0x + t0x * r * k30, p0y + t0y * r * k30,
-            p3x - t3x * r * k30, p3y - t3y * r * k30,
+            p0x + t0x * r * kStart, p0y + t0y * r * kStart,
+            p3x - t3x * r * kEnd, p3y - t3y * r * kEnd,
             p3x, p3y,
         )
     }
@@ -163,7 +168,7 @@ class ContinuousCornerShape(
 /** 全圆胶囊 + 连续曲率 (底栏等) */
 @Immutable
 class ContinuousCapsule(
-    private val smoothness: Float = 0.7f,
+    private val smoothness: Float = 0.5f,
 ) : Shape {
     @Volatile
     private var cacheKey: String? = null

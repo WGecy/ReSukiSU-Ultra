@@ -367,7 +367,7 @@ pub fn unblock_uid(uid: u32) -> Result<()> {
 }
 
 /// 总开关状态文件 (1=启用)
-pub const ENABLED_FILE: &str = "/data/adb/nomount/enabled";
+pub const ENABLED_FILE: &str = "/data/adb/ksu/nomount/enabled";
 
 pub fn is_enabled() -> bool {
     std::fs::read_to_string(ENABLED_FILE)
@@ -376,7 +376,7 @@ pub fn is_enabled() -> bool {
 }
 
 pub fn set_enabled(enabled: bool) -> Result<()> {
-    let _ = std::fs::create_dir_all("/data/adb/nomount");
+    let _ = std::fs::create_dir_all("/data/adb/ksu/nomount");
     std::fs::write(ENABLED_FILE, if enabled { "1" } else { "0" })?;
     if enabled {
         // 启用: 注入模块规则 + 重放自定义规则
@@ -391,10 +391,10 @@ pub fn set_enabled(enabled: bool) -> Result<()> {
 }
 
 /// 持久化排除列表 (web 界面: /data/adb/nomount/.exclusion_list — uid 空白/逗号分隔)
-pub const EXCLUSION_FILE: &str = "/data/adb/nomount/.exclusion_list";
+pub const EXCLUSION_FILE: &str = "/data/adb/ksu/nomount/.exclusion_list";
 
 /// 手动自定义规则持久化文件 (v<TAB>r 每行) — 开机重放
-pub const CUSTOM_RULES_FILE: &str = "/data/adb/nomount/custom_rules";
+pub const CUSTOM_RULES_FILE: &str = "/data/adb/ksu/nomount/custom_rules";
 
 fn read_custom_rules() -> Vec<(String, String)> {
     let content = match std::fs::read_to_string(CUSTOM_RULES_FILE) {
@@ -420,7 +420,7 @@ fn write_custom_rules(rules: &[(String, String)]) {
         .map(|(v, r)| format!("{v}\t{r}"))
         .collect::<Vec<_>>()
         .join("\n");
-    let _ = std::fs::create_dir_all("/data/adb/nomount");
+    let _ = std::fs::create_dir_all("/data/adb/ksu/nomount");
     if let Err(e) = std::fs::write(CUSTOM_RULES_FILE, content) {
         log::warn!("nomount: 写 custom_rules 失败: {e}");
     }
@@ -517,7 +517,7 @@ fn read_exclusions() -> Result<Vec<u32>> {
 }
 
 fn write_exclusions(uids: &[u32]) -> Result<()> {
-    std::fs::create_dir_all("/data/adb/nomount")?;
+    std::fs::create_dir_all("/data/adb/ksu/nomount")?;
     let content = uids
         .iter()
         .map(|u| u.to_string())

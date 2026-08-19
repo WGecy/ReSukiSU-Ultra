@@ -191,7 +191,8 @@ class ModuleRepository(
         return runCatching {
             val supported = ksuCliRepository.exec("${ksuCliRepository.getKsuDaemonPath()} nomount status")
                 ?.contains("supported: true") == true
-            val enabled = SuFile.open("/data/adb/nomount/enabled").exists()
+            val enabled = ksuCliRepository.exec("${ksuCliRepository.getKsuDaemonPath()} nomount is-enabled")
+                ?.trim() == "true"
             supported && enabled
         }.getOrDefault(false)
     }

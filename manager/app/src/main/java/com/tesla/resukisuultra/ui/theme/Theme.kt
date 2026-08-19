@@ -570,7 +570,8 @@ fun Modifier.blurEffect(): Modifier {
     val themeConfig = koinInject<ThemeConfig>()
     val cardConfig = koinInject<CardConfig>()
     if (!themeConfig.isEnableBlur || Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-        return renderBackgroundFallback()
+        // 未启用 blur: 直接纯色背景, 不做背景重绘 (重绘是帧耗时 14ms 的元凶)
+        return Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
     }
 
     return LocalBlurState.current?.let { backdrop ->
@@ -581,7 +582,7 @@ fun Modifier.blurEffect(): Modifier {
             Modifier.textureBlur(
                 backdrop = backdrop,
                 shape = RectangleShape,
-                blurRadius = 25f,
+                blurRadius = 16f,
                 colors = BlurColors(
                     blendColors = listOf(
                         BlendColorEntry(color = blendColor)

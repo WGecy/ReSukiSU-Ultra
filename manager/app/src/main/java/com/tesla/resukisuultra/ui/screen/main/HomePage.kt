@@ -12,6 +12,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
@@ -417,8 +418,14 @@ fun HomePage(
 
                 // 链接卡片
                 if (!uiState.isSimpleMode && !uiState.isHideLinkCard) {
-                    DonateCard()
-                    LearnMoreCard()
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) +
+                            slideInVertically(spring(stiffness = Spring.StiffnessMediumLow), initialOffsetY = { it / 6 }),
+                    ) {
+                        DonateCard()
+                        LearnMoreCard()
+                    }
                 }
 
                 Spacer(Modifier.height(bottomPadding))

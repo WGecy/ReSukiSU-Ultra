@@ -9,6 +9,7 @@ import com.tesla.resukisuultra.domain.model.ManagerUpdateChannel
 import com.tesla.resukisuultra.domain.model.ManagerUpdateInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 class ManagerUpdateRepository(
@@ -37,8 +38,8 @@ class ManagerUpdateRepository(
     suspend fun checkStableUpdate(): ManagerUpdateInfo? = withContext(Dispatchers.IO) {
         val supportedAbis = Build.SUPPORTED_ABIS.toList()
         // releases/latest 排除 prerelease (我们的发布全是 prerelease) → 用 /releases?per_page=1 取最新
-        val release = requestJson("https://api.github.com/repos/$REPOSITORY/releases?per_page=1")
-            ?.optJSONArray(0)?.optJSONObject(0)
+        val release = requestJsonArray("https://api.github.com/repos/$REPOSITORY/releases?per_page=1")
+            ?.optJSONObject(0)
             ?: return@withContext null
         val changelog = release.optString("body")
         val assets = release.optJSONArray("assets") ?: return@withContext null
@@ -121,6 +122,17 @@ class ManagerUpdateRepository(
         )
         .onFailure { Log.w(TAG, "GitHub update request failed", it) }
         .mapCatching { JSONObject(it) }
+        .getOrNull()
+
+    private suspend fun requestJsonArray(url: String): JSONArray? = networkRequestRepository
+        .fetch(
+            url = url,
+            headers = GITHUB_HEADERS,
+            forceNetwork = true,
+            callTimeoutSeconds = UPDATE_CALL_TIMEOUT_SECONDS,
+        )
+        .onFailure { Log.w(TAG, "GitHub update request failed", it) }
+        .mapCatching { JSONArray(it) }
         .getOrNull()
 
     private suspend fun requestCommitCount(commitSha: String): Int? {

@@ -615,7 +615,10 @@ private fun TopBar(
                             showDropdown = false
                         }) {
                             DropdownMenuGroup(
-                                shapes = MenuDefaults.groupShapes()
+                                shapes = androidx.compose.material3.MenuGroupShapes(
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+            )
                             ) {
                                 val pm =
                                     LocalContext.current.getSystemService(Context.POWER_SERVICE) as PowerManager?

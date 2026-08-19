@@ -302,7 +302,10 @@ private fun ModuleRepoDropdown(
         onDismissRequest = onDismissRequest,
     ) {
         DropdownMenuGroup(
-            shapes = MenuDefaults.groupShapes(),
+            shapes = androidx.compose.material3.MenuGroupShapes(
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+            ),
         ) {
             DropdownMenuItem(
                 checked = uiState.sortStargazerCountFirst,

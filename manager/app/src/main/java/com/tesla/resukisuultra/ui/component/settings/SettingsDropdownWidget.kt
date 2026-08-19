@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.component.settings
+import androidx.compose.ui.unit.dp
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -76,7 +77,10 @@ fun SettingsDropdownWidget(
             ) {
                 // Use DropdownMenuGroup to create a visually distinct group
                 DropdownMenuGroup(
-                    shapes = MenuDefaults.groupShapes()
+                    shapes = androidx.compose.material3.MenuGroupShapes(
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+            )
                 ) {
                     data.forEachIndexed { index, item ->
                         val isSelected = index == choice

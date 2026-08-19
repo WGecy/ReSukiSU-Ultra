@@ -204,7 +204,10 @@ private fun SulogScreenContent(
                             onDismissRequest = { showFilterMenu = false },
                         ) {
                             DropdownMenuGroup(
-                                shapes = MenuDefaults.groupShapes()
+                                shapes = androidx.compose.material3.MenuGroupShapes(
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+            )
                             ) {
                                 Spacer(modifier = Modifier.height(2.dp))
 

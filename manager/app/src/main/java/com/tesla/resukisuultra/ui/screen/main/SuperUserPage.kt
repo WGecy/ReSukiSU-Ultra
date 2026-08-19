@@ -428,7 +428,10 @@ private fun SuperUserDropdown(
         onDismissRequest = onDismissRequest,
     ) {
         DropdownMenuGroup(
-            shapes = MenuDefaults.groupShapes(),
+            shapes = androidx.compose.material3.MenuGroupShapes(
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+            ),
         ) {
             SortType.entries.forEachIndexed { index, sortType ->
                 DropdownMenuItem(
@@ -448,7 +451,10 @@ private fun SuperUserDropdown(
         Spacer(modifier = Modifier.height(4.dp))
 
         DropdownMenuGroup(
-            shapes = MenuDefaults.groupShapes(),
+            shapes = androidx.compose.material3.MenuGroupShapes(
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+            ),
         ) {
             menuItems.forEachIndexed { index, menuItem ->
                 DropdownMenuItem(

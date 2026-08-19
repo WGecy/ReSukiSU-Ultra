@@ -401,7 +401,10 @@ private fun TopBar(
                     showDropdown = false
                 }) {
                     DropdownMenuGroup(
-                        shapes = MenuDefaults.groupShapes()
+                        shapes = androidx.compose.material3.MenuGroupShapes(
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
+            )
                     ) {
                         DropdownMenuItem(
                             selected = false,

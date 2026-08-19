@@ -183,6 +183,17 @@ fun NetIsolateTab(
             }
         }
 
+        // 整页统一: 加载完成前只显示占位 (仿 SUSFS — 全部内容一次性出现)
+        if (!pageLoaded || !uiState.loaded) {
+            item(key = "loading_placeholder") {
+                Text(
+                    text = stringResource(R.string.netisolate_no_data),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                )
+            }
+        } else {
         // 标题行: 已阻止列表 + 右侧添加 UID 按钮
         item(key = "title_row") {
             Row(
@@ -208,17 +219,8 @@ fun NetIsolateTab(
             }
         }
 
-        // 已阻止列表 (加载完成前一律占位 — 首帧零列表组合)
-        if (!pageLoaded || !uiState.loaded) {
-            item(key = "loading_placeholder") {
-                Text(
-                    text = stringResource(R.string.netisolate_no_data),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                )
-            }
-        } else if (uiState.selectedUids.isEmpty()) {
+        // 已阻止列表
+        if (uiState.selectedUids.isEmpty()) {
             item(key = "empty") {
                 Box(
                     modifier = Modifier
@@ -284,6 +286,7 @@ fun NetIsolateTab(
                     onClick = { viewModel.toggleUid(uid) },
                 )
             }
+        }
         }
     }
 }

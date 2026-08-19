@@ -638,8 +638,15 @@ class KsuCliRepository(context: Context) {
         }.getOrDefault(false)
     }
 
-    fun getMetaModuleImplement(): String {
-        try {
+    /** KPM 适配检测: 内核支持 KPM ioctl (kpm list 无 Failed 输出即支持) */
+    fun isKpmSupported(): Boolean {
+        return runCatching {
+            val out = exec("${getKsuDaemonPath()} kpm list") ?: return false
+            !out.contains("Failed to get kpm list")
+        }.getOrDefault(false)
+    }
+
+    fun getMetaModuleImplement(): String {        try {
             // NoMount 内置 (ksud 注入) 时, 元模块功能由内核内置替代 → 显示 nomount
             if (isNoMountBuiltIn()) {
                 return "nomount"

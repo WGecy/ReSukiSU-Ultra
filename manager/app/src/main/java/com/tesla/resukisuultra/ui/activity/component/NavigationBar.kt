@@ -261,6 +261,7 @@ private fun FloatingBottomBar(
                                         } else {
                                             unselectedIconColor
                                         },
+                                        modifier = Modifier.size(24.dp),
                                     )
                                 }
                             }
@@ -297,9 +298,17 @@ private fun NavigationRailItem(
                 }
             ) {
                 if (isSelected) {
-                    Icon(destination.iconSelected, stringResource(destination.label))
+                    Icon(
+                        destination.iconSelected,
+                        stringResource(destination.label),
+                        modifier = Modifier.size(24.dp),
+                    )
                 } else {
-                    Icon(destination.iconNotSelected, stringResource(destination.label))
+                    Icon(
+                        destination.iconNotSelected,
+                        stringResource(destination.label),
+                        modifier = Modifier.size(24.dp),
+                    )
                 }
             }
         },

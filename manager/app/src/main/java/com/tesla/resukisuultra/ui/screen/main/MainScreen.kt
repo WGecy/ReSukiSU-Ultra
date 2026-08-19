@@ -62,8 +62,11 @@ fun MainScreen() {
     val themeConfig: ThemeConfig = koinInject()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val homeState by homeViewModel.state.collectAsStateWithLifecycle()
-    val pages = remember(homeState.systemStatus.isValid) {
-        BottomBarDestination.getPages(homeState.systemStatus.isValid)
+    val pages = remember(homeState.systemStatus.isValid, homeState.systemInfo.kpmSupported) {
+        BottomBarDestination.getPages(
+            homeState.systemStatus.isValid,
+            kpmSupported = homeState.systemInfo.kpmSupported,
+        )
     }
 
     var uiSelectedPage by rememberSaveable { mutableIntStateOf(0) }

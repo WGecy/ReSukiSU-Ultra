@@ -2,6 +2,7 @@ package com.tesla.resukisuultra.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.data.system.HomeStateRepository
 import com.tesla.resukisuultra.domain.model.HomeDashboardState
 import com.tesla.resukisuultra.domain.model.HomeSystemInfo
@@ -58,6 +59,7 @@ class HomeViewModel(
     private val getBooleanPreference: GetBooleanPreferenceUseCase,
     private val setBooleanPreference: SetBooleanPreferenceUseCase,
     private val reboot: RebootUseCase,
+    private val ksuCli: KsuCliRepository,
 ) : ViewModel() {
     val state = homeStateRepository.state
     val uiState = state
@@ -103,11 +105,13 @@ class HomeViewModel(
                     } else {
                         null
                     }
+                    val kpmSupported = async { ksuCli.isKpmSupported() }
                     val basicInfo = basic.await()
                     val moduleInfo = module.await()
                     val superuserCount = superusers.await()
                     val managerInfo = managers.await()
                     val susfsInfo = susfs?.await()
+                    val kpmSupport = kpmSupported.await()
                     homeStateRepository.update { current ->
                         current.copy(
                             systemInfo = HomeSystemInfo(
@@ -127,6 +131,7 @@ class HomeViewModel(
                                 zygiskImplement = moduleInfo.zygiskImplementation,
                                 metaModuleImplement = moduleInfo.metaModuleImplementation,
                                 seccompStatus = basicInfo.seccompStatus,
+                                kpmSupported = kpmSupport,
                             ),
                             isInitialDataLoaded = true,
                             isExtendedDataLoaded = true,

@@ -3,9 +3,9 @@ package com.tesla.resukisuultra.ui.screen
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.AdminPanelSettings
+import androidx.compose.material.icons.twotone.Build
 import androidx.compose.material.icons.twotone.Extension
 import androidx.compose.material.icons.twotone.Home
-import androidx.compose.material.icons.twotone.Memory
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,8 +48,8 @@ enum class BottomBarDestination(
     Kpm(
         { bottomPadding -> KpmPage(bottomPadding) },
         R.string.kpm,
-        Icons.TwoTone.Memory,
-        Icons.TwoTone.Memory,
+        Icons.TwoTone.Build,
+        Icons.TwoTone.Build,
         true
     ),
     Settings(
@@ -61,10 +61,12 @@ enum class BottomBarDestination(
     );
 
     companion object {
-        fun getPages(isKsuValid: Boolean): List<BottomBarDestination> {
+        fun getPages(isKsuValid: Boolean, kpmSupported: Boolean = false): List<BottomBarDestination> {
             return if (isKsuValid) {
-                // 全功能管理器
-                BottomBarDestination.entries.toList()
+                // 全功能管理器 (KPM 需内核适配, 不支持则隐藏)
+                BottomBarDestination.entries.filter {
+                    it != Kpm || kpmSupported
+                }
             } else {
                 BottomBarDestination.entries.filter {
                     !it.rootRequired

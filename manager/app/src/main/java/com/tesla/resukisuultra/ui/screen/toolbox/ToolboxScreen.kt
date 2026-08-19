@@ -82,19 +82,25 @@ fun ToolboxScreen() {
     val coroutineScope = rememberCoroutineScope()
     var addPicker by remember { mutableStateOf(false) }
 
-    // 默认直接显示网络隔离 (秒开), 后台检测纠正 (内核不支持才隐藏)
+    // 检测缓存 (进程级 — 首次 exec 后复用, 进入零 shell 开销)
     val context = LocalContext.current
-    var netisolateSupported by remember { mutableStateOf(true) }
-    var rootAvailable by remember { mutableStateOf(true) }
+    var netisolateSupported by remember { mutableStateOf(ToolboxSupportCache.netisolate) }
+    var rootAvailable by remember { mutableStateOf(ToolboxSupportCache.root) }
     LaunchedEffect(Unit) {
-        netisolateSupported = withContext(Dispatchers.IO) {
-            runCatching {
-                KsuCliRepository(context).exec("/data/adb/ksu/bin/ksud feature check netisolate")
-                    ?.contains("supported") == true
-            }.getOrDefault(false)
+        if (!ToolboxSupportCache.netisolateChecked) {
+            netisolateSupported = withContext(Dispatchers.IO) {
+                runCatching {
+                    KsuCliRepository(context).exec("/data/adb/ksu/bin/ksud feature check netisolate")
+                        ?.contains("supported") == true
+                }.getOrDefault(false)
+            }.also { ToolboxSupportCache.netisolate = it }
+            ToolboxSupportCache.netisolateChecked = true
         }
-        rootAvailable = withContext(Dispatchers.IO) {
-            runCatching { KsuCliRepository(context).rootAvailable() }.getOrDefault(false)
+        if (!ToolboxSupportCache.rootChecked) {
+            rootAvailable = withContext(Dispatchers.IO) {
+                runCatching { KsuCliRepository(context).rootAvailable() }.getOrDefault(false)
+            }.also { ToolboxSupportCache.root = it }
+            ToolboxSupportCache.rootChecked = true
         }
     }
 

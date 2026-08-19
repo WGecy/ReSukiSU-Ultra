@@ -415,10 +415,7 @@ private fun TopBar(
                                 onImport()
                                 showDropdown = false
                             },
-                            shapes = androidx.compose.material3.MenuItemShapes(
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                    )
+                            shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(0, 1)
                         )
                         DropdownMenuItem(
                             selected = false,
@@ -429,10 +426,7 @@ private fun TopBar(
                                 onExport()
                                 showDropdown = false
                             },
-                            shapes = androidx.compose.material3.MenuItemShapes(
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                    )
+                            shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(0, 2)
                         )
                     }
                 }

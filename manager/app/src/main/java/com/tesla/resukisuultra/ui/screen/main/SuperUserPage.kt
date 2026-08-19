@@ -440,10 +440,7 @@ private fun SuperUserDropdown(
                     onClick = {
                         viewModel.dispatch(SuperUserUiAction.SetSort(sortType))
                     },
-                    shapes = androidx.compose.material3.MenuItemShapes(
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                    ),
+                    shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(index, SortType.entries.size),
                 )
             }
         }
@@ -470,10 +467,7 @@ private fun SuperUserDropdown(
                         onDismissRequest()
                         menuItem.onClick()
                     },
-                    shapes = androidx.compose.material3.MenuItemShapes(
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                    ),
+                    shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(index, SortType.entries.size),
                 )
             }
         }

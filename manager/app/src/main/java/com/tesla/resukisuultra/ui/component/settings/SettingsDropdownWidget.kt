@@ -94,10 +94,7 @@ fun SettingsDropdownWidget(
                                 expanded = false
                             },
                             text = { Text(text = item) },
-                            shapes = androidx.compose.material3.MenuItemShapes(
-                                    com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                                    com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                                )
+                            shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(index, data.size)
                         )
                     }
                 }

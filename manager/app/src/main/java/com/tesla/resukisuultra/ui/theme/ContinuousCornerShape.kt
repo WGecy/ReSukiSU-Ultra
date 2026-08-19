@@ -146,6 +146,18 @@ class ContinuousCapsule(
     }
 }
 
+/** 菜单选中项圆角 (Material 设计: 首尾贴合菜单角 18dp, 中间扁平; 与 28dp 菜单组留白) */
+fun menuItemShapes(index: Int, count: Int): androidx.compose.material3.MenuItemShapes =
+    androidx.compose.material3.MenuItemShapes(
+        ContinuousCornerShape(
+            topStart = if (index == 0) 18.dp else 0.dp,
+            topEnd = if (index == 0) 18.dp else 0.dp,
+            bottomStart = if (index == count - 1) 18.dp else 0.dp,
+            bottomEnd = if (index == count - 1) 18.dp else 0.dp,
+        ),
+        ContinuousCornerShape(18.dp),
+    )
+
 // ===== racra SmoothCorner 数学 (G2 曲率连续: 贝塞尔+圆弧匹配) =====
 
 internal class SmoothCorner(

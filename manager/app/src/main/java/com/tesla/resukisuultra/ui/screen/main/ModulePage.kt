@@ -522,10 +522,7 @@ private fun ModuleDropdown(
                     )
                 },
                 text = { Text(stringResource(R.string.module_sort_action_first)) },
-                shapes = androidx.compose.material3.MenuItemShapes(
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                    ),
+                shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(0, 2),
             )
             DropdownMenuItem(
                 checked = uiState.sortEnabledFirst,
@@ -535,10 +532,7 @@ private fun ModuleDropdown(
                     )
                 },
                 text = { Text(stringResource(R.string.module_sort_enabled_first)) },
-                shapes = androidx.compose.material3.MenuItemShapes(
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
-                    ),
+                shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(0, 2),
             )
         }
     }

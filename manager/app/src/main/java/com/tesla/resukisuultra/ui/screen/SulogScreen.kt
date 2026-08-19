@@ -225,10 +225,10 @@ private fun SulogScreenContent(
                                             haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
                                             actions.onToggleFilter(filter)
                                         },
-                                        shapes = MenuDefaults.itemShape(
-                                            index = index,
-                                            count = SulogEventFilter.entries.size
-                                        )
+                                        shapes = androidx.compose.material3.MenuItemShapes(
+                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
+                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
+                    )
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                 }

@@ -313,10 +313,10 @@ private fun ModuleRepoDropdown(
                     viewModel.dispatch(ModuleRepoUiAction.SetStarsFirst(checked))
                 },
                 text = { Text(stringResource(R.string.module_sort_star_first)) },
-                shapes = MenuDefaults.itemShape(
-                    index = 0,
-                    count = 1,
-                ),
+                shapes = androidx.compose.material3.MenuItemShapes(
+                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
+                        com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(20.dp),
+                    ),
             )
         }
     }

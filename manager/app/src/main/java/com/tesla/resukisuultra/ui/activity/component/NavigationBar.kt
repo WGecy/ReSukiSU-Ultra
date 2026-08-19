@@ -7,7 +7,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import io.github.fletchmckee.liquid.liquid
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -73,7 +72,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavigationBar(
-    liquidState: io.github.fletchmckee.liquid.LiquidState? = null,
     destinations: List<BottomBarDestination>,
     isBottomBar: Boolean
 ) {
@@ -92,7 +90,6 @@ fun NavigationBar(
 
     if (isBottomBar) {
         FloatingBottomBar(
-            liquidState = liquidState,
             destinations = destinations,
             page = page,
             onPageChange = handlePageChange,
@@ -137,7 +134,6 @@ fun NavigationBar(
 
 @Composable
 private fun FloatingBottomBar(
-    liquidState: io.github.fletchmckee.liquid.LiquidState? = null,
     destinations: List<BottomBarDestination>,
     page: Int,
     onPageChange: (Int) -> Unit,
@@ -192,9 +188,7 @@ private fun FloatingBottomBar(
                 modifier = Modifier
                     .width(barWidth)
                     .height(barHeight)
-                    .then(
-                        if (liquidState != null) Modifier.liquid(liquidState) else Modifier
-                    ),
+                    ,
                 shape = com.tesla.resukisuultra.ui.theme.ContinuousCapsule(),
                 color = containerColor,
                 tonalElevation = 3.dp,

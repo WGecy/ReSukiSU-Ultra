@@ -36,7 +36,9 @@ class ManagerUpdateRepository(
 
     suspend fun checkStableUpdate(): ManagerUpdateInfo? = withContext(Dispatchers.IO) {
         val supportedAbis = Build.SUPPORTED_ABIS.toList()
-        val release = requestJson("https://api.github.com/repos/$REPOSITORY/releases/latest")
+        // releases/latest 排除 prerelease (我们的发布全是 prerelease) → 用 /releases?per_page=1 取最新
+        val release = requestJson("https://api.github.com/repos/$REPOSITORY/releases?per_page=1")
+            ?.optJSONArray(0)?.optJSONObject(0)
             ?: return@withContext null
         val changelog = release.optString("body")
         val assets = release.optJSONArray("assets") ?: return@withContext null

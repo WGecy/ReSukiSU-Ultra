@@ -18,6 +18,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import io.github.fletchmckee.liquid.liquefiable
+import io.github.fletchmckee.liquid.rememberLiquidState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -170,6 +172,8 @@ fun MainScreen() {
                     )
                 }
 
+                // Liquid 液化效果 (仿 FolkPatch: 内容层可液化 + 底栏液化扭曲)
+                val liquidState = rememberLiquidState()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
@@ -181,6 +185,7 @@ fun MainScreen() {
                             NavigationBar(
                                 destinations = pages,
                                 isBottomBar = true,
+                                liquidState = liquidState,
                             )
                         }
                     },
@@ -190,6 +195,7 @@ fun MainScreen() {
                         modifier = Modifier
                             .fillMaxSize()
                             .nestedScroll(scrollConnection)
+                            .liquefiable(liquidState)
                     ) {
                         content(innerPadding.calculateBottomPadding())
                     }

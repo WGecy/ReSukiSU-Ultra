@@ -56,15 +56,15 @@ class KpmViewModel(
 
     private fun readModules(): List<KpmModuleInfo> {
         val out = ksuCli.exec("${ksuCli.getKsuDaemonPath()} kpm list") ?: return emptyList()
-        // 解析: kpm list 输出 (name, version, author...) — 兼容 INI 段或简单行
+        // 解析: kpm list 输出 (KernelPatch 格式为每行一个模块名; 兼容 INI 段 name= 行)
         return out.lineSequence()
             .map { it.trim() }
             .filter { it.isNotBlank() }
             .mapNotNull { line ->
-                if (line.startsWith("name=")) {
-                    KpmModuleInfo(name = line.substringAfter("name="))
-                } else {
-                    null
+                when {
+                    line.startsWith("name=") -> KpmModuleInfo(name = line.substringAfter("name="))
+                    line.contains("=") -> null
+                    else -> KpmModuleInfo(name = line)
                 }
             }.toList()
     }

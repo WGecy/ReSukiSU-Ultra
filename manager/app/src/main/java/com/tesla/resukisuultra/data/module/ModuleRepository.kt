@@ -186,18 +186,14 @@ class ModuleRepository(
         }
     }
 
-    private var noMountBuiltIn: Boolean? = null
 
     private fun isNoMountBuiltIn(): Boolean {
-        noMountBuiltIn?.let { return it }
-        val result = runCatching {
+        return runCatching {
             val supported = ksuCliRepository.exec("${ksuCliRepository.getKsuDaemonPath()} nomount status")
                 ?.contains("supported: true") == true
             val enabled = SuFile.open("/data/adb/nomount/enabled").exists()
             supported && enabled
         }.getOrDefault(false)
-        noMountBuiltIn = result
-        return result
     }
 
     private fun getMetaModuleStatus(): MetaModuleStatus {

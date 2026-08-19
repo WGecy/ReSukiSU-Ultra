@@ -627,18 +627,14 @@ class KsuCliRepository(context: Context) {
         launchApp(packageName)
     }
 
-    private var noMountBuiltIn: Boolean? = null
-
-    /** NoMount 内置检测: 内核支持 && 内置挂载已启用 (enabled 标志) */
+    /** NoMount 内置检测: 内核支持 && 内置挂载已启用 (enabled 标志) — 实时检测不缓存 */
     fun isNoMountBuiltIn(): Boolean {
-        noMountBuiltIn?.let { return it }
-        noMountBuiltIn = runCatching {
+        return runCatching {
             val supported = exec("${getKsuDaemonPath()} nomount status")
                 ?.contains("supported: true") == true
             val enabled = SuFile.open("/data/adb/nomount/enabled").exists()
             supported && enabled
         }.getOrDefault(false)
-        return noMountBuiltIn == true
     }
 
     fun getMetaModuleImplement(): String {

@@ -85,12 +85,16 @@ fun ToolboxScreen() {
     // 默认直接显示网络隔离 (秒开), 后台检测纠正 (内核不支持才隐藏)
     val context = LocalContext.current
     var netisolateSupported by remember { mutableStateOf(true) }
+    var rootAvailable by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
         netisolateSupported = withContext(Dispatchers.IO) {
             runCatching {
                 KsuCliRepository(context).exec("/data/adb/ksu/bin/ksud feature check netisolate")
                     ?.contains("supported") == true
             }.getOrDefault(false)
+        }
+        rootAvailable = withContext(Dispatchers.IO) {
+            runCatching { KsuCliRepository(context).rootAvailable() }.getOrDefault(false)
         }
     }
 
@@ -106,15 +110,17 @@ fun ToolboxScreen() {
                 )
             })
         }
-        // IO 调度器切换 (SUSFS/网络隔离风格)
-        add(ToolboxSubpage(
-            title = stringResource(R.string.iosched_title),
-        ) { innerPadding, nestedScrollConnection ->
-            IoSchedulerTab(
-                innerPadding = innerPadding,
-                nestedScrollConnection = nestedScrollConnection,
-            )
-        })
+        // IO 调度器切换 (SUSFS/网络隔离风格; 无 root 隐藏)
+        if (rootAvailable) {
+            add(ToolboxSubpage(
+                title = stringResource(R.string.iosched_title),
+            ) { innerPadding, nestedScrollConnection ->
+                IoSchedulerTab(
+                    innerPadding = innerPadding,
+                    nestedScrollConnection = nestedScrollConnection,
+                )
+            })
+        }
     }
 
     val pagerState = rememberPagerState(

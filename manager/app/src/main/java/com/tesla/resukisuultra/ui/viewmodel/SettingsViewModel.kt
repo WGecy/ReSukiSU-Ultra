@@ -99,6 +99,7 @@ data class SettingsUiState(
     val isSuLogEnabled: Boolean = false,
     val selinuxHideStatus: String = "",
     val isSelinuxHideEnabled: Boolean = false,
+    val isRootAvailable: Boolean = false,
     val defaultUmountModules: Boolean = false,
 )
 
@@ -147,6 +148,7 @@ sealed interface SettingsUiEvent {
 }
 
 class SettingsViewModel(
+    private val ksuCliRepository: com.tesla.resukisuultra.data.shell.KsuCliRepository,
     private val loadSettings: LoadSettingsPlatformUseCase,
     private val updateAppearance: UpdateAppearanceUseCase,
     private val updatePlatform: UpdatePlatformSettingUseCase,
@@ -209,6 +211,7 @@ class SettingsViewModel(
                     sulogStatus = platform.sulogStatus,
                     isSuLogEnabled = features.suLogEnabled,
                     selinuxHideStatus = platform.selinuxHideStatus,
+                    isRootAvailable = runCatching { ksuCliRepository.rootAvailable() }.getOrDefault(false),
                     isSelinuxHideEnabled = features.selinuxHideEnabled,
                     defaultUmountModules = features.defaultUmountModules,
                 )

@@ -234,7 +234,7 @@ fun SettingsCoreScreen() {
                                 )
                             }
 
-                            item {
+                            item(visible = uiState.nomountSupported) {
                                 SettingsSwitchWidget(
                                     icon = Icons.TwoTone.Inventory2,
                                     title = stringResource(id = R.string.settings_nomount),
@@ -354,7 +354,7 @@ fun SettingsCoreScreen() {
                                 )
                             }
 
-                            item {
+                            item(visible = uiState.isRootAvailable) {
                                 // 伪装 BL 锁状态开关
                                 var fakeLockEnabled by remember { mutableStateOf(false) }
                                 var fakeLockLoaded by remember { mutableStateOf(false) }

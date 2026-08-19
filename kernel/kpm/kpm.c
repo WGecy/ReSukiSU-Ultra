@@ -55,8 +55,7 @@
 
 #define KPM_LOAD_RESULT_MAGIC 0x4b504d52
 
-struct kpm_load_result
-{
+struct kpm_load_result {
     unsigned int magic;
     unsigned int size;
     int code;
@@ -75,10 +74,8 @@ typedef long (*kpm_ctl1call_t)(void *a1, void *a2, void *a3);
 typedef long (*kpm_exitcall_t)(void *reserved);
 typedef long (*kpm_eventcall_t)(const char *event, const char *args, void *reserved);
 
-struct kpm_load_info
-{
-    struct
-    {
+struct kpm_load_info {
+    struct {
         const char *base;
         unsigned long size;
         const char *name, *version, *license, *author, *description;
@@ -89,16 +86,13 @@ struct kpm_load_info
     Elf_Shdr *sechdrs;
     char *secstrings, *strtab;
     unsigned long symoffs, stroffs;
-    struct
-    {
+    struct {
         unsigned int sym, str, mod, info;
     } index;
 };
 
-struct kpm_module
-{
-    struct
-    {
+struct kpm_module {
+    struct {
         const char *base, *name, *version, *license, *author, *description;
     } info;
 
@@ -128,8 +122,7 @@ static DEFINE_MUTEX(kpm_lock);
 /* 注: 命名加了 KPM_INSN_ 前缀, 避免与 asm/insn.h 的 aarch64_insn_* 定义冲突
  * (asm/insn.h 会经 kprobes.h -> asm/probes.h 被引入, 且本内核未编入 insn.o) */
 
-enum kpm_insn_imm_type
-{
+enum kpm_insn_imm_type {
     KPM_INSN_IMM_ADR,
     KPM_INSN_IMM_26,
     KPM_INSN_IMM_19,
@@ -214,8 +207,7 @@ static u32 kpm_insn_encode_immediate(enum kpm_insn_imm_type type, u32 insn, u64 
 #define KPM_INSN_IMM_MOVNZ KPM_INSN_IMM_MAX
 #define KPM_INSN_IMM_MOVK KPM_INSN_IMM_16
 
-enum aarch64_reloc_op
-{
+enum aarch64_reloc_op {
     RELOC_OP_NONE,
     RELOC_OP_ABS,
     RELOC_OP_PREL,
@@ -269,13 +261,13 @@ static int kpm_reloc_data(enum aarch64_reloc_op op, void *place, u64 val, int le
 	 * len bits (i.e the bottom len bits are not sign-extended and
 	 * the top bits are not all zero).
 	 */
-    if ((u64)(sval + 1) > 2) return -ERANGE;
+    if ((u64)(sval + 1) > 2)
+        return -ERANGE;
 
     return 0;
 }
 
-static int kpm_reloc_insn_movw(enum aarch64_reloc_op op, void *place, u64 val, int lsb,
-                               enum kpm_insn_imm_type imm_type)
+static int kpm_reloc_insn_movw(enum aarch64_reloc_op op, void *place, u64 val, int lsb, enum kpm_insn_imm_type imm_type)
 {
     u64 imm, limit = 0;
     s64 sval;
@@ -326,7 +318,8 @@ static int kpm_reloc_insn_movw(enum aarch64_reloc_op op, void *place, u64 val, i
     }
 
     /* Check the upper bits depending on the sign of the immediate. */
-    if ((u64)sval > limit) return -ERANGE;
+    if ((u64)sval > limit)
+        return -ERANGE;
 
     return 0;
 }
@@ -356,19 +349,20 @@ static int kpm_reloc_insn_imm(enum aarch64_reloc_op op, void *place, u64 val, in
 	 * Overflow has occurred if the upper bits are not all equal to
 	 * the sign bit of the value.
 	 */
-    if ((u64)(sval + 1) >= 2) return -ERANGE;
+    if ((u64)(sval + 1) >= 2)
+        return -ERANGE;
 
     return 0;
 }
 
-static int kpm_apply_relocate(Elf_Shdr *sechdrs, const char *strtab, unsigned int symindex,
-                              unsigned int relsec, struct kpm_module *me)
+static int kpm_apply_relocate(Elf_Shdr *sechdrs, const char *strtab, unsigned int symindex, unsigned int relsec,
+                              struct kpm_module *me)
 {
     return 0;
 }
 
-static int kpm_apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab, unsigned int symindex,
-                                  unsigned int relsec, struct kpm_module *me)
+static int kpm_apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab, unsigned int symindex, unsigned int relsec,
+                                  struct kpm_module *me)
 {
     unsigned int i;
     int ovf;
@@ -525,7 +519,8 @@ static int kpm_apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab, unsigne
             return -ENOEXEC;
         }
 
-        if (overflow_check && ovf == -ERANGE) goto overflow;
+        if (overflow_check && ovf == -ERANGE)
+            goto overflow;
     }
     return 0;
 overflow:
@@ -537,13 +532,15 @@ overflow:
 
 static void set_load_error(struct kpm_load_info *info, const char *message)
 {
-    if (!info || !message) return;
+    if (!info || !message)
+        return;
     snprintf(info->info.error_msg, sizeof(info->info.error_msg), "%s", message);
 }
 
 static const char *load_error(const struct kpm_load_info *info, const char *fallback)
 {
-    if (info && info->info.error_msg[0]) return info->info.error_msg;
+    if (info && info->info.error_msg[0])
+        return info->info.error_msg;
     return fallback;
 }
 
@@ -551,10 +548,12 @@ static bool kpm_load_result_enabled(void __user *reserved)
 {
     struct kpm_load_result *result;
 
-    if (!reserved) return false;
+    if (!reserved)
+        return false;
 
     result = memdup_user(reserved, sizeof(*result));
-    if (!result || IS_ERR(result)) return false;
+    if (!result || IS_ERR(result))
+        return false;
 
     bool enabled = result->magic == KPM_LOAD_RESULT_MAGIC && result->size >= sizeof(*result);
     kvfree(result);
@@ -565,13 +564,15 @@ static void kpm_set_load_result(void __user *reserved, long code, const char *me
 {
     struct kpm_load_result result;
 
-    if (!kpm_load_result_enabled(reserved)) return;
+    if (!kpm_load_result_enabled(reserved))
+        return;
 
     memset(&result, 0, sizeof(result));
     result.magic = KPM_LOAD_RESULT_MAGIC;
     result.size = sizeof(result);
     result.code = code;
-    if (message) snprintf(result.message, sizeof(result.message), "%s", message);
+    if (message)
+        snprintf(result.message, sizeof(result.message), "%s", message);
     (void)copy_to_user(reserved, &result, sizeof(result));
 }
 
@@ -579,18 +580,19 @@ static char *kpm_next_string(char *string, unsigned long *secsize)
 {
     while (string[0]) {
         string++;
-        if ((*secsize)-- <= 1) return 0;
+        if ((*secsize)-- <= 1)
+            return 0;
     }
     while (!string[0]) {
         string++;
-        if ((*secsize)-- <= 1) return 0;
+        if ((*secsize)-- <= 1)
+            return 0;
     }
     return string;
 }
 
 /* Update size with this section: return offset. */
-static long kpm_get_offset(struct kpm_module *mod, unsigned int *size, Elf_Shdr *sechdr,
-                           unsigned int section)
+static long kpm_get_offset(struct kpm_module *mod, unsigned int *size, Elf_Shdr *sechdr, unsigned int section)
 {
     long ret = ALIGN(*size, sechdr->sh_addralign ?: 1);
     *size = ret + sechdr->sh_size;
@@ -609,7 +611,8 @@ static char *kpm_get_next_modinfo(const struct kpm_load_info *info, const char *
         modinfo = kpm_next_string(prev, &size);
     }
     for (p = modinfo; p; p = kpm_next_string(p, &size)) {
-        if (strncmp(p, tag, taglen) == 0 && p[taglen] == '=') return p + taglen + 1;
+        if (strncmp(p, tag, taglen) == 0 && p[taglen] == '=')
+            return p + taglen + 1;
     }
     return 0;
 }
@@ -635,7 +638,8 @@ static void *kpm_get_sh_base(struct kpm_load_info *info, const char *secname)
     Elf_Shdr *infosec;
     void *addr;
 
-    if (!idx) return 0;
+    if (!idx)
+        return 0;
     infosec = &info->sechdrs[idx];
     addr = (void *)info->hdr + infosec->sh_offset;
     return addr;
@@ -646,20 +650,20 @@ static unsigned long kpm_get_sh_size(struct kpm_load_info *info, const char *sec
     int idx = kpm_find_sec(info, secname);
     Elf_Shdr *infosec;
 
-    if (!idx) return 0;
+    if (!idx)
+        return 0;
     infosec = &info->sechdrs[idx];
     return infosec->sh_entsize;
 }
 
 static void kpm_layout_sections(struct kpm_module *mod, struct kpm_load_info *info)
 {
-    static unsigned long const masks[][2] = {
-        /* NOTE: all executable code must be the first section in this array;
+    static unsigned long const masks[][2] = { /* NOTE: all executable code must be the first section in this array;
          * otherwise modify the text_size finder in the two loops below */
-        { SHF_EXECINSTR | SHF_ALLOC, ARCH_SHF_SMALL },
-        { SHF_ALLOC, SHF_WRITE | ARCH_SHF_SMALL },
-        { SHF_WRITE | SHF_ALLOC, ARCH_SHF_SMALL },
-        { ARCH_SHF_SMALL | SHF_ALLOC, 0 }
+                                              { SHF_EXECINSTR | SHF_ALLOC, ARCH_SHF_SMALL },
+                                              { SHF_ALLOC, SHF_WRITE | ARCH_SHF_SMALL },
+                                              { SHF_WRITE | SHF_ALLOC, ARCH_SHF_SMALL },
+                                              { ARCH_SHF_SMALL | SHF_ALLOC, 0 }
     };
 
     for (int i = 0; i < info->hdr->e_shnum; i++)
@@ -668,8 +672,7 @@ static void kpm_layout_sections(struct kpm_module *mod, struct kpm_load_info *in
     for (int m = 0; m < sizeof(masks) / sizeof(masks[0]); ++m) {
         for (int i = 0; i < info->hdr->e_shnum; ++i) {
             Elf_Shdr *s = &info->sechdrs[i];
-            if ((s->sh_flags & masks[m][0]) != masks[m][0] || (s->sh_flags & masks[m][1]) ||
-                s->sh_entsize != ~0UL)
+            if ((s->sh_flags & masks[m][0]) != masks[m][0] || (s->sh_flags & masks[m][1]) || s->sh_entsize != ~0UL)
                 continue;
             s->sh_entsize = kpm_get_offset(mod, &mod->size, s, i);
         }
@@ -694,9 +697,11 @@ static void kpm_layout_sections(struct kpm_module *mod, struct kpm_load_info *in
 static bool kpm_is_core_symbol(const Elf_Sym *src, const Elf_Shdr *sechdrs, unsigned int shnum)
 {
     const Elf_Shdr *sec;
-    if (src->st_shndx == SHN_UNDEF || src->st_shndx >= shnum || !src->st_name) return false;
+    if (src->st_shndx == SHN_UNDEF || src->st_shndx >= shnum || !src->st_name)
+        return false;
     sec = sechdrs + src->st_shndx;
-    if (!(sec->sh_flags & SHF_ALLOC) || !(sec->sh_flags & SHF_EXECINSTR)) return false;
+    if (!(sec->sh_flags & SHF_ALLOC) || !(sec->sh_flags & SHF_EXECINSTR))
+        return false;
     return true;
 }
 
@@ -725,8 +730,7 @@ static int kpm_simplify_symbols(struct kpm_module *mod, struct kpm_load_info *in
             if (!addr) {
                 pr_err("kpm: unknown symbol: %s\n", name);
                 if (!info->info.error_msg[0])
-                    snprintf(info->info.error_msg, sizeof(info->info.error_msg),
-                             "unknown symbol: %s", name);
+                    snprintf(info->info.error_msg, sizeof(info->info.error_msg), "unknown symbol: %s", name);
                 ret = -ENOENT;
                 break;
             }
@@ -748,14 +752,17 @@ static int kpm_apply_relocations(struct kpm_module *mod, const struct kpm_load_i
     unsigned int i;
     for (i = 1; i < info->hdr->e_shnum; i++) {
         unsigned int infosec = info->sechdrs[i].sh_info;
-        if (infosec >= info->hdr->e_shnum) continue;
-        if (!(info->sechdrs[infosec].sh_flags & SHF_ALLOC)) continue;
+        if (infosec >= info->hdr->e_shnum)
+            continue;
+        if (!(info->sechdrs[infosec].sh_flags & SHF_ALLOC))
+            continue;
         if (info->sechdrs[i].sh_type == SHT_REL) {
             rc = kpm_apply_relocate(info->sechdrs, info->strtab, info->index.sym, i, mod);
         } else if (info->sechdrs[i].sh_type == SHT_RELA) {
             rc = kpm_apply_relocate_add(info->sechdrs, info->strtab, info->index.sym, i, mod);
         }
-        if (rc < 0) break;
+        if (rc < 0)
+            break;
     }
     return rc;
 }
@@ -820,7 +827,8 @@ static int kpm_move_module(struct kpm_module *mod, struct kpm_load_info *info)
     for (int i = 1; i < info->hdr->e_shnum; i++) {
         void *dest;
         Elf_Shdr *shdr = &info->sechdrs[i];
-        if (!(shdr->sh_flags & SHF_ALLOC)) continue;
+        if (!(shdr->sh_flags & SHF_ALLOC))
+            continue;
 
         dest = mod->start + shdr->sh_entsize;
         const char *sname = info->secstrings + shdr->sh_name;
@@ -830,21 +838,29 @@ static int kpm_move_module(struct kpm_module *mod, struct kpm_load_info *info)
 
         shdr->sh_addr = (unsigned long)dest;
 
-        if (!mod->init && !strcmp(".kpm.init", sname)) mod->init = (kpm_initcall_t *)dest;
+        if (!mod->init && !strcmp(".kpm.init", sname))
+            mod->init = (kpm_initcall_t *)dest;
 
-        if (!strcmp(".kpm.ctl0", sname)) mod->ctl0 = (kpm_ctl0call_t *)dest;
-        if (!strcmp(".kpm.ctl1", sname)) mod->ctl1 = (kpm_ctl1call_t *)dest;
+        if (!strcmp(".kpm.ctl0", sname))
+            mod->ctl0 = (kpm_ctl0call_t *)dest;
+        if (!strcmp(".kpm.ctl1", sname))
+            mod->ctl1 = (kpm_ctl1call_t *)dest;
 
-        if (!mod->exit && !strcmp(".kpm.exit", sname)) mod->exit = (kpm_exitcall_t *)dest;
-        if (!mod->event && !strcmp(".kpm.event", sname)) mod->event = (kpm_eventcall_t *)dest;
+        if (!mod->exit && !strcmp(".kpm.exit", sname))
+            mod->exit = (kpm_exitcall_t *)dest;
+        if (!mod->event && !strcmp(".kpm.event", sname))
+            mod->event = (kpm_eventcall_t *)dest;
 
-        if (!mod->info.base && !strcmp(".kpm.info", sname)) mod->info.base = (const char *)dest;
+        if (!mod->info.base && !strcmp(".kpm.info", sname))
+            mod->info.base = (const char *)dest;
     }
     mod->info.name = info->info.name - info->info.base + mod->info.base;
     mod->info.version = info->info.version - info->info.base + mod->info.base;
 
-    if (info->info.license) mod->info.license = info->info.license - info->info.base + mod->info.base;
-    if (info->info.author) mod->info.author = info->info.author - info->info.base + mod->info.base;
+    if (info->info.license)
+        mod->info.license = info->info.license - info->info.base + mod->info.base;
+    if (info->info.author)
+        mod->info.author = info->info.author - info->info.base + mod->info.base;
     if (info->info.description)
         mod->info.description = info->info.description - info->info.base + mod->info.base;
 
@@ -931,13 +947,12 @@ static int kpm_elf_header_check(struct kpm_load_info *info)
         set_load_error(info, "ELF header is truncated");
         return -ENOEXEC;
     }
-    if (memcmp(info->hdr->e_ident, ELFMAG, SELFMAG) || info->hdr->e_type != ET_REL ||
-        !elf_check_arch(info->hdr) || info->hdr->e_shentsize != sizeof(Elf_Shdr)) {
+    if (memcmp(info->hdr->e_ident, ELFMAG, SELFMAG) || info->hdr->e_type != ET_REL || !elf_check_arch(info->hdr) ||
+        info->hdr->e_shentsize != sizeof(Elf_Shdr)) {
         set_load_error(info, "ELF header is not a supported AArch64 relocatable module");
         return -ENOEXEC;
     }
-    if (info->hdr->e_shoff >= info->len ||
-        (info->hdr->e_shnum * sizeof(Elf_Shdr) > info->len - info->hdr->e_shoff)) {
+    if (info->hdr->e_shoff >= info->len || (info->hdr->e_shnum * sizeof(Elf_Shdr) > info->len - info->hdr->e_shoff)) {
         set_load_error(info, "ELF section headers are invalid");
         return -ENOEXEC;
     }
@@ -946,16 +961,18 @@ static int kpm_elf_header_check(struct kpm_load_info *info)
 
 static struct kpm_module *kpm_find_module(const char *name);
 
-static long kpm_load_module_ex(const void *data, int len, const char *args, const char *event,
-                               const char *source, void *__user reserved)
+static long kpm_load_module_ex(const void *data, int len, const char *args, const char *event, const char *source,
+                               void *__user reserved)
 {
     struct kpm_load_info load_info = { .len = len, .hdr = data };
     struct kpm_load_info *info = &load_info;
     struct kpm_module *mod = NULL;
     long rc = 0;
 
-    if ((rc = kpm_elf_header_check(info))) goto out;
-    if ((rc = kpm_setup_load_info(info))) goto out;
+    if ((rc = kpm_elf_header_check(info)))
+        goto out;
+    if ((rc = kpm_setup_load_info(info)))
+        goto out;
 
     mod = (struct kpm_module *)vmalloc(sizeof(struct kpm_module));
     if (!mod) {
@@ -984,7 +1001,8 @@ static long kpm_load_module_ex(const void *data, int len, const char *args, cons
         set_load_error(info, "allocate executable module memory failed");
         goto free;
     }
-    if ((rc = kpm_simplify_symbols(mod, info))) goto free;
+    if ((rc = kpm_simplify_symbols(mod, info)))
+        goto free;
     if ((rc = kpm_apply_relocations(mod, info))) {
         set_load_error(info, "apply relocations failed");
         goto free;
@@ -1022,14 +1040,15 @@ static long kpm_load_module_ex(const void *data, int len, const char *args, cons
         }
     } else {
         set_load_error(info, "module init failed");
-        pr_info("kpm: [%s] init failed with [%s] error: %ld, try exit ...\n", mod->info.name,
-                args ? args : "", rc);
+        pr_info("kpm: [%s] init failed with [%s] error: %ld, try exit ...\n", mod->info.name, args ? args : "", rc);
         (*mod->exit)(reserved);
     }
 
 free:
-    if (mod->args) kvfree(mod->args);
-    if (mod->start) module_memfree(mod->start);
+    if (mod->args)
+        kvfree(mod->args);
+    if (mod->start)
+        module_memfree(mod->start);
 free1:
     kvfree(mod);
 out:
@@ -1092,7 +1111,8 @@ static long kpm_load_module_path(const char *path, const char *args, void *__use
 free:
     kvfree(data);
 close:
-    if (filp) filp_close(filp, NULL);
+    if (filp)
+        filp_close(filp, NULL);
 out:
     return rc;
 }
@@ -1100,8 +1120,7 @@ out:
 static struct kpm_module *kpm_find_module(const char *name)
 {
     struct kpm_module *pos;
-    list_for_each_entry(pos, &kpm_modules, list)
-    {
+    list_for_each_entry (pos, &kpm_modules, list) {
         if (!strcmp(name, pos->info.name)) {
             return pos;
         }
@@ -1115,8 +1134,7 @@ static int kpm_get_module_nums(void)
     int n = 0;
 
     mutex_lock(&kpm_lock);
-    list_for_each_entry(pos, &kpm_modules, list)
-    {
+    list_for_each_entry (pos, &kpm_modules, list) {
         n++;
     }
     mutex_unlock(&kpm_lock);
@@ -1129,16 +1147,18 @@ static int kpm_list_modules(char *out_names, int size)
     struct kpm_module *pos;
     int off = 0;
 
-    if (!out_names || size <= 0) return -EINVAL;
+    if (!out_names || size <= 0)
+        return -EINVAL;
     out_names[0] = '\0';
 
     mutex_lock(&kpm_lock);
-    list_for_each_entry(pos, &kpm_modules, list)
-    {
-        if (off >= size - 1) break;
+    list_for_each_entry (pos, &kpm_modules, list) {
+        if (off >= size - 1)
+            break;
         off += snprintf(out_names + off, size - 1 - off, "%s\n", pos->info.name);
     }
-    if (off > 0) out_names[off - 1] = '\0';
+    if (off > 0)
+        out_names[off - 1] = '\0';
     mutex_unlock(&kpm_lock);
 
     return off;
@@ -1149,7 +1169,8 @@ static int kpm_get_module_info(const char *name, char *out_info, int size)
     struct kpm_module *mod;
     int sz, tail;
 
-    if (size <= 0) return 0;
+    if (size <= 0)
+        return 0;
 
     mutex_lock(&kpm_lock);
     mod = kpm_find_module(name);
@@ -1165,16 +1186,18 @@ static int kpm_get_module_info(const char *name, char *out_info, int size)
                   "author=%s\n"
                   "description=%s\n"
                   "args=%s\n",
-                  mod->info.name, mod->info.version, mod->info.license, mod->info.author,
-                  mod->info.description, mod->args ? mod->args : "");
+                  mod->info.name, mod->info.version, mod->info.license, mod->info.author, mod->info.description,
+                  mod->args ? mod->args : "");
 
-    if (sz < 0) sz = 0;
+    if (sz < 0)
+        sz = 0;
     if (sz < size) {
         tail = snprintf(out_info + sz, size - sz,
                         "load_event=%s\n"
                         "load_source=%s\n",
                         mod->load_event, mod->load_source);
-        if (tail > 0) sz += tail;
+        if (tail > 0)
+            sz += tail;
     }
 
     out_info[size - 1] = '\0';
@@ -1183,16 +1206,17 @@ static int kpm_get_module_info(const char *name, char *out_info, int size)
     return sz;
 }
 
-static long kpm_module_control0(const char *name, const char *ctl_args, char *__user out_msg,
-                                int outlen)
+static long kpm_module_control0(const char *name, const char *ctl_args, char *__user out_msg, int outlen)
 {
     struct kpm_module *mod;
     long rc;
     int args_len;
 
-    if (!name || !ctl_args) return -EINVAL;
+    if (!name || !ctl_args)
+        return -EINVAL;
     args_len = strlen(ctl_args);
-    if (args_len <= 0) return -EINVAL;
+    if (args_len <= 0)
+        return -EINVAL;
 
     pr_info("kpm: control name %s, args: %s\n", name, ctl_args);
 
@@ -1211,7 +1235,8 @@ static long kpm_module_control0(const char *name, const char *ctl_args, char *__
         goto out;
     }
 
-    if (mod->ctl_args) kvfree(mod->ctl_args);
+    if (mod->ctl_args)
+        kvfree(mod->ctl_args);
 
     mod->ctl_args = vmalloc(args_len + 1);
     if (!mod->ctl_args) {
@@ -1235,7 +1260,8 @@ static long kpm_unload_module(const char *name, void *__user reserved)
     struct kpm_module *mod;
     long rc = 0;
 
-    if (!name) return -EINVAL;
+    if (!name)
+        return -EINVAL;
     pr_info("kpm: unload name: %s\n", name);
 
     mutex_lock(&kpm_lock);
@@ -1250,8 +1276,10 @@ static long kpm_unload_module(const char *name, void *__user reserved)
 
     rc = (*mod->exit)(reserved);
 
-    if (mod->args) kvfree(mod->args);
-    if (mod->ctl_args) kvfree(mod->ctl_args);
+    if (mod->args)
+        kvfree(mod->args);
+    if (mod->ctl_args)
+        kvfree(mod->ctl_args);
 
     module_memfree(mod->start);
     kvfree(mod);
@@ -1274,9 +1302,7 @@ out:
 #endif
 #endif
 
-noinline NO_OPTIMIZE void sukisu_kpm_load_module_path(const char *path,
-                                                      const char *args,
-                                                      void *ptr, int *result)
+noinline NO_OPTIMIZE void sukisu_kpm_load_module_path(const char *path, const char *args, void *ptr, int *result)
 {
     long rc;
 
@@ -1286,8 +1312,7 @@ noinline NO_OPTIMIZE void sukisu_kpm_load_module_path(const char *path,
 }
 EXPORT_SYMBOL(sukisu_kpm_load_module_path);
 
-noinline NO_OPTIMIZE void sukisu_kpm_unload_module(const char *name, void *ptr,
-                                                   int *result)
+noinline NO_OPTIMIZE void sukisu_kpm_unload_module(const char *name, void *ptr, int *result)
 {
     long rc;
 
@@ -1304,24 +1329,21 @@ noinline NO_OPTIMIZE void sukisu_kpm_num(int *result)
 }
 EXPORT_SYMBOL(sukisu_kpm_num);
 
-noinline NO_OPTIMIZE void sukisu_kpm_info(const char *name, char *buf,
-                                          int bufferSize, int *size)
+noinline NO_OPTIMIZE void sukisu_kpm_info(const char *name, char *buf, int bufferSize, int *size)
 {
     if (size)
         *size = kpm_get_module_info(name, buf, bufferSize);
 }
 EXPORT_SYMBOL(sukisu_kpm_info);
 
-noinline NO_OPTIMIZE void sukisu_kpm_list(void *out, int bufferSize,
-                                          int *result)
+noinline NO_OPTIMIZE void sukisu_kpm_list(void *out, int bufferSize, int *result)
 {
     if (result)
         *result = kpm_list_modules(out, bufferSize);
 }
 EXPORT_SYMBOL(sukisu_kpm_list);
 
-noinline NO_OPTIMIZE void sukisu_kpm_control(const char *name, const char *args,
-                                             long arg_len, int *result)
+noinline NO_OPTIMIZE void sukisu_kpm_control(const char *name, const char *args, long arg_len, int *result)
 {
     long rc;
 
@@ -1338,8 +1360,8 @@ noinline NO_OPTIMIZE void sukisu_kpm_version(char *buf, int bufferSize)
 }
 EXPORT_SYMBOL(sukisu_kpm_version);
 
-noinline int sukisu_handle_kpm(unsigned long control_code, unsigned long arg1,
-                               unsigned long arg2, unsigned long result_code)
+noinline int sukisu_handle_kpm(unsigned long control_code, unsigned long arg1, unsigned long arg2,
+                               unsigned long result_code)
 {
     int res = -1;
     if (control_code == SUKISU_KPM_LOAD) {
@@ -1368,9 +1390,7 @@ noinline int sukisu_handle_kpm(unsigned long control_code, unsigned long arg1,
             strncpy_from_user((char *)&kernel_args_buffer, (const char __user *)arg2, 255);
         }
 
-        sukisu_kpm_load_module_path((const char *)&kernel_load_path,
-                                    (const char *)&kernel_args_buffer, NULL,
-                                    &res);
+        sukisu_kpm_load_module_path((const char *)&kernel_load_path, (const char *)&kernel_args_buffer, NULL, &res);
     } else if (control_code == SUKISU_KPM_UNLOAD) {
         char kernel_name_buffer[256] = { 0 };
 
@@ -1383,8 +1403,7 @@ noinline int sukisu_handle_kpm(unsigned long control_code, unsigned long arg1,
             goto invalid_arg;
         }
 
-        strncpy_from_user((char *)&kernel_name_buffer, (const char __user *)arg1,
-                          sizeof(kernel_name_buffer));
+        strncpy_from_user((char *)&kernel_name_buffer, (const char __user *)arg1, sizeof(kernel_name_buffer));
 
         sukisu_kpm_unload_module((const char *)&kernel_name_buffer, NULL, &res);
     } else if (control_code == SUKISU_KPM_NUM) {
@@ -1403,12 +1422,9 @@ noinline int sukisu_handle_kpm(unsigned long control_code, unsigned long arg1,
             goto invalid_arg;
         }
 
-        strncpy_from_user((char *)&kernel_name_buffer,
-                          (const char __user *)arg1,
-                          sizeof(kernel_name_buffer));
+        strncpy_from_user((char *)&kernel_name_buffer, (const char __user *)arg1, sizeof(kernel_name_buffer));
 
-        sukisu_kpm_info((const char *)&kernel_name_buffer, (char *)&buf,
-                        sizeof(buf), &size);
+        sukisu_kpm_info((const char *)&kernel_name_buffer, (char *)&buf, sizeof(buf), &size);
 
         if (size < 0) {
             res = size;
@@ -1460,18 +1476,15 @@ noinline int sukisu_handle_kpm(unsigned long control_code, unsigned long arg1,
             goto invalid_arg;
         }
 
-        long name_len = strncpy_from_user(
-            (char *)&kpm_name, (const char __user *)arg1, sizeof(kpm_name));
+        long name_len = strncpy_from_user((char *)&kpm_name, (const char __user *)arg1, sizeof(kpm_name));
         if (name_len <= 0) {
             res = -EINVAL;
             goto exit;
         }
 
-        long arg_len = strncpy_from_user(
-            (char *)&kpm_args, (const char __user *)arg2, sizeof(kpm_args));
+        long arg_len = strncpy_from_user((char *)&kpm_args, (const char __user *)arg2, sizeof(kpm_args));
 
-        sukisu_kpm_control((const char *)&kpm_name, (const char *)&kpm_args,
-                           arg_len, &res);
+        sukisu_kpm_control((const char *)&kpm_name, (const char *)&kpm_args, arg_len, &res);
 
     } else if (control_code == SUKISU_KPM_VERSION) {
         char buffer[256] = { 0 };
@@ -1492,8 +1505,7 @@ exit:
 
     return 0;
 invalid_arg:
-    pr_err("kpm: invalid pointer detected! arg1: %px arg2: %px\n", (void *)arg1,
-           (void *)arg2);
+    pr_err("kpm: invalid pointer detected! arg1: %px arg2: %px\n", (void *)arg1, (void *)arg2);
     res = -EFAULT;
     goto exit;
 }
@@ -1501,10 +1513,7 @@ EXPORT_SYMBOL(sukisu_handle_kpm);
 
 int sukisu_is_kpm_control_code(unsigned long control_code)
 {
-    return (control_code >= CMD_KPM_CONTROL &&
-            control_code <= CMD_KPM_CONTROL_MAX) ?
-               1 :
-               0;
+    return (control_code >= CMD_KPM_CONTROL && control_code <= CMD_KPM_CONTROL_MAX) ? 1 : 0;
 }
 
 int do_kpm(void __user *arg)
@@ -1517,17 +1526,14 @@ int do_kpm(void __user *arg)
     }
 
     if (!access_ok(cmd.control_code, sizeof(int))) {
-        pr_err("kpm: invalid control_code pointer %px\n",
-               (void *)cmd.control_code);
+        pr_err("kpm: invalid control_code pointer %px\n", (void *)cmd.control_code);
         return -EFAULT;
     }
 
     if (!access_ok(cmd.result_code, sizeof(int))) {
-        pr_err("kpm: invalid result_code pointer %px\n",
-               (void *)cmd.result_code);
+        pr_err("kpm: invalid result_code pointer %px\n", (void *)cmd.result_code);
         return -EFAULT;
     }
 
-    return sukisu_handle_kpm(cmd.control_code, cmd.arg1, cmd.arg2,
-                             cmd.result_code);
+    return sukisu_handle_kpm(cmd.control_code, cmd.arg1, cmd.arg2, cmd.result_code);
 }

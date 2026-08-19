@@ -85,10 +85,22 @@ static long kpm_compat_copy_from_user(void *to, const void __user *from, unsigne
 
 /* KernelPatch 的 kf_* 是"函数指针变量"(KPM 代码经宏展开成 (*kf_xxx)(...)),
  * 因此必须映射到变量地址而非函数地址 */
-static char *kpm_strlcpy_wrap(char *d, const char *s, size_t n) { return strlcpy(d, s, n); }
-static char *kpm_strscpy_wrap(char *d, const char *s, size_t n) { return strscpy(d, s, n); }
-static void *kpm_memscan_wrap(void *a, int c, size_t n) { return memscan(a, c, n); }
-static char *kpm_d_path_wrap(const struct path *p, char *b, int l) { return d_path(p, b, l); }
+static char *kpm_strlcpy_wrap(char *d, const char *s, size_t n)
+{
+    return strlcpy(d, s, n);
+}
+static char *kpm_strscpy_wrap(char *d, const char *s, size_t n)
+{
+    return strscpy(d, s, n);
+}
+static void *kpm_memscan_wrap(void *a, int c, size_t n)
+{
+    return memscan(a, c, n);
+}
+static char *kpm_d_path_wrap(const struct path *p, char *b, int l)
+{
+    return d_path(p, b, l);
+}
 
 static char *(*kf_strcpy)(char *, const char *) = strcpy;
 static char *(*kf_strncpy)(char *, const char *, size_t) = strncpy;
@@ -145,85 +157,81 @@ static bool (*kf_sysfs_streq)(const char *, const char *) = sysfs_streq;
 static char *(*kf_d_path)(const struct path *, char *, int) = kpm_d_path_wrap;
 static unsigned long (*kf_kallsyms_lookup_name)(const char *) = kallsyms_lookup_name;
 
-static struct CompactAddressSymbol address_symbol[] = {
-    { "kallsyms_lookup_name", &kallsyms_lookup_name },
-    { "compact_find_symbol", &sukisu_compact_find_symbol },
-    { "symbol_lookup_name", &sukisu_compact_find_symbol },
-    { "compat_copy_to_user", &kpm_compat_copy_to_user },
-    { "compat_copy_from_user", &kpm_compat_copy_from_user },
-    { "compat_strncpy_from_user", &strncpy_from_user },
-    { "kpver", &kpm_kpver },
-    { "kf_strcpy", &kf_strcpy },
-    { "kf_strncpy", &kf_strncpy },
-    { "kf_strlcpy", &kf_strlcpy },
-    { "kf_strscpy", &kf_strscpy },
-    { "kf_stpcpy", &kf_stpcpy },
-    { "kf_strcat", &kf_strcat },
-    { "kf_strncat", &kf_strncat },
-    { "kf_strlcat", &kf_strlcat },
-    { "kf_strlen", &kf_strlen },
-    { "kf_strnlen", &kf_strnlen },
-    { "kf_strcmp", &kf_strcmp },
-    { "kf_strncmp", &kf_strncmp },
-    { "kf_strcasecmp", &kf_strcasecmp },
-    { "kf_strncasecmp", &kf_strncasecmp },
-    { "kf_strchr", &kf_strchr },
-    { "kf_strrchr", &kf_strrchr },
-    { "kf_strchrnul", &kf_strchrnul },
-    { "kf_strnchr", &kf_strnchr },
-    { "kf_strstr", &kf_strstr },
-    { "kf_strnstr", &kf_strnstr },
-    { "kf_strsep", &kf_strsep },
-    { "kf_strpbrk", &kf_strpbrk },
-    { "kf_strcspn", &kf_strcspn },
-    { "kf_strspn", &kf_strspn },
-    { "kf_strreplace", &kf_strreplace },
-    { "kf_strim", &kf_strim },
-    { "kf_skip_spaces", &kf_skip_spaces },
-    { "kf_memcpy", &kf_memcpy },
-    { "kf_memmove", &kf_memmove },
-    { "kf_memset", &kf_memset },
-    { "kf_memcmp", &kf_memcmp },
-    { "kf_memchr", &kf_memchr },
-    { "kf_memchr_inv", &kf_memchr_inv },
-    { "kf_memscan", &kf_memscan },
-    { "kf_memset16", &kf_memset16 },
-    { "kf_memset32", &kf_memset32 },
-    { "kf_memset64", &kf_memset64 },
-    { "kf_snprintf", &kf_snprintf },
-    { "kf_vsnprintf", &kf_vsnprintf },
-    { "kf_scnprintf", &kf_scnprintf },
-    { "kf_vscnprintf", &kf_vscnprintf },
-    { "kf_sprintf", &kf_sprintf },
-    { "kf_vsprintf", &kf_vsprintf },
-    { "kf_sscanf", &kf_sscanf },
-    { "kf_vsscanf", &kf_vsscanf },
-    { "kf_strnlen_user", &kf_strnlen_user },
-    { "kf_kstrtoll", &kf_kstrtoll },
-    { "kf_kstrtoull", &kf_kstrtoull },
-    { "kf_kasprintf", &kf_kasprintf },
-    { "kf_kvasprintf", &kf_kvasprintf },
-    { "kf_match_string", &kf_match_string },
-    { "kf_sysfs_streq", &kf_sysfs_streq },
-    { "kf_d_path", &kf_d_path },
-    { "kf_kallsyms_lookup_name", &kf_kallsyms_lookup_name },
-    { "is_run_in_sukisu_ultra", (void *)1 },
-    { "is_su_allow_uid", &sukisu_is_su_allow_uid },
-    { "get_ap_mod_exclude", &sukisu_get_ap_mod_exclude },
-    { "is_uid_should_umount", &sukisu_is_uid_should_umount },
-    { "is_current_uid_manager", &sukisu_is_current_uid_manager },
-    { "get_manager_uid", &sukisu_get_manager_uid },
-    { "sukisu_set_manager_uid", &sukisu_set_manager_uid }
-};
+static struct CompactAddressSymbol address_symbol[] = { { "kallsyms_lookup_name", &kallsyms_lookup_name },
+                                                        { "compact_find_symbol", &sukisu_compact_find_symbol },
+                                                        { "symbol_lookup_name", &sukisu_compact_find_symbol },
+                                                        { "compat_copy_to_user", &kpm_compat_copy_to_user },
+                                                        { "compat_copy_from_user", &kpm_compat_copy_from_user },
+                                                        { "compat_strncpy_from_user", &strncpy_from_user },
+                                                        { "kpver", &kpm_kpver },
+                                                        { "kf_strcpy", &kf_strcpy },
+                                                        { "kf_strncpy", &kf_strncpy },
+                                                        { "kf_strlcpy", &kf_strlcpy },
+                                                        { "kf_strscpy", &kf_strscpy },
+                                                        { "kf_stpcpy", &kf_stpcpy },
+                                                        { "kf_strcat", &kf_strcat },
+                                                        { "kf_strncat", &kf_strncat },
+                                                        { "kf_strlcat", &kf_strlcat },
+                                                        { "kf_strlen", &kf_strlen },
+                                                        { "kf_strnlen", &kf_strnlen },
+                                                        { "kf_strcmp", &kf_strcmp },
+                                                        { "kf_strncmp", &kf_strncmp },
+                                                        { "kf_strcasecmp", &kf_strcasecmp },
+                                                        { "kf_strncasecmp", &kf_strncasecmp },
+                                                        { "kf_strchr", &kf_strchr },
+                                                        { "kf_strrchr", &kf_strrchr },
+                                                        { "kf_strchrnul", &kf_strchrnul },
+                                                        { "kf_strnchr", &kf_strnchr },
+                                                        { "kf_strstr", &kf_strstr },
+                                                        { "kf_strnstr", &kf_strnstr },
+                                                        { "kf_strsep", &kf_strsep },
+                                                        { "kf_strpbrk", &kf_strpbrk },
+                                                        { "kf_strcspn", &kf_strcspn },
+                                                        { "kf_strspn", &kf_strspn },
+                                                        { "kf_strreplace", &kf_strreplace },
+                                                        { "kf_strim", &kf_strim },
+                                                        { "kf_skip_spaces", &kf_skip_spaces },
+                                                        { "kf_memcpy", &kf_memcpy },
+                                                        { "kf_memmove", &kf_memmove },
+                                                        { "kf_memset", &kf_memset },
+                                                        { "kf_memcmp", &kf_memcmp },
+                                                        { "kf_memchr", &kf_memchr },
+                                                        { "kf_memchr_inv", &kf_memchr_inv },
+                                                        { "kf_memscan", &kf_memscan },
+                                                        { "kf_memset16", &kf_memset16 },
+                                                        { "kf_memset32", &kf_memset32 },
+                                                        { "kf_memset64", &kf_memset64 },
+                                                        { "kf_snprintf", &kf_snprintf },
+                                                        { "kf_vsnprintf", &kf_vsnprintf },
+                                                        { "kf_scnprintf", &kf_scnprintf },
+                                                        { "kf_vscnprintf", &kf_vscnprintf },
+                                                        { "kf_sprintf", &kf_sprintf },
+                                                        { "kf_vsprintf", &kf_vsprintf },
+                                                        { "kf_sscanf", &kf_sscanf },
+                                                        { "kf_vsscanf", &kf_vsscanf },
+                                                        { "kf_strnlen_user", &kf_strnlen_user },
+                                                        { "kf_kstrtoll", &kf_kstrtoll },
+                                                        { "kf_kstrtoull", &kf_kstrtoull },
+                                                        { "kf_kasprintf", &kf_kasprintf },
+                                                        { "kf_kvasprintf", &kf_kvasprintf },
+                                                        { "kf_match_string", &kf_match_string },
+                                                        { "kf_sysfs_streq", &kf_sysfs_streq },
+                                                        { "kf_d_path", &kf_d_path },
+                                                        { "kf_kallsyms_lookup_name", &kf_kallsyms_lookup_name },
+                                                        { "is_run_in_sukisu_ultra", (void *)1 },
+                                                        { "is_su_allow_uid", &sukisu_is_su_allow_uid },
+                                                        { "get_ap_mod_exclude", &sukisu_get_ap_mod_exclude },
+                                                        { "is_uid_should_umount", &sukisu_is_uid_should_umount },
+                                                        { "is_current_uid_manager", &sukisu_is_current_uid_manager },
+                                                        { "get_manager_uid", &sukisu_get_manager_uid },
+                                                        { "sukisu_set_manager_uid", &sukisu_set_manager_uid } };
 
 unsigned long sukisu_compact_find_symbol(const char *name)
 {
     int i;
     unsigned long addr;
 
-    for (i = 0;
-         i < (sizeof(address_symbol) / sizeof(struct CompactAddressSymbol));
-         i++) {
+    for (i = 0; i < (sizeof(address_symbol) / sizeof(struct CompactAddressSymbol)); i++) {
         struct CompactAddressSymbol *symbol = &address_symbol[i];
 
         if (strcmp(name, symbol->symbol_name) == 0)

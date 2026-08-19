@@ -680,14 +680,4 @@
 
     <string name="netisolate_add_app">添加应用</string>
 
-    <string name="kpm">KPM</string>
-
-    <string name="kpm_title">KPM 模块</string>
-    <string name="kpm_count">已加载 %1$d 个</string>
-    <string name="kpm_empty">暂无 KPM 模块</string>
-    <string name="kpm_modules">模块列表</string>
-    <string name="kpm_unload">卸载</string>
-
-    <string name="kpm_install">安装 KPM</string>
-    <string name="kpm_install_hint">选择 KPM 模块文件</string>
 </resources>

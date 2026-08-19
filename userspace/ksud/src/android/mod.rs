@@ -6,7 +6,6 @@ mod feature;
 mod fusebpf;
 mod init_event;
 pub mod iosched;
-pub mod kpm;
 mod ksucalls;
 mod late_load;
 mod module;

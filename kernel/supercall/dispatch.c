@@ -27,7 +27,6 @@ extern int netisolate_handle_cmd(unsigned int cmd, void __user **arg);
 
 #include <linux/thread_info.h>
 #include "uapi/supercall.h"
-#include "../kpm/kpm.h"
 #include "supercall/internal.h"
 #include "arch.h"
 #include "policy/allowlist.h"
@@ -57,8 +56,6 @@ extern int netisolate_handle_cmd(unsigned int cmd, void __user **arg);
 #include "sulog/event.h"
 #include "sulog/fd.h"
 #include "supercall/supercall.h"
-
-static int kpm_ioctl_handler(void __user *arg);
 
 static int do_grant_root(void __user *arg)
 {
@@ -1404,12 +1401,6 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
         .perm_check = manager_or_root 
     },
     { 
-        .cmd = KSU_IOCTL_KPM, 
-        .name = "KPM", 
-        .handler = kpm_ioctl_handler, 
-        .perm_check = only_root 
-    },
-    { 
         .cmd = 0, 
         .name = NULL, 
         .handler = NULL, 
@@ -1464,9 +1455,4 @@ void ksu_supercall_cleanup_state(void)
         kfree(entry);
     }
     up_write(&mount_list_lock);
-}
-
-static int kpm_ioctl_handler(void __user *arg)
-{
-    return do_kpm(arg);
 }

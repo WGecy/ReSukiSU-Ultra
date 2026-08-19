@@ -152,7 +152,6 @@ import com.tesla.resukisuultra.ui.viewmodel.ExecuteModuleActionViewModel
 import com.tesla.resukisuultra.ui.viewmodel.FlashViewModel
 import com.tesla.resukisuultra.ui.viewmodel.HomeViewModel
 import com.tesla.resukisuultra.ui.viewmodel.IoSchedulerViewModel
-import com.tesla.resukisuultra.ui.viewmodel.KpmViewModel
 import com.tesla.resukisuultra.ui.viewmodel.InstallViewModel
 import com.tesla.resukisuultra.ui.viewmodel.KernelFlashViewModel
 import com.tesla.resukisuultra.ui.viewmodel.MainIntentViewModel
@@ -420,7 +419,6 @@ val viewModelModule = module {
     viewModelOf(::SuperUserViewModel)
     viewModelOf(::SuSFSViewModel)
     viewModelOf(::IoSchedulerViewModel)
-    viewModelOf(::KpmViewModel)
     viewModelOf(::NetIsolateViewModel)
     viewModelOf(::ModuleRepoViewModel)
     viewModel { parameters -> ModuleDetailViewModel(parameters[0], get()) }

@@ -93,12 +93,12 @@ fun MainScreen() {
                     userScrollEnabled = false
                     val job = coroutineScope.launch {
                         try {
-                            // 底栏切换: folkx 动画引擎参数 (FolkPatch 原版: stiffness=300*speed^2, damping=0.8)
+                            // 底栏切换: 与手势 fling 一致的平滑 spring
                             pagerState.animateScrollToPage(
                                 page,
                                 animationSpec = spring(
-                                    dampingRatio = 0.8f,
-                                    stiffness = 300f,
+                                    dampingRatio = Spring.DampingRatioNoBouncy,
+                                    stiffness = Spring.StiffnessMediumLow,
                                 ),
                             )
                         } finally {

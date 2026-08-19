@@ -50,6 +50,7 @@ import androidx.compose.material3.WideNavigationRailColors
 import androidx.compose.material3.WideNavigationRailDefaults
 import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,6 +62,7 @@ import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import com.tesla.resukisuultra.ui.util.LocalHandlePageChange
+import com.tesla.resukisuultra.ui.util.LocalPagerState
 import com.tesla.resukisuultra.ui.util.LocalSelectedPage
 import com.tesla.resukisuultra.ui.viewmodel.HomeViewModel
 import org.koin.compose.koinInject
@@ -144,16 +146,10 @@ private fun FloatingBottomBar(
     moduleCount: Int,
     isHideOtherInfo: Boolean,
 ) {
-    // 选中项滑动动画 (FolkPatch 风格弹跳)
-    val animatedIndex = remember { Animatable(page.toFloat()) }
-    LaunchedEffect(page) {
-        animatedIndex.animateTo(
-            targetValue = page.toFloat(),
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMedium,
-            ),
-        )
+    // 指示器直接跟随 Pager 实际滚动位置 (与手势/点击共用同一动画源, 无独立动画)
+    val pagerState = LocalPagerState.current
+    val animatedIndex by remember {
+        derivedStateOf { pagerState.currentPage + pagerState.currentPageOffsetFraction }
     }
 
     val itemSize = 52.dp
@@ -211,7 +207,7 @@ private fun FloatingBottomBar(
                     val density = LocalDensity.current
                     val itemSizePx = with(density) { itemSize.toPx() }
                     val itemSpacingPx = with(density) { itemSpacing.toPx() }
-                    val indicatorOffset = (itemSizePx + itemSpacingPx) * animatedIndex.value
+                    val indicatorOffset = (itemSizePx + itemSpacingPx) * animatedIndex
 
                     Box(
                         modifier = Modifier

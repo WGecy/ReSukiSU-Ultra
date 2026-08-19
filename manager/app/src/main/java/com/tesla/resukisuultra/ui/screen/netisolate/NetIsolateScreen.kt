@@ -158,30 +158,27 @@ fun NetIsolateTab(
             Spacer(Modifier.height(innerPadding.calculateTopPadding()))
         }
 
-        // 开关卡片 (先关闭后开启 — 仿 SUSFS configEnabledLoaded)
-        item {
-            SegmentedColumn {
-                item {
-                    SettingsSwitchWidget(
-                        icon = Icons.TwoTone.WifiOff,
-                        title = stringResource(R.string.netisolate_title),
-                        description = stringResource(R.string.netisolate_summary),
-                        checked = if (pageLoaded) uiState.enabled else false,
-                        enabled = pageLoaded && uiState.loaded,
-                        onCheckedChange = { viewModel.setEnabled(it) },
-                    )
-                }
-                item {
-                    SettingsBaseWidget(
-                        icon = Icons.TwoTone.Info,
-                        title = stringResource(R.string.netisolate_status_supported),
-                        description = if (pageLoaded && uiState.loaded) {
-                            stringResource(R.string.netisolate_status_supported_yes)
-                        } else {
-                            // 仿 SUSFS: 加载前先显示"无数据"
-                            stringResource(R.string.netisolate_no_data)
-                        },
-                    )
+        // 开关卡片 (首帧不组合 — 刷新完成后出现, 进入零组合开销)
+        if (pageLoaded && uiState.loaded) {
+            item {
+                SegmentedColumn {
+                    item {
+                        SettingsSwitchWidget(
+                            icon = Icons.TwoTone.WifiOff,
+                            title = stringResource(R.string.netisolate_title),
+                            description = stringResource(R.string.netisolate_summary),
+                            checked = uiState.enabled,
+                            enabled = true,
+                            onCheckedChange = { viewModel.setEnabled(it) },
+                        )
+                    }
+                    item {
+                        SettingsBaseWidget(
+                            icon = Icons.TwoTone.Info,
+                            title = stringResource(R.string.netisolate_status_supported),
+                            description = stringResource(R.string.netisolate_status_supported_yes),
+                        )
+                    }
                 }
             }
         }

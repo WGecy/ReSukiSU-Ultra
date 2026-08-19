@@ -1,4 +1,5 @@
 [versions]
+kyantShapes = "1.2.0"
 liquid = "1.1.1"
 accompanist-drawablepainter = "0.37.3"
 agp = "9.3.0"
@@ -64,6 +65,7 @@ monet-compat = { module = "com.github.KieronQuinn:MonetCompat", version.ref = "m
 material-components = { group = "com.google.android.material", name = "material", version.ref = "materialComponents" }
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version = "1.0.0" }
 capsule = { module = "io.github.kyant0:capsule", version.ref = "capsule" }
+kyantShapes = { module = "io.github.kyant0:shapes", version.ref = "kyantShapes" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "compose-material3" }

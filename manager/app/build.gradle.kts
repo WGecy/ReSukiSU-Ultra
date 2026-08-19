@@ -239,6 +239,7 @@ dependencies {
     implementation(libs.material.components)
     implementation(libs.androidx.palette.ktx)
     implementation(libs.capsule)
+    implementation(libs.kyantShapes)
 
     implementation(libs.dev.rikka.rikkax.parcelablelist)
 

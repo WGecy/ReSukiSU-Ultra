@@ -2,7 +2,7 @@ package com.tesla.resukisuultra.ui.screen.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -93,12 +93,12 @@ fun MainScreen() {
                     userScrollEnabled = false
                     val job = coroutineScope.launch {
                         try {
-                            // 底栏切换: 线性运动固定时长 (仿 FolkPatch 引擎, 平滑无物理帧抖动)
+                            // 底栏切换: spring 轻弹 (物理抖动感, 不生硬)
                             pagerState.animateScrollToPage(
                                 page,
-                                animationSpec = tween(
-                                    durationMillis = 320,
-                                    easing = LinearEasing,
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium,
                                 ),
                             )
                         } finally {
@@ -142,7 +142,7 @@ fun MainScreen() {
                         .blurSource(),
                     state = pagerState,
                     userScrollEnabled = userScrollEnabled,
-                    beyondViewportPageCount = 1,
+                    beyondViewportPageCount = 2,
                 ) { pageIndex ->
                     if (pages.isEmpty()) return@HorizontalPager
 

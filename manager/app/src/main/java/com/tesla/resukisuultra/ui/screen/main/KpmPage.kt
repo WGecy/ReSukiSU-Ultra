@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.Memory
 import androidx.compose.material3.Icon
@@ -39,6 +40,22 @@ fun KpmPage(bottomPadding: androidx.compose.ui.unit.Dp) {
     val viewModel: KpmViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var pageLoaded by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val picker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            val path = runCatching {
+                // 复制到缓存再加载 (照 SukiSU)
+                val cache = java.io.File(context.cacheDir, "kpm_install.kpm")
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    cache.outputStream().use { input.copyTo(it) }
+                }
+                cache.absolutePath
+            }.getOrNull()
+            if (path != null) viewModel.install(path)
+        }
+    }
 
     LaunchedEffect(Unit) {
         pageLoaded = false
@@ -65,6 +82,15 @@ fun KpmPage(bottomPadding: androidx.compose.ui.unit.Dp) {
                         } else {
                             stringResource(R.string.iosched_no_data)
                         },
+                    )
+                }
+                item {
+                    // 安装 KPM 模块 (照 SukiSU: 文件选择 → ksud kpm load)
+                    SettingsBaseWidget(
+                        icon = Icons.TwoTone.Add,
+                        title = stringResource(R.string.kpm_install),
+                        description = stringResource(R.string.kpm_install_hint),
+                        onClick = { picker.launch(arrayOf("application/octet-stream", "*/*")) },
                     )
                 }
             }

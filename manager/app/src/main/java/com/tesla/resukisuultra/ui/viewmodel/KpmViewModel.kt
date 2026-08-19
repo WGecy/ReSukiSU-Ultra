@@ -45,6 +45,15 @@ class KpmViewModel(
         }
     }
 
+    fun install(path: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                ksuCli.exec("${ksuCli.getKsuDaemonPath()} kpm load $path")
+            }
+            refresh()
+        }
+    }
+
     private fun readModules(): List<KpmModuleInfo> {
         val out = ksuCli.exec("${ksuCli.getKsuDaemonPath()} kpm list") ?: return emptyList()
         // 解析: kpm list 输出 (name, version, author...) — 兼容 INI 段或简单行

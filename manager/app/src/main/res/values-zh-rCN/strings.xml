@@ -687,4 +687,7 @@
     <string name="kpm_empty">暂无 KPM 模块</string>
     <string name="kpm_modules">模块列表</string>
     <string name="kpm_unload">卸载</string>
+
+    <string name="kpm_install">安装 KPM</string>
+    <string name="kpm_install_hint">选择 KPM 模块文件</string>
 </resources>

@@ -68,49 +68,12 @@ fun MainScreen() {
         initialPage = uiSelectedPage,
         pageCount = { pages.size }
     )
-    var userScrollEnabled by remember { mutableStateOf(true) }
-    var animating by remember { mutableStateOf(false) }
-    var animateJob by remember { mutableStateOf<Job?>(null) }
-    var lastRequestedPage by remember { mutableIntStateOf(pagerState.currentPage) }
-
     val handlePageChange: (Int) -> Unit = remember(pagerState, coroutineScope) {
         { page ->
             uiSelectedPage = page
-            if (page == pagerState.currentPage) {
-                if (animateJob != null && lastRequestedPage != page) {
-                    animateJob?.cancel()
-                    animateJob = null
-                    animating = false
-                    userScrollEnabled = true
-                }
-                lastRequestedPage = page
-            } else {
-                if (animateJob != null && lastRequestedPage == page) {
-                    // Already animating to the requested page
-                } else {
-                    animateJob?.cancel()
-                    animating = true
-                    userScrollEnabled = false
-                    val job = coroutineScope.launch {
-                        try {
-                            // 底栏切换: 与手势 fling 一致的平滑 spring
-                            pagerState.animateScrollToPage(
-                                page,
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioNoBouncy,
-                                    stiffness = Spring.StiffnessMediumLow,
-                                ),
-                            )
-                        } finally {
-                            if (animateJob === this) {
-                                userScrollEnabled = true
-                                animating = false
-                                animateJob = null
-                            }
-                        }
-                    }
-                    animateJob = job
-                    lastRequestedPage = page
+            if (page != pagerState.currentPage) {
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(page)
                 }
             }
         }
@@ -118,7 +81,7 @@ fun MainScreen() {
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
-            if (!animating) uiSelectedPage = page
+            uiSelectedPage = page
         }
     }
 
@@ -141,7 +104,6 @@ fun MainScreen() {
                         .fillMaxSize()
                         .blurSource(),
                     state = pagerState,
-                    userScrollEnabled = userScrollEnabled,
                     beyondViewportPageCount = 2,
                 ) { pageIndex ->
                     if (pages.isEmpty()) return@HorizontalPager

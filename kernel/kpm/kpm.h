@@ -12,6 +12,6 @@ int do_kpm(void __user *arg);
 
 /* KPM Control Code */
 #define CMD_KPM_CONTROL 1
-#define CMD_KPM_CONTROL_MAX 10
+#define CMD_KPM_CONTROL_MAX 7
 
 #endif

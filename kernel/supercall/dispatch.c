@@ -58,6 +58,8 @@ extern int netisolate_handle_cmd(unsigned int cmd, void __user **arg);
 #include "sulog/fd.h"
 #include "supercall/supercall.h"
 
+static int kpm_ioctl_handler(void __user *arg);
+
 static int do_grant_root(void __user *arg)
 {
     int ret;
@@ -190,9 +192,6 @@ static int do_report_event(void __user *arg)
         on_module_mounted();
         break;
     }
-        case KSU_IOCTL_KPM: {
-            return kpm_ioctl_handler((void __user *)arg);
-        }
     default:
         break;
     }
@@ -1403,6 +1402,12 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
         .name = "GET_KERNEL_PATCH_IMPLEMENT", 
         .handler = do_get_kernel_patch_implement, 
         .perm_check = manager_or_root 
+    },
+    { 
+        .cmd = KSU_IOCTL_KPM, 
+        .name = "KPM", 
+        .handler = kpm_ioctl_handler, 
+        .perm_check = only_root 
     },
     { 
         .cmd = 0, 

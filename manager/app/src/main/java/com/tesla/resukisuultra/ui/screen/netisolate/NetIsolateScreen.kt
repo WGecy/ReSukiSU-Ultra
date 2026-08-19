@@ -208,44 +208,42 @@ fun NetIsolateTab(
             }
         }
 
-        // 已阻止列表 (仿 SUSFS susfsEntryList 机制: 添加行 + 列表项连一起, 缝分隔)
-        if (uiState.selectedUids.isEmpty()) {
+        // 已阻止列表 (加载完成前一律占位 — 首帧零列表组合)
+        if (!pageLoaded || !uiState.loaded) {
+            item(key = "loading_placeholder") {
+                Text(
+                    text = stringResource(R.string.netisolate_no_data),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                )
+            }
+        } else if (uiState.selectedUids.isEmpty()) {
             item(key = "empty") {
-                if (!pageLoaded || !uiState.loaded) {
-                    // 加载前"无数据"占位 (仿 SUSFS)
-                    Text(
-                        text = stringResource(R.string.netisolate_no_data),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                    )
-                } else {
-                    // 空态 (SUSFS 机制: Inbox 图标 + 标题 + 描述)
-                    Box(
-                        modifier = Modifier
-                            .fillParentMaxWidth()
-                            .fillParentMaxHeight(0.5f)
-                            .padding(horizontal = 32.dp),
-                        contentAlignment = Alignment.Center,
+                Box(
+                    modifier = Modifier
+                        .fillParentMaxWidth()
+                        .fillParentMaxHeight(0.5f)
+                        .padding(horizontal = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.TwoTone.Inbox,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(bottom = 6.dp)
-                                    .size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text = stringResource(R.string.netisolate_no_uids),
-                                style = MaterialTheme.typography.titleMedium,
-                                textAlign = TextAlign.Center,
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.TwoTone.Inbox,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(bottom = 6.dp)
+                                .size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = stringResource(R.string.netisolate_no_uids),
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
             }

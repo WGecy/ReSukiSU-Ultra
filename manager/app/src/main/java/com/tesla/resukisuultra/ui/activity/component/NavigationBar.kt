@@ -62,7 +62,6 @@ import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import com.tesla.resukisuultra.ui.util.LocalHandlePageChange
-import com.tesla.resukisuultra.ui.util.LocalPagerState
 import com.tesla.resukisuultra.ui.util.LocalSelectedPage
 import com.tesla.resukisuultra.ui.viewmodel.HomeViewModel
 import org.koin.compose.koinInject
@@ -146,10 +145,13 @@ private fun FloatingBottomBar(
     moduleCount: Int,
     isHideOtherInfo: Boolean,
 ) {
-    // 指示器直接跟随 Pager 实际滚动位置 (与手势/点击共用同一动画源, 无独立动画)
-    val pagerState = LocalPagerState.current
-    val animatedIndex by remember {
-        derivedStateOf { pagerState.currentPage + pagerState.currentPageOffsetFraction }
+    // 指示器 spring 跟随选中页 (folkx 参数)
+    val animatedIndex = remember { Animatable(page.toFloat()) }
+    LaunchedEffect(page) {
+        animatedIndex.animateTo(
+            targetValue = page.toFloat(),
+            animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f),
+        )
     }
 
     val itemSize = 52.dp
@@ -207,7 +209,7 @@ private fun FloatingBottomBar(
                     val density = LocalDensity.current
                     val itemSizePx = with(density) { itemSize.toPx() }
                     val itemSpacingPx = with(density) { itemSpacing.toPx() }
-                    val indicatorOffset = (itemSizePx + itemSpacingPx) * animatedIndex
+                    val indicatorOffset = (itemSizePx + itemSpacingPx) * animatedIndex.value
 
                     Box(
                         modifier = Modifier

@@ -605,7 +605,7 @@ private fun Modifier.renderBackgroundFallback(): Modifier = composed {
     val backgroundBitmap = renderState.imageBitmap
     val backgroundAnchor = LocalBackgroundBlurAnchor.current
     val pagerPage = LocalPagerPage.current
-    val pagerState = if (pagerPage != null) LocalPagerState.current else null
+    val pagerState = null
     val layoutDirection = LocalLayoutDirection.current
 
     this
@@ -618,24 +618,10 @@ private fun Modifier.renderBackgroundFallback(): Modifier = composed {
                 ?.takeIf { it.isAttached && it.size.width > 0 && it.size.height > 0 }
                 ?.size
                 ?: renderState.blurViewportSize
-            val currentPagerPage = pagerPage
-            val currentPagerState = pagerState?.takeIf { state ->
-                currentPagerPage != null && currentPagerPage in 0 until state.pageCount
-            }
-            val hasPagerPage = currentPagerState != null
-            val pagerViewportSize = currentPagerState?.layoutInfo?.viewportSize?.takeIf {
-                it.width > 0 && it.height > 0
-            }
-            val renderViewportSize = pagerViewportSize ?: viewportSize
-            val pageOffset = if (currentPagerState != null && currentPagerPage != null) {
-                currentPagerState.getOffsetDistanceInPages(currentPagerPage)
-            } else {
-                0f
-            }
-            val physicalPageOffset = pageOffset * renderViewportSize.width *
-                    if (layoutDirection == LayoutDirection.Ltr) 1f else -1f
+            val currentPagerState = null
+            val physicalPageOffset = 0f
             val offsetBoundsInBackground = boundsInBackground?.let { bounds ->
-                if (hasPagerPage) {
+                if (false) {
                     // Equivalent to translating the backdrop painter by -physicalPageOffset:
                     // crop from the page offset so the background remains fixed while the page moves.
                     Rect(
@@ -655,7 +641,7 @@ private fun Modifier.renderBackgroundFallback(): Modifier = composed {
             ) {
                 offsetBoundsInBackground.mapToBitmapBounds(
                     bitmap = backgroundBitmap,
-                    viewportSize = renderViewportSize,
+                    viewportSize = viewportSize,
                 )
             } else {
                 null

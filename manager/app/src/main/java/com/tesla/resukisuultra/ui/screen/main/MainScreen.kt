@@ -73,7 +73,14 @@ fun MainScreen() {
             uiSelectedPage = page
             if (page != pagerState.currentPage) {
                 coroutineScope.launch {
-                    pagerState.animateScrollToPage(page)
+                    // 固定时长线性平滑: 帧分布均匀, 避免 spring 快速滚动集中合成两页
+                    pagerState.animateScrollToPage(
+                        page,
+                        animationSpec = tween(
+                            durationMillis = 280,
+                            easing = FastOutSlowInEasing,
+                        ),
+                    )
                 }
             }
         }

@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen.about
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -131,7 +132,7 @@ fun OpenSourceLicenseScreen() {
             libraries = libraries,
             libraryModifier = Modifier
                 .padding(vertical = 4.dp)
-                .clip(RoundedCornerShape(cornerRadius))
+                .clip(ContinuousCornerShape(cornerRadius))
                 .renderBackgroundBlur(),
             modifier = Modifier
                 .fillMaxSize()
@@ -211,7 +212,7 @@ fun OpenSourceLicenseScreen() {
                         items(library.licenses.toList()) { license ->
                             OutlinedCard(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
+                                shape = ContinuousCornerShape(16.dp),
                                 colors = CardDefaults.outlinedCardColors(
                                     containerColor = MaterialTheme.colorScheme.surfaceBright
                                 )
@@ -225,7 +226,7 @@ fun OpenSourceLicenseScreen() {
                                             style = MaterialTheme.typography.titleMedium,
                                             color = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier
-                                                .clip(RoundedCornerShape(8.dp))
+                                                .clip(ContinuousCornerShape(8.dp))
                                                 .clickable {
                                                     license.url?.let { url ->
                                                         uriHandler.openUri(url)

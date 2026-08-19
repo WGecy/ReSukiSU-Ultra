@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
 package com.tesla.resukisuultra.ui.component.settings
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import android.os.Build
 import androidx.compose.animation.core.animateDpAsState

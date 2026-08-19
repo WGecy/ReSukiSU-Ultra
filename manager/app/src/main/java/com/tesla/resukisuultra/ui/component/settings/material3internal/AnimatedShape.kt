@@ -15,6 +15,7 @@
  */
 
 package com.tesla.resukisuultra.ui.component.settings.material3internal
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -224,11 +226,11 @@ private fun rememberAnimatedShape(state: AnimatedCornerBasedShapeState): Shape {
                 state.size = size
 
                 clampedRange = 0f..size.height / 2
-                return RoundedCornerShape(
-                    topStart = state.topStart().coerceIn(clampedRange),
-                    topEnd = state.topEnd().coerceIn(clampedRange),
-                    bottomStart = state.bottomStart().coerceIn(clampedRange),
-                    bottomEnd = state.bottomEnd().coerceIn(clampedRange),
+                return ContinuousCornerShape(
+                    topStart = state.topStart().coerceIn(clampedRange).dp,
+                    topEnd = state.topEnd().coerceIn(clampedRange).dp,
+                    bottomStart = state.bottomStart().coerceIn(clampedRange).dp,
+                    bottomEnd = state.bottomEnd().coerceIn(clampedRange).dp,
                 )
                     .createOutline(size, layoutDirection, density)
             }

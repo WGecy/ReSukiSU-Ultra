@@ -31,6 +31,18 @@ class ContinuousCornerShape(
     private val smoothness: Float = 0.7f,
 ) : Shape {
 
+    /** 像素 Float 构造 (兼容 RoundedCornerShape(Float) 用法) */
+    constructor(
+        radius: Float,
+        smoothness: Float = 0.7f,
+    ) : this(radius.dp, radius.dp, radius.dp, radius.dp, smoothness)
+
+    /** 像素 Int 构造 (兼容 RoundedCornerShape(Int) 用法) */
+    constructor(
+        radius: Int,
+        smoothness: Float = 0.7f,
+    ) : this(radius.dp, radius.dp, radius.dp, radius.dp, smoothness)
+
     // 30° 弧贝塞尔系数 k = 4/3*tan(7.5°) ≈ 0.1754; G3 超椭圆内收系数 ≈ 0.149
     private val k30 = 0.1754f + (0.149f - 0.1754f) * smoothness.coerceIn(0f, 1f)
 

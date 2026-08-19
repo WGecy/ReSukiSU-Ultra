@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.component
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import android.content.Context
 import android.os.BatteryManager
@@ -188,7 +189,7 @@ fun HeroStatusCard(
 
     Card(
         onClick = { if (!isWorking) onClickInstall() },
-        shape = RoundedCornerShape(20.dp),
+        shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent,
             contentColor = contentColor,
@@ -225,7 +226,7 @@ fun HeroStatusCard(
                         if (isWorking) {
                             Spacer(Modifier.width(8.dp))
                             Surface(
-                                shape = RoundedCornerShape(50),
+                                shape = ContinuousCornerShape(50),
                                 color = contentColor.copy(alpha = 0.22f),
                             ) {
                                 Text(
@@ -442,7 +443,7 @@ fun TonalLikeCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
         ),

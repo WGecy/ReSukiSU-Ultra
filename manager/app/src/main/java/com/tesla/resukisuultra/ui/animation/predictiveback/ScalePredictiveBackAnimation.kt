@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.animation.predictiveback
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
@@ -136,7 +137,7 @@ class ScalePredictiveBackAnimation(
                     }
                     .then(
                         if (transitionState is InProgress) {
-                            Modifier.clip(RoundedCornerShape(deviceCornerRadius))
+                            Modifier.clip(ContinuousCornerShape(deviceCornerRadius))
                         } else {
                             Modifier
                         }

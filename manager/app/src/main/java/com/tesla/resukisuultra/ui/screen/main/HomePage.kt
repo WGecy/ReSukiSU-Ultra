@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen.main
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import android.content.Context
 import android.content.Intent
@@ -671,7 +672,7 @@ private fun StatusCard(
 
             Card(
                 onClick = { onClick(Offset.Zero) },
-                shape = RoundedCornerShape(20.dp),
+                shape = ContinuousCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -778,7 +779,7 @@ private fun StatusBadge(
     contentColor: Color = contentColorFor(containerColor),
 ) {
     Surface(
-        shape = RoundedCornerShape(50),
+        shape = ContinuousCornerShape(50),
         color = containerColor
     ) {
         Text(
@@ -800,7 +801,7 @@ fun LearnMoreCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { uriHandler.openUri(url) },
-        shape = RoundedCornerShape(20.dp),
+        shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceBright,
         )
@@ -833,7 +834,7 @@ fun DonateCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { uriHandler.openUri("https://patreon.com/weishu") },
-        shape = RoundedCornerShape(20.dp),
+        shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceBright,
         )
@@ -873,7 +874,7 @@ private fun InfoCard(
     // FolkPatch SystemInfoCard: TonalCard + 标题(图标+信息) + 分割线 + 带图标条目
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceBright,
         ),
@@ -1058,7 +1059,7 @@ private fun InfoCardItem(
 private fun InfoSectionCard(content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         )

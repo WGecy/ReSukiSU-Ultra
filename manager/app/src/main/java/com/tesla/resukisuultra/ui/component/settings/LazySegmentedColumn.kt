@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.component.settings
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -51,7 +52,7 @@ inline fun <T> LazyListScope.lazySegmentColumn(
         val topRadius = if (isFirst) 16.dp else 5.dp
         val bottomRadius = if (isLast) 16.dp else 5.dp
 
-        val shape = RoundedCornerShape(
+        val shape = ContinuousCornerShape(
             topStart = topRadius,
             topEnd = topRadius,
             bottomStart = bottomRadius,

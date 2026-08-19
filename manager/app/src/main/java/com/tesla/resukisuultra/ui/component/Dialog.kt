@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.component
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import android.graphics.text.LineBreaker
 import android.os.Build
@@ -417,7 +418,7 @@ private fun LoadingDialog() {
         properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false)
     ) {
         Surface(
-            modifier = Modifier.size(100.dp), shape = RoundedCornerShape(8.dp)
+            modifier = Modifier.size(100.dp), shape = ContinuousCornerShape(8.dp)
         ) {
             Box(
                 contentAlignment = Alignment.Center,

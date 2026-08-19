@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen.netisolate
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
@@ -276,7 +277,7 @@ fun NetIsolateTab(
                         PackageIcon(
                             packageName = pkgName ?: "",
                             contentDescription = null,
-                            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)),
+                            modifier = Modifier.size(40.dp).clip(ContinuousCornerShape(12.dp)),
                         )
                     },
                     trailingContent = {

@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen.moduleRepo
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import android.content.Context
 import android.widget.Toast
@@ -341,7 +342,7 @@ fun OnlineModuleItem(
             else
                 MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha),
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(ContinuousCornerShape(16.dp))
             .clickable {
                 navigator.push(Route.ModuleRepoDetail(module.moduleId))
             }
@@ -583,7 +584,7 @@ fun ChooseDialogContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
-            shape = RoundedCornerShape(16.dp)
+            shape = ContinuousCornerShape(16.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -607,7 +608,7 @@ fun ChooseDialogContent(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(shape = RoundedCornerShape(24.dp))
+                                .clip(shape = ContinuousCornerShape(24.dp))
                                 .clickable { selectedAsset = asset }
                                 .padding(vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically

@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.webui
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import android.app.Activity
 import android.net.Uri
@@ -222,7 +223,7 @@ private fun HandleWebUIEvent(webUIState: WebUIState) {
                     },
                     text = {
                         Surface(
-                            modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+                            modifier = Modifier.clip(ContinuousCornerShape(16.dp)),
                             color = MaterialTheme.colorScheme.surfaceBright
                         ) {
                             SettingsTextFieldWidget(

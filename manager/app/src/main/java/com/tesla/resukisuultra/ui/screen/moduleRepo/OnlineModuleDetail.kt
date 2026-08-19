@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen.moduleRepo
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -388,7 +389,7 @@ fun ReadmeTab(
                 Surface(
                     modifier = Modifier
                         .padding(16.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(ContinuousCornerShape(16.dp))
                         .renderBackgroundBlur(),
                     color =
                         if (themeConfig.isEnableBlurExp)
@@ -463,9 +464,9 @@ fun ReleaseCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 12.dp, end = 12.dp, top = 12.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(ContinuousCornerShape(16.dp))
             .renderBackgroundBlur(MaterialTheme.colorScheme.surfaceBright),
-        shape = RoundedCornerShape(16.dp),
+        shape = ContinuousCornerShape(16.dp),
         color =
             if (themeConfig.isEnableBlurExp)
                 Color.Transparent
@@ -541,7 +542,7 @@ fun ReleaseCard(
                     }
                     SettingsBaseWidget(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(ContinuousCornerShape(16.dp))
                             .renderBackgroundBlur(tintColor = MaterialTheme.colorScheme.surfaceBright),
                         title = assetInfo.name,
                         onClick = {
@@ -587,7 +588,7 @@ fun CollapsibleContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(ContinuousCornerShape(16.dp))
                 .clickable { expanded = !expanded }
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically

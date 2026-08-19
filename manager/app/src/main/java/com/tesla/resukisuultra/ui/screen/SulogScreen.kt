@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -291,7 +292,7 @@ private fun SulogScreenContent(
                         ) {
                             Column(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(16.dp))
+                                    .clip(ContinuousCornerShape(16.dp))
                                     .background(
                                         MaterialTheme.colorScheme.surfaceBright.copy(
                                             alpha = cardConfig.cardAlpha

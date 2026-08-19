@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.component
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +32,7 @@ import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 fun WarningCard(
     modifier: Modifier = Modifier,
     renderBackground: Boolean = true,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = ContinuousCornerShape(16.dp),
     message: String,
     content: (@Composable () -> Unit) = {},
     color: Color? = null,
@@ -64,7 +65,7 @@ fun WarningCard(
 fun WarningCard(
     modifier: Modifier = Modifier,
     renderBackground: Boolean = true,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = ContinuousCornerShape(16.dp),
     message: AnnotatedString,
     content: (@Composable () -> Unit) = {},
     color: Color? = null,

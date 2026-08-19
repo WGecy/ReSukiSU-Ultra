@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.component.settings
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -72,7 +73,7 @@ import org.koin.compose.koinInject
  * A [CompositionLocal] that provides the dynamically calculated [Shape] for items
  * inside a [SegmentedColumn]. Defaults to a rounded corner shape with 16.dp.
  */
-val LocalSegmentedItemShape = compositionLocalOf<Shape> { RoundedCornerShape(16.dp) }
+val LocalSegmentedItemShape = compositionLocalOf<Shape> { ContinuousCornerShape(16.dp) }
 
 /**
  * A base widget component designed for setting items and list entries.
@@ -208,7 +209,7 @@ fun SettingsBaseWidget(
 
     val shapes = ListItemDefaults.shapes(
         shape = baseShape,
-        pressedShape = RoundedCornerShape(16.dp),
+        pressedShape = ContinuousCornerShape(16.dp),
         selectedShape = baseShape,
         focusedShape = baseShape,
         hoveredShape = baseShape

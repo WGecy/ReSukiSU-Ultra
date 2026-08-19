@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.animation.predictiveback
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
@@ -146,8 +147,8 @@ class AOSPCrossActivityAnimation(
                 }
             }
             .clip(
-                if (isExitingPage || isCurrentNavTarget) RoundedCornerShape(deviceCornerRadius)
-                else RoundedCornerShape(0.dp)
+                if (isExitingPage || isCurrentNavTarget) ContinuousCornerShape(deviceCornerRadius)
+                else ContinuousCornerShape(0.dp)
             )
     }
 

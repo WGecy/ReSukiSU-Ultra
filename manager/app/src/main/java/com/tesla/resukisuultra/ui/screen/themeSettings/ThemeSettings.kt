@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen.themeSettings
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -836,7 +837,7 @@ private fun DpiSliderControls(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 2.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(ContinuousCornerShape(8.dp))
                     .background(buttonColor)
                     .clickable {
                         viewModel.dispatch(SettingsUiAction.SetTempDpi(dpi))

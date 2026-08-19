@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen.susfs.component
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,7 +54,7 @@ internal fun SuSFSDescriptionCard(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(ContinuousCornerShape(16.dp))
             .renderBackgroundBlur(MaterialTheme.colorScheme.primaryContainer),
         color = if (themeConfig.isEnableBlurExp) Color.Transparent else MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,

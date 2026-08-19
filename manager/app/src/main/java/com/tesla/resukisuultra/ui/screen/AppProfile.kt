@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -281,7 +282,7 @@ private fun AppProfileInner(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = RoundedCornerShape(16.dp),
+                shape = ContinuousCornerShape(16.dp),
                 color = MaterialTheme.colorScheme.surfaceBright.copy(
                     alpha = cardConfig.cardAlpha
                 ),
@@ -321,9 +322,9 @@ private fun AppProfileInner(
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
                                 .padding(top = 8.dp)
-                                .clip(RoundedCornerShape(16.dp))
+                                .clip(ContinuousCornerShape(16.dp))
                                 .renderBackgroundBlur(MaterialTheme.colorScheme.surfaceBright),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = ContinuousCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.surfaceBright.copy(
                                 alpha = cardConfig.cardAlpha
                             ),
@@ -397,9 +398,9 @@ private fun AppProfileInner(
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
                                 .padding(top = 8.dp)
-                                .clip(RoundedCornerShape(16.dp))
+                                .clip(ContinuousCornerShape(16.dp))
                                 .renderBackgroundBlur(MaterialTheme.colorScheme.surfaceBright),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = ContinuousCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.surfaceBright.copy(
                                 alpha = cardConfig.cardAlpha
                             ),
@@ -420,7 +421,7 @@ private fun AppProfileInner(
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
                                     .padding(top = 8.dp),
-                                shape = RoundedCornerShape(16.dp),
+                                shape = ContinuousCornerShape(16.dp),
                                 color = MaterialTheme.colorScheme.surfaceBright.copy(
                                     alpha = cardConfig.cardAlpha
                                 ),

@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen.about
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import org.koin.compose.koinInject
 import com.tesla.resukisuultra.ui.theme.CardConfig
@@ -231,14 +232,14 @@ private fun StatusCard() {
     val cardConfig: CardConfig = koinInject()
     Surface(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(ContinuousCornerShape(16.dp))
             .renderBackgroundBlur(),
         color =
             if (themeConfig.isEnableBlurExp)
                 Color.Transparent
             else
                 MaterialTheme.colorScheme.primaryContainer.copy(cardConfig.cardAlpha),
-        shape = RoundedCornerShape(16.dp)
+        shape = ContinuousCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -251,7 +252,7 @@ private fun StatusCard() {
                     Image(
                         modifier = Modifier
                             .size(56.dp)
-                            .clip(RoundedCornerShape(16.dp)),
+                            .clip(ContinuousCornerShape(16.dp)),
                         painter = rememberDrawablePainter(
                             drawable = ContextCompat.getDrawable(
                                 LocalContext.current,

@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -199,7 +200,7 @@ fun UmountManagerScreen() {
                         WarningCard(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             message = stringResource(R.string.changes_take_effect_immediately),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = ContinuousCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.primaryContainer,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -210,7 +211,7 @@ fun UmountManagerScreen() {
                             WarningCard(
                                 modifier = Modifier.padding(horizontal = 16.dp),
                                 message = stringResource(R.string.no_any_umount_path),
-                                shape = RoundedCornerShape(16.dp),
+                                shape = ContinuousCornerShape(16.dp),
                                 color = MaterialTheme.colorScheme.secondaryContainer,
                             )
                             Spacer(modifier = Modifier.height(16.dp))

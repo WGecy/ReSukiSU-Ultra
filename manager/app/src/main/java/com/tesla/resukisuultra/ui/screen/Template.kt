@@ -1,4 +1,5 @@
 package com.tesla.resukisuultra.ui.screen
+import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import org.koin.compose.koinInject
 import com.tesla.resukisuultra.ui.theme.CardConfig
@@ -440,7 +441,7 @@ fun LabelText(
     contentColor: Color = contentColorFor(containerColor)
 ) {
     Surface(
-        shape = RoundedCornerShape(4.dp),
+        shape = ContinuousCornerShape(4.dp),
         color = containerColor
     ) {
         Text(

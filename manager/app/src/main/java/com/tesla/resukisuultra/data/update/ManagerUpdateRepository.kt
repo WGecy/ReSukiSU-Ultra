@@ -24,7 +24,7 @@ class ManagerUpdateRepository(
         val GITHUB_HEADERS = mapOf("Accept" to "application/vnd.github+json")
 
         // sync with build.gradle.kts
-        const val CI_MANAGER_VERSION_CODE_OFFSET = 30000 + 700
+        const val CI_MANAGER_VERSION_CODE_OFFSET = 30000 + 800
         const val SHORT_SHA_LENGTH = 7
         const val UNIVERSAL_ABI = "universal"
     }

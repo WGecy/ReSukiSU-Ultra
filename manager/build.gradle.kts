@@ -24,7 +24,8 @@ fun getGitCommitCount(): Int {
 }
 
 fun getGitDescribe(): String {
+    // 只匹配 v4.3.0 精确 tag: CI 构建 tag (ci-*) 与历史构建 tag (v4.3.0_*) 不污染 versionName
     return providers.exec {
-        commandLine("git", "describe", "--tags", "--always", "--abbrev=0")
+        commandLine("git", "describe", "--tags", "--match", "v4.3.0", "--always", "--abbrev=0")
     }.standardOutput.asText.get().trim()
 }

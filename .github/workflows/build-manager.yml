@@ -409,7 +409,8 @@ jobs:
         run: |
           VERSION=$(git rev-list --count HEAD)
           echo "VERSION_CODE=$VERSION" >> $GITHUB_OUTPUT
-          echo "TAG_NAME=v4.3.0_$VERSION" >> $GITHUB_OUTPUT
+          # ci- 前缀: 不打 v4.3.0* 前缀 tag, 避免污染 git describe → versionName 保持 v4.3.0
+          echo "TAG_NAME=ci-$VERSION" >> $GITHUB_OUTPUT
 
       - name: 准备固定名资产
         run: |
@@ -419,7 +420,7 @@ jobs:
       - name: 删除旧 Release (固定 tag v4.3.0-latest)
         continue-on-error: true
         run: |
-          # 一个版本一个 tag (v4.3.0_$VERSION): 资产只本次, 不堆积
+          # 一个版本一个 tag (ci-$VERSION): 资产只本次, 不堆积; ci- 前缀不污染 versionName
           # delete 加重试 + 验证
           REPO="${{ github.repository }}"
           REL_TAG="${{ steps.version.outputs.TAG_NAME }}"
@@ -437,7 +438,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.TAG_NAME }}
-          name: "ReSukiSU-Ultra ${{ steps.version.outputs.TAG_NAME }}"
+          name: "ReSukiSU-Ultra v4.3.0_${{ steps.version.outputs.VERSION_CODE }}"
           body: |
             自动构建产物 (ReSukiSU-Ultra 分支)
             - 版本: ${{ steps.version.outputs.TAG_NAME }}

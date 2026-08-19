@@ -25,9 +25,9 @@ import kotlin.math.sin
 @Immutable
 class ContinuousCornerShape(
     private val topStart: Dp = 0.dp,
-    private val topEnd: Dp = 0.dp,
-    private val bottomEnd: Dp = 0.dp,
-    private val bottomStart: Dp = 0.dp,
+    private val topEnd: Dp = topStart,
+    private val bottomEnd: Dp = topEnd,
+    private val bottomStart: Dp = topStart,
     private val smoothness: Float = 0.7f,
 ) : Shape {
 

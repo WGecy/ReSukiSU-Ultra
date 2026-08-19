@@ -91,7 +91,14 @@ fun MainScreen() {
                     userScrollEnabled = false
                     val job = coroutineScope.launch {
                         try {
-                            pagerState.animateScrollToPage(page)
+                            // 底栏切换: 慢速 spring (仿 FolkPatch 节奏, 灵动不突兀)
+                            pagerState.animateScrollToPage(
+                                page,
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioNoBouncy,
+                                    stiffness = Spring.StiffnessLow,
+                                ),
+                            )
                         } finally {
                             if (animateJob === this) {
                                 userScrollEnabled = true

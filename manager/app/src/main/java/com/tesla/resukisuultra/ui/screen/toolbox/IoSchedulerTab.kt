@@ -124,49 +124,60 @@ fun IoSchedulerTab(
         item {
             Spacer(Modifier.height(20.dp))
         }
-        if (pageLoaded && uiState.loaded) {
-            if (uiState.available.isEmpty()) {
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.iosched_no_data),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+        if (!pageLoaded || !uiState.loaded) {
+            // 骨架: 列表占位 (加载完成后替换)
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(R.string.iosched_no_data),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
-            } else {
-                item {
-                    SegmentedColumn(title = stringResource(R.string.iosched_title)) {
-                        uiState.available.forEach { name ->
-                            item {
-                                val isCurrent = name == uiState.current
-                                SettingsBaseWidget(
-                                    iconPlaceholder = false,
-                                    title = name,
-                                    description = if (isCurrent) {
-                                        stringResource(R.string.iosched_in_use)
-                                    } else {
-                                        stringResource(R.string.iosched_switch_hint)
-                                    },
-                                    onClick = {
-                                        if (!isCurrent) {
-                                            viewModel.setScheduler(name)
-                                        }
-                                    },
-                                    trailingContent = {
-                                        if (isCurrent) {
-                                            androidx.compose.material3.Icon(
-                                                imageVector = Icons.TwoTone.Check,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                            )
-                                        }
-                                    },
-                                )
-                            }
+            }
+        } else if (uiState.available.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(R.string.iosched_no_data),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        } else {
+            item {
+                SegmentedColumn(title = stringResource(R.string.iosched_title)) {
+                    uiState.available.forEach { name ->
+                        item {
+                            val isCurrent = name == uiState.current
+                            SettingsBaseWidget(
+                                iconPlaceholder = false,
+                                title = name,
+                                description = if (isCurrent) {
+                                    stringResource(R.string.iosched_in_use)
+                                } else {
+                                    stringResource(R.string.iosched_switch_hint)
+                                },
+                                onClick = {
+                                    if (!isCurrent) {
+                                        viewModel.setScheduler(name)
+                                    }
+                                },
+                                trailingContent = {
+                                    if (isCurrent) {
+                                        androidx.compose.material3.Icon(
+                                            imageVector = Icons.TwoTone.Check,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                        )
+                                    }
+                                },
+                            )
                         }
                     }
                 }

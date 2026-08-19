@@ -42,7 +42,7 @@ class ContinuousCornerShape(
     private val invN = 1.0 / n
 
     @Volatile
-    private var cacheKey: Long = -1L
+    private var cacheKey: String? = null
     @Volatile
     private var cacheOutline: Outline? = null
 
@@ -58,14 +58,11 @@ class ContinuousCornerShape(
         if (rTL == 0f && rTR == 0f && rBR == 0f && rBL == 0f) {
             return Outline.Rectangle(Rect(0f, 0f, size.width, size.height))
         }
-        // 整数 key: size + 四角半径 (毫米精度打包)
-        val key = (size.width.toInt().toLong() shl 32) or
-            (size.height.toInt().toLong() and 0xFFFFFFFFL) xor
-            (((rTL * 1000).toInt().toLong() shl 48) or
-                ((rTR * 1000).toInt().toLong() shl 32) or
-                ((rBR * 1000).toInt().toLong() shl 16) or
-                (rBL * 1000).toInt().toLong())
-        cacheKey.let { if (it == key) return cacheOutline!! }
+        // 无碰撞 key: size 整数 + 四角半径 (0.01px 精度)
+        val key = "${size.width.toInt()}|${size.height.toInt()}|" +
+            "${(rTL * 100).toInt()},${(rTR * 100).toInt()}," +
+            "${(rBR * 100).toInt()},${(rBL * 100).toInt()}"
+        cacheKey?.let { if (it == key) return cacheOutline!! }
 
         val outline = buildOutline(size, rTL, rTR, rBR, rBL)
         cacheKey = key
@@ -122,10 +119,10 @@ class ContinuousCornerShape(
             val px: Float
             val py: Float
             when (mode) {
-                0 -> { px = cx + (1f - fx) * r; py = cy - r + fy * r }
-                1 -> { px = cx + r - fy * r; py = cy + r - fx * r }
-                2 -> { px = cx + fx * r; py = cy + r - fy * r }
-                else -> { px = cx + fy * r; py = cy - r + fx * r }
+                0 -> { px = cx + fy * r; py = cy - fx * r }      // 右上: 顶边→右边
+                1 -> { px = cx + fx * r; py = cy + fy * r }      // 右下: 右边→底边
+                2 -> { px = cx - fy * r; py = cy + fx * r }      // 左下: 底边→左边
+                else -> { px = cx - fx * r; py = cy - fy * r }   // 左上: 左边→顶边
             }
             path.lineTo(px, py)
         }
@@ -142,7 +139,7 @@ class ContinuousCapsule(
     private val smoothness: Float = 1.0f,
 ) : Shape {
     @Volatile
-    private var cacheKey: Long = -1L
+    private var cacheKey: String? = null
     @Volatile
     private var cacheOutline: Outline? = null
 
@@ -151,8 +148,8 @@ class ContinuousCapsule(
         layoutDirection: LayoutDirection,
         density: Density,
     ): Outline {
-        val key = (size.width.toInt().toLong() shl 32) or size.height.toInt().toLong()
-        cacheKey.let { if (it == key) return cacheOutline!! }
+        val key = "${size.width.toInt()}|${size.height.toInt()}"
+        cacheKey?.let { if (it == key) return cacheOutline!! }
         val r = min(size.width, size.height) * 0.5f
         val shape = ContinuousCornerShape(r.dp, r.dp, r.dp, r.dp, smoothness)
         val outline = shape.createOutline(size, layoutDirection, density)

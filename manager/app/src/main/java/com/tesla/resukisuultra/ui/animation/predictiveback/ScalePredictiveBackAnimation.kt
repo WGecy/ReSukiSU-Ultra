@@ -179,15 +179,15 @@ class ScalePredictiveBackAnimation(
 
     override fun AnimatedContentTransitionScope<Scene<NavKey>>.onPopTransitionSpec(): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn(),
-            initialContentExit = scaleOut(targetScale = 0.9f) + fadeOut(),
+            targetContentEnter = slideInHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), initialOffsetX = { -it / 4 }) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
+            initialContentExit = scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.9f) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
             sizeTransform = null
         )
 
     override fun AnimatedContentTransitionScope<Scene<NavKey>>.onTransitionSpec(): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(initialOffsetX = { it }),
-            initialContentExit = fadeOut(),
+            targetContentEnter = slideInHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), initialOffsetX = { it }),
+            initialContentExit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
             sizeTransform = null
         )
 }

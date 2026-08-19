@@ -161,14 +161,14 @@ class AOSPCrossActivityAnimation(
 
     override fun AnimatedContentTransitionScope<Scene<NavKey>>.onPopTransitionSpec(): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(initialOffsetX = { -it / 4 }),
-            initialContentExit = scaleOut(targetScale = 0.9f) + fadeOut(),
+            targetContentEnter = slideInHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), initialOffsetX = { -it / 4 }),
+            initialContentExit = scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.9f) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
             sizeTransform = null
         )
 
     override fun AnimatedContentTransitionScope<Scene<NavKey>>.onTransitionSpec(): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(initialOffsetX = { it }),
+            targetContentEnter = slideInHorizontally(animationSpec = spring(stiffness = Spring.StiffnessMediumLow), initialOffsetX = { it }),
             initialContentExit = ExitTransition.None,
             sizeTransform = null
         )

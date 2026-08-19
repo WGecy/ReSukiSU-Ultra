@@ -1,6 +1,8 @@
 package com.tesla.resukisuultra.ui.animation.predictiveback
 
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.ContentTransform
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

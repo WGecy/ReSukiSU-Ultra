@@ -150,8 +150,8 @@ private fun FloatingBottomBar(
         animatedIndex.animateTo(
             targetValue = page.toFloat(),
             animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow,
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessMedium,
             ),
         )
     }

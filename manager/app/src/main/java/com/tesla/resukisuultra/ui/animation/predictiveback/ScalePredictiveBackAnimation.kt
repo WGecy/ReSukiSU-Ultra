@@ -6,7 +6,8 @@ import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -48,10 +49,7 @@ class ScalePredictiveBackAnimation(
             exitingPageKey = currentPageKey.toString()
             exitAnimatable.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = 200,
-                    easing = FastOutSlowInEasing
-                )
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
             )
             exitAnimatable.snapTo(0f)
         }
@@ -82,7 +80,7 @@ class ScalePredictiveBackAnimation(
             if (pageKey == currentPageKey.toString() || exitingPageKey == pageKey) {
                 // Calculate the page scale
                 val animatedScale by transition.animateFloat(
-                    transitionSpec = { tween(200) },
+                    transitionSpec = { spring(stiffness = Spring.StiffnessMediumLow) },
                     label = "PredictiveScale"
                 ) { state ->
                     when (state) {

@@ -2,7 +2,8 @@ package com.tesla.resukisuultra.ui.animation.predictiveback
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
@@ -34,22 +35,22 @@ class KernelSUClassicPredictiveBackAnimation : PredictiveBackAnimationHandler {
         swipeEdge: Int
     ): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(tween(200), initialOffsetX = { fullWidth -> -fullWidth }),
-            initialContentExit = scaleOut(tween(200), targetScale = 0.9f) + fadeOut(tween(200)),
+            targetContentEnter = slideInHorizontally(spring(stiffness = Spring.StiffnessMediumLow), initialOffsetX = { fullWidth -> -fullWidth }),
+            initialContentExit = scaleOut(spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.9f) + fadeOut(spring(stiffness = Spring.StiffnessMediumLow)),
             sizeTransform = null
         )
 
     override fun AnimatedContentTransitionScope<Scene<NavKey>>.onPopTransitionSpec(): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(tween(200), initialOffsetX = { fullWidth -> -fullWidth }),
-            initialContentExit = scaleOut(tween(200), targetScale = 0.9f) + fadeOut(tween(200)),
+            targetContentEnter = slideInHorizontally(spring(stiffness = Spring.StiffnessMediumLow), initialOffsetX = { fullWidth -> -fullWidth }),
+            initialContentExit = scaleOut(spring(stiffness = Spring.StiffnessMediumLow), targetScale = 0.9f) + fadeOut(spring(stiffness = Spring.StiffnessMediumLow)),
             sizeTransform = null
         )
 
     override fun AnimatedContentTransitionScope<Scene<NavKey>>.onTransitionSpec(): ContentTransform =
         ContentTransform(
-            targetContentEnter = slideInHorizontally(tween(200), initialOffsetX = { fullWidth -> fullWidth }),
-            initialContentExit = slideOutHorizontally(tween(200), targetOffsetX = { fullWidth -> -fullWidth }),
+            targetContentEnter = slideInHorizontally(spring(stiffness = Spring.StiffnessMediumLow), initialOffsetX = { fullWidth -> fullWidth }),
+            initialContentExit = slideOutHorizontally(spring(stiffness = Spring.StiffnessMediumLow), targetOffsetX = { fullWidth -> -fullWidth }),
             sizeTransform = null
         )
 }

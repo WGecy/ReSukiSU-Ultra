@@ -567,8 +567,8 @@ private fun MetaModuleWarningCard(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn() + expandVertically(),
-        exit = fadeOut() + shrinkVertically()
+        enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) + expandVertically(spring(stiffness = Spring.StiffnessMediumLow)),
+        exit = fadeOut(spring(stiffness = Spring.StiffnessMediumLow)) + shrinkVertically(spring(stiffness = Spring.StiffnessMediumLow))
     ) {
         WarningCard(
             shape = CardDefaults.elevatedShape,

@@ -7,6 +7,8 @@ import android.os.PowerManager
 import android.system.Os
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -437,8 +439,8 @@ private fun ManagerUpdateCard(update: ManagerUpdateInfo?) {
 
     AnimatedVisibility(
         visibleState = visibilityState,
-        enter = fadeIn() + expandVertically(),
-        exit = fadeOut() + shrinkVertically(),
+        enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) + expandVertically(spring(stiffness = Spring.StiffnessMediumLow)),
+        exit = fadeOut(spring(stiffness = Spring.StiffnessMediumLow)) + shrinkVertically(spring(stiffness = Spring.StiffnessMediumLow)),
     ) {
         displayedUpdate?.let { updateInfo ->
             ManagerUpdateCardContent(updateInfo)

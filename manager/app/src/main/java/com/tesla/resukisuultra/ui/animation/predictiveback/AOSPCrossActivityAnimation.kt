@@ -7,7 +7,8 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
@@ -45,7 +46,7 @@ class AOSPCrossActivityAnimation(
 
         exitAnimatable.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 150, easing = LinearEasing)
+            animationSpec = spring(stiffness = Spring.StiffnessMedium)
         )
     }
 

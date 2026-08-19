@@ -189,6 +189,7 @@ dependencies {
     lintChecks(project(":lint-rules"))
     baselineProfile(project(":baselineprofile"))
 
+    implementation(libs.liquid)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)

@@ -92,15 +92,11 @@ fun MainScreen() {
                     targetState = uiSelectedPage,
                     transitionSpec = {
                         if (targetState > initialState) {
-                            (slideInHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), initialOffsetX = { it }) +
-                                fadeIn(animationSpec = tween(150))) togetherWith
-                                (slideOutHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), targetOffsetX = { -it / 4 }) +
-                                    fadeOut(animationSpec = tween(150)))
+                            (slideInHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), initialOffsetX = { it })) togetherWith
+                                (slideOutHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), targetOffsetX = { -it }))
                         } else {
-                            (slideInHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), initialOffsetX = { -it }) +
-                                fadeIn(animationSpec = tween(150))) togetherWith
-                                (slideOutHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), targetOffsetX = { it / 4 }) +
-                                    fadeOut(animationSpec = tween(150)))
+                            (slideInHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), initialOffsetX = { -it })) togetherWith
+                                (slideOutHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), targetOffsetX = { it }))
                         }
                     },
                 ) { pageIndex ->

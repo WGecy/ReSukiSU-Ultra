@@ -1,0 +1,314 @@
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index 522bd0406bd1..cbf26c7d2886 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -24,6 +24,84 @@
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ 
++/* ReSukiSU-Ultra: package dir visibility filtering on Android/data|obb */
++#include <linux/sched.h>
++#include <linux/uidgid.h>
++#include <linux/dcache.h>
++
++extern bool __ksu_is_allow_uid(uid_t uid);
++extern bool ksu_is_manager_uid(u32 uid);
++
++#define PKG_VIS_SYSTEM_UID_MAX 10000
++
++static bool pkg_vis_current_allowed(void)
++{
++	uid_t uid = current_uid().val;
++
++	if (uid == 0)
++		return true;
++	if (ksu_is_manager_uid(uid))
++		return true;
++	if (__ksu_is_allow_uid(uid))
++		return true;
++	if (uid < PKG_VIS_SYSTEM_UID_MAX)
++		return true;
++	return false;
++}
++
++static bool pkg_vis_dentry_on_android_data(struct dentry *dentry)
++{
++	struct dentry *parent;
++
++	if (!dentry || !dentry->d_parent)
++		return false;
++	if (dentry->d_name.len != 4 ||
++	    strncmp(dentry->d_name.name, "data", 4) != 0)
++		return false;
++	parent = dentry->d_parent;
++	if (!parent || !parent->d_name.name)
++		return false;
++	if (parent->d_name.len != 7 ||
++	    strncmp(parent->d_name.name, "Android", 7) != 0)
++		return false;
++	return true;
++}
++
++static bool pkg_vis_dentry_on_android_obb(struct dentry *dentry)
++{
++	struct dentry *parent;
++
++	if (!dentry || !dentry->d_parent)
++		return false;
++	if (dentry->d_name.len != 3 ||
++	    strncmp(dentry->d_name.name, "obb", 3) != 0)
++		return false;
++	parent = dentry->d_parent;
++	if (!parent || !parent->d_name.name)
++		return false;
++	if (parent->d_name.len != 7 ||
++	    strncmp(parent->d_name.name, "Android", 7) != 0)
++		return false;
++	return true;
++}
++
++static bool pkg_vis_hide_target(struct dentry *entry, struct inode *inode)
++{
++	struct dentry *parent;
++
++	if (pkg_vis_current_allowed())
++		return false;
++	if (!inode)
++		return false;
++	if (!entry || !entry->d_parent)
++		return false;
++	parent = entry->d_parent;
++	if (!pkg_vis_dentry_on_android_data(parent) &&
++	    !pkg_vis_dentry_on_android_obb(parent))
++		return false;
++	return from_kuid(&init_user_ns, inode->i_uid).val != current_uid().val;
++}
++
+ static bool __read_mostly allow_sys_admin_access;
+ module_param(allow_sys_admin_access, bool, 0644);
+ MODULE_PARM_DESC(allow_sys_admin_access,
+@@ -630,6 +708,11 @@ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
+ 	if (inode && get_node_id(inode) == FUSE_ROOT_ID)
+ 		goto out_iput;
+ 
++	if (inode && pkg_vis_hide_target(entry, inode)) {
++		err = -ENOENT;
++		goto out_iput;
++	}
++
+ 	newent = d_splice_alias(inode, entry);
+ 	err = PTR_ERR(newent);
+ 	if (IS_ERR(newent))
+@@ -2414,6 +2497,9 @@ static int fuse_getattr(struct mnt_idmap *idmap,
+ 	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
++	if (pkg_vis_hide_target(path->dentry, inode))
++		return -ENOENT;
++
+ 	if (!fuse_allow_current_process(fc)) {
+ 		if (!request_mask) {
+ 			/*
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index baab5b6aebf8..3b293d3856bb 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -306,6 +306,9 @@ struct fuse_file {
+ 		/* Version of cache we are reading */
+ 		u64 version;
+ 
++		/* ReSukiSU-Ultra: filter other apps' package dirs on Android/data|obb */
++		bool filter_pkg_dirs;
++
+ 	} readdir;
+ 
+ 	/** Container for data related to the passthrough functionality */
+diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
+index b453b1f718dd..cfa67e1fa6e9 100644
+--- a/fs/fuse/readdir.c
++++ b/fs/fuse/readdir.c
+@@ -13,6 +13,96 @@
+ #include <linux/pagemap.h>
+ #include <linux/highmem.h>
+ 
++/* ReSukiSU-Ultra: package dir visibility filtering on Android/data|obb */
++#include <linux/sched.h>
++#include <linux/uidgid.h>
++#include <linux/dcache.h>
++
++extern bool __ksu_is_allow_uid(uid_t uid);
++extern bool ksu_is_manager_uid(u32 uid);
++
++#define PKG_VIS_SYSTEM_UID_MAX 10000
++
++static bool pkg_vis_current_allowed(void)
++{
++	uid_t uid = current_uid().val;
++
++	if (uid == 0)
++		return true;
++	if (ksu_is_manager_uid(uid))
++		return true;
++	if (__ksu_is_allow_uid(uid))
++		return true;
++	if (uid < PKG_VIS_SYSTEM_UID_MAX)
++		return true;
++	return false;
++}
++
++static bool pkg_vis_dir_is_android_data(struct dentry *dentry)
++{
++	struct dentry *parent;
++	struct qstr *name;
++
++	if (!dentry || !dentry->d_parent)
++		return false;
++	name = &dentry->d_name;
++	if (name->len != 4 || strncmp(name->name, "data", 4) != 0)
++		return false;
++	parent = dentry->d_parent;
++	if (!parent || !parent->d_name.name)
++		return false;
++	if (parent->d_name.len != 7 || strncmp(parent->d_name.name, "Android", 7) != 0)
++		return false;
++	return true;
++}
++
++static bool pkg_vis_dir_is_android_obb(struct dentry *dentry)
++{
++	struct dentry *parent;
++	struct qstr *name;
++
++	if (!dentry || !dentry->d_parent)
++		return false;
++	name = &dentry->d_name;
++	if (name->len != 3 || strncmp(name->name, "obb", 3) != 0)
++		return false;
++	parent = dentry->d_parent;
++	if (!parent || !parent->d_name.name)
++		return false;
++	if (parent->d_name.len != 7 || strncmp(parent->d_name.name, "Android", 7) != 0)
++		return false;
++	return true;
++}
++
++static bool pkg_vis_should_filter(struct file *file)
++{
++	struct dentry *dentry = file->f_path.dentry;
++
++	return pkg_vis_dir_is_android_data(dentry) ||
++	       pkg_vis_dir_is_android_obb(dentry);
++}
++
++static bool pkg_vis_hide_dirent(struct file *file, struct fuse_dirent *dirent)
++{
++	struct super_block *sb;
++	struct inode *inode;
++	uid_t owner;
++	bool hide;
++
++	if (pkg_vis_current_allowed())
++		return false;
++
++	sb = file_inode(file)->i_sb;
++	inode = ilookup(sb, dirent->ino);
++	if (!inode)
++		return false;
++
++	owner = from_kuid(&init_user_ns, inode->i_uid).val;
++	hide = (owner != current_uid().val);
++	iput(inode);
++	return hide;
++}
++
+ static bool fuse_use_readdirplus(struct inode *dir, struct dir_context *ctx)
+ {
+ 	struct fuse_conn *fc = get_fuse_conn(dir);
+@@ -125,6 +215,9 @@ static bool fuse_emit(struct file *file, struct dir_context *ctx,
+ 	if (ff->open_flags & FOPEN_CACHE_DIR)
+ 		fuse_add_dirent_to_cache(file, dirent, ctx->pos);
+ 
++	if (ff->readdir.filter_pkg_dirs && pkg_vis_hide_dirent(file, dirent))
++		return true;
++
+ 	return dir_emit(ctx, dirent->name, dirent->namelen, dirent->ino,
+ 			dirent->type);
+ }
+@@ -616,6 +709,8 @@ int fuse_readdir(struct file *file, struct dir_context *ctx)
+ 	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
++	ff->readdir.filter_pkg_dirs = pkg_vis_should_filter(file);
++
+ 	mutex_lock(&ff->readdir.lock);
+ 
+ 	err = UNCACHED;
+diff --git a/fs/namei.c b/fs/namei.c
+index b31b583f1878..89579b6af596 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -45,6 +45,64 @@
+ #include "internal.h"
+ #include "mount.h"
+ 
++/* ReSukiSU-Ultra: hide /data/data/<pkg> existence from other apps */
++#include <linux/sched.h>
++#include <linux/uidgid.h>
++
++extern bool __ksu_is_allow_uid(uid_t uid);
++extern bool ksu_is_manager_uid(u32 uid);
++
++#define PKG_VIS_SYSTEM_UID_MAX 10000
++
++static bool pkg_vis_current_allowed(void)
++{
++	uid_t uid = current_uid().val;
++
++	if (uid == 0)
++		return true;
++	if (ksu_is_manager_uid(uid))
++		return true;
++	if (__ksu_is_allow_uid(uid))
++		return true;
++	if (uid < PKG_VIS_SYSTEM_UID_MAX)
++		return true;
++	return false;
++}
++
++/* dentry chain: <pkg> -> data -> data -> / */
++static bool pkg_vis_on_data_data(struct dentry *dentry)
++{
++	struct dentry *d1, *d2;
++
++	if (!dentry || !dentry->d_parent)
++		return false;
++	if (dentry->d_name.len < 1)
++		return false;
++	d1 = dentry->d_parent;
++	if (!d1 || !d1->d_name.name || d1->d_name.len != 4 ||
++	    strncmp(d1->d_name.name, "data", 4) != 0)
++		return false;
++	d2 = d1->d_parent;
++	if (!d2 || !d2->d_name.name || d2->d_name.len != 4 ||
++	    strncmp(d2->d_name.name, "data", 4) != 0)
++		return false;
++	return true;
++}
++
++static bool pkg_vis_hide_data_data(struct dentry *dentry)
++{
++	struct inode *inode;
++
++	if (pkg_vis_current_allowed())
++		return false;
++	if (!pkg_vis_on_data_data(dentry))
++		return false;
++	inode = dentry->d_inode;
++	if (!inode)
++		return false;
++	return from_kuid(&init_user_ns, inode->i_uid).val != current_uid().val;
++}
++
+ /* [Feb-1997 T. Schoebel-Theuer]
+  * Fundamental changes in the pathname lookup mechanisms (namei)
+  * were necessary because of omirr.  The reason is that omirr needs

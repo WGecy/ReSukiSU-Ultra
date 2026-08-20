@@ -1,5 +1,5 @@
 diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index 522bd0406bd1..cbf26c7d2886 100644
+index 522bd0406bd1..146d3b224709 100644
 --- a/fs/fuse/dir.c
 +++ b/fs/fuse/dir.c
 @@ -24,6 +24,84 @@
@@ -81,13 +81,38 @@ index 522bd0406bd1..cbf26c7d2886 100644
 +	if (!pkg_vis_dentry_on_android_data(parent) &&
 +	    !pkg_vis_dentry_on_android_obb(parent))
 +		return false;
-+	return from_kuid(&init_user_ns, inode->i_uid).val != current_uid().val;
++	return from_kuid(&init_user_ns, inode->i_uid) != current_uid().val;
 +}
 +
  static bool __read_mostly allow_sys_admin_access;
  module_param(allow_sys_admin_access, bool, 0644);
  MODULE_PARM_DESC(allow_sys_admin_access,
-@@ -630,6 +708,11 @@ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
+@@ -273,12 +351,20 @@ static int fuse_dentry_revalidate(struct dentry *entry, unsigned int flags)
+ 		parent = dget_parent(entry);
+ 
+ #ifdef CONFIG_FUSE_BPF
+-		/* TODO: Once we're handling timeouts for backing inodes, do a
+-		 * bpf based lookup_revalidate here.
+-		 */
+ 		if (get_fuse_inode(parent->d_inode)->backing_inode) {
++			struct inode *dir = parent->d_inode;
++			struct fuse_err_ret fer;
++
++			fer = fuse_bpf_backing(dir, struct fuse_lookup_io,
++						fuse_lookup_revalidate_initialize,
++						fuse_lookup_revalidate_backing,
++						fuse_lookup_revalidate_finalize,
++						dir, entry, flags);
+ 			dput(parent);
+-			ret = 1;
++			if (fuse_bpf_lookup_revalidate_enabled && fer.ret && PTR_ERR(fer.result))
++				ret = PTR_ERR(fer.result);
++			else
++				ret = 1;
+ 			goto out;
+ 		}
+ #endif
+@@ -630,6 +716,11 @@ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
  	if (inode && get_node_id(inode) == FUSE_ROOT_ID)
  		goto out_iput;
  
@@ -99,7 +124,7 @@ index 522bd0406bd1..cbf26c7d2886 100644
  	newent = d_splice_alias(inode, entry);
  	err = PTR_ERR(newent);
  	if (IS_ERR(newent))
-@@ -2414,6 +2497,9 @@ static int fuse_getattr(struct mnt_idmap *idmap,
+@@ -2414,6 +2505,9 @@ static int fuse_getattr(struct mnt_idmap *idmap,
  	if (fuse_is_bad(inode))
  		return -EIO;
  
@@ -110,7 +135,7 @@ index 522bd0406bd1..cbf26c7d2886 100644
  		if (!request_mask) {
  			/*
 diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index baab5b6aebf8..3b293d3856bb 100644
+index baab5b6aebf8..5e44cdd55e38 100644
 --- a/fs/fuse/fuse_i.h
 +++ b/fs/fuse/fuse_i.h
 @@ -306,6 +306,9 @@ struct fuse_file {
@@ -123,8 +148,25 @@ index baab5b6aebf8..3b293d3856bb 100644
  	} readdir;
  
  	/** Container for data related to the passthrough functionality */
+@@ -1834,6 +1837,16 @@ int fuse_access_initialize(struct fuse_bpf_args *fa, struct fuse_access_in *fai,
+ int fuse_access_backing(struct fuse_bpf_args *fa, struct inode *inode, int mask);
+ void *fuse_access_finalize(struct fuse_bpf_args *fa, struct inode *inode, int mask);
+ 
++int fuse_lookup_revalidate_initialize(struct fuse_bpf_args *fa, struct fuse_lookup_io *feo,
++	       struct inode *dir, struct dentry *entry, unsigned int flags);
++
++/* ReSukiSU-Ultra: FUSEBPF 直通修复开关 */
++extern bool fuse_bpf_lookup_revalidate_enabled;
++int fuse_lookup_revalidate_backing(struct fuse_bpf_args *fa, struct inode *dir,
++			  struct dentry *entry, unsigned int flags);
++void *fuse_lookup_revalidate_finalize(struct fuse_bpf_args *fa, struct inode *dir,
++				struct dentry *entry, unsigned int flags);
++
+ /*
+  * FUSE caches dentries and attributes with separate timeout.  The
+  * time in jiffies until the dentry/attributes are valid is stored in
 diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
-index b453b1f718dd..cfa67e1fa6e9 100644
+index b453b1f718dd..880f4e9e2e63 100644
 --- a/fs/fuse/readdir.c
 +++ b/fs/fuse/readdir.c
 @@ -13,6 +13,96 @@
@@ -215,7 +257,7 @@ index b453b1f718dd..cfa67e1fa6e9 100644
 +	if (!inode)
 +		return false;
 +
-+	owner = from_kuid(&init_user_ns, inode->i_uid).val;
++	owner = from_kuid(&init_user_ns, inode->i_uid);
 +	hide = (owner != current_uid().val);
 +	iput(inode);
 +	return hide;
@@ -244,7 +286,7 @@ index b453b1f718dd..cfa67e1fa6e9 100644
  
  	err = UNCACHED;
 diff --git a/fs/namei.c b/fs/namei.c
-index b31b583f1878..89579b6af596 100644
+index b31b583f1878..6bf70d63ed16 100644
 --- a/fs/namei.c
 +++ b/fs/namei.c
 @@ -45,6 +45,64 @@
@@ -306,9 +348,22 @@ index b31b583f1878..89579b6af596 100644
 +	inode = dentry->d_inode;
 +	if (!inode)
 +		return false;
-+	return from_kuid(&init_user_ns, inode->i_uid).val != current_uid().val;
++	return from_kuid(&init_user_ns, inode->i_uid) != current_uid().val;
 +}
 +
  /* [Feb-1997 T. Schoebel-Theuer]
   * Fundamental changes in the pathname lookup mechanisms (namei)
   * were necessary because of omirr.  The reason is that omirr needs
+@@ -1585,6 +1643,12 @@ static struct dentry *lookup_dcache(const struct qstr *name,
+ 			return ERR_PTR(error);
+ 		}
+ 	}
++	if (dentry && !IS_ERR(dentry) && pkg_vis_hide_data_data(dentry)) {
++		if (d_in_lookup(dentry))
++			d_lookup_done(dentry);
++		dput(dentry);
++		return NULL;
++	}
+ 	return dentry;
+ }
+ 

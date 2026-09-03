@@ -158,7 +158,6 @@ import com.tesla.resukisuultra.ui.component.ZipFileInfo
 import com.tesla.resukisuultra.ui.component.ZipType
 import com.tesla.resukisuultra.ui.component.rememberConfirmDialog
 import com.tesla.resukisuultra.ui.component.rememberLoadingDialog
-import com.tesla.resukisuultra.ui.component.rememberSearchAppBarScrollBehavior
 import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.LocalSegmentedItemShape
@@ -319,9 +318,7 @@ fun ModulePage(bottomPadding: Dp) {
     val hideInstallButton = isSafeMode || uiState.hasMagisk
 
     val topAppBarState = rememberTopAppBarState()
-    val scrollBehavior = rememberSearchAppBarScrollBehavior(
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
-    )
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
 
     Scaffold(
         topBar = {
@@ -595,7 +592,7 @@ private fun ModuleList(
     bottomPadding : Dp,
     topPadding : Dp,
 ) {
-    val shortcut = koinInject<Shortcut>()
+    val Shortcut = koinInject<Shortcut>()
     var showMetaModuleWarning by rememberSaveable { mutableStateOf(true) }
     val fetchRemoteText = koinInject<FetchRemoteTextUseCase>()
     val enqueueDownload = koinInject<EnqueueDownloadUseCase>()
@@ -698,15 +695,15 @@ private fun ModuleList(
 
     fun hasModuleShortcut(context: Context, moduleId: String, type: ShortcutType): Boolean {
         return when (type) {
-            ShortcutType.Action -> shortcut.hasModuleActionShortcut(context, moduleId)
-            ShortcutType.WebUI -> shortcut.hasModuleWebUiShortcut(context, moduleId)
+            ShortcutType.Action -> Shortcut.hasModuleActionShortcut(context, moduleId)
+            ShortcutType.WebUI -> Shortcut.hasModuleWebUiShortcut(context, moduleId)
         }
     }
 
     fun deleteModuleShortcut(context: Context, moduleId: String, type: ShortcutType) {
         when (type) {
-            ShortcutType.Action -> shortcut.deleteModuleActionShortcut(context, moduleId)
-            ShortcutType.WebUI -> shortcut.deleteModuleWebUiShortcut(context, moduleId)
+            ShortcutType.Action -> Shortcut.deleteModuleActionShortcut(context, moduleId)
+            ShortcutType.WebUI -> Shortcut.deleteModuleWebUiShortcut(context, moduleId)
         }
     }
 
@@ -719,7 +716,7 @@ private fun ModuleList(
     ) {
         when (type) {
             ShortcutType.Action -> {
-                shortcut.createModuleActionShortcut(
+                Shortcut.createModuleActionShortcut(
                     context = context,
                     moduleId = moduleId,
                     name = name,
@@ -728,7 +725,7 @@ private fun ModuleList(
             }
 
             ShortcutType.WebUI -> {
-                shortcut.createModuleWebUiShortcut(
+                Shortcut.createModuleWebUiShortcut(
                     context = context,
                     moduleId = moduleId,
                     name = name,
@@ -752,7 +749,7 @@ private fun ModuleList(
             return@LaunchedEffect
         }
         val bitmap = withContext(Dispatchers.IO) {
-            shortcut.loadShortcutBitmap(context, uriStr)
+            Shortcut.loadShortcutBitmap(context, uriStr)
         }
         shortcutPreviewIcon.value = bitmap?.asImageBitmap()
     }
@@ -847,8 +844,8 @@ private fun ModuleList(
 
         if (isUninstall) {
             withContext(Dispatchers.IO) {
-                shortcut.deleteModuleActionShortcut(context, module.id)
-                shortcut.deleteModuleWebUiShortcut(context, module.id)
+                Shortcut.deleteModuleActionShortcut(context, module.id)
+                Shortcut.deleteModuleWebUiShortcut(context, module.id)
             }
         }
         viewModel.dispatch(ModuleUiAction.SetRemoved(module.dirId, isUninstall))
@@ -981,6 +978,7 @@ private fun ModuleList(
                     onModuleAddShortcut = {
                         onModuleAddShortcut(it)
                     },
+                    isHideTagRow = uiState.isHideTagRow,
                     showMoreModuleInfo = uiState.showMoreModuleInfo,
                 )
             }
@@ -1205,12 +1203,16 @@ fun ModuleItem(
     onUpdate: (InstalledModule) -> Unit,
     onClick: (InstalledModule) -> Unit,
     onModuleAddShortcut: (InstalledModule) -> Unit,
+    isHideTagRow: Boolean,
     showMoreModuleInfo: Boolean,
 ) {
     val themeConfig: ThemeConfig = koinInject()
     val cardConfig: CardConfig = koinInject()
     val navigator = LocalNavigator.current
     val context = LocalContext.current
+    // 获取显示更多模块信息的设置
+
+    // 剪贴板管理器和触觉反馈
     val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
     val hapticFeedback = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
@@ -1255,8 +1257,7 @@ fun ModuleItem(
                     },
                     onClick = { expanded = !expanded },
                 )
-                .padding(horizontal = 16.dp)
-                .padding(top = 12.dp)
+                .padding(22.dp, 18.dp, 22.dp, 12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1392,26 +1393,29 @@ fun ModuleItem(
                 textDecoration = textDecoration,
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                LabelText(
-                    label = module.dirId,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                )
-                if (module.metamodule) {
+            if (!isHideTagRow) {
+                Spacer(modifier = Modifier.height(12.dp))
+                // 文件夹名称和大小标签
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     LabelText(
-                        label = "META",
-                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        label = module.dirId,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                    )
+                    if (module.metamodule) {
+                        LabelText(
+                            label = "META",
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                        )
+                    }
+                    LabelText(
+                        label = sizeStr ?: "0 KB",
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     )
                 }
-                LabelText(
-                    label = sizeStr ?: "0 KB",
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                )
             }
 
             // FolkPatch 交互: 点击卡片展开/收起操作按钮行 (spring 动画)
@@ -1446,12 +1450,7 @@ fun ModuleItem(
                             navigator.push(Route.ExecuteModuleAction(module.dirId))
                             viewModel.dispatch(ModuleUiAction.MarkNeedRefresh)
                         },
-                        contentPadding = PaddingValues(
-                            start = 12.dp,
-                            top = 7.dp,
-                            end = 12.dp,
-                            bottom = 7.dp,
-                        ),
+                        contentPadding = ButtonDefaults.TextButtonContentPadding,
                     ) {
                         Icon(
                             modifier = Modifier.size(20.dp),
@@ -1467,12 +1466,7 @@ fun ModuleItem(
                         enabled = !module.remove && isEnabled,
                         onClick = { onClick(module) },
                         interactionSource = interactionSource,
-                        contentPadding = PaddingValues(
-                            start = 12.dp,
-                            top = 7.dp,
-                            end = 12.dp,
-                            bottom = 7.dp,
-                        ),
+                        contentPadding = ButtonDefaults.TextButtonContentPadding,
                     ) {
                         Icon(
                             modifier = Modifier.size(20.dp),
@@ -1506,12 +1500,7 @@ fun ModuleItem(
                         enabled = !module.remove,
                         onClick = { onUpdate(module) },
                         shape = ButtonDefaults.textShape,
-                        contentPadding = PaddingValues(
-                            start = 12.dp,
-                            top = 7.dp,
-                            end = 12.dp,
-                            bottom = 7.dp,
-                        ),
+                        contentPadding = ButtonDefaults.TextButtonContentPadding,
                     ) {
                         Icon(
                             modifier = Modifier.size(20.dp),
@@ -1524,12 +1513,7 @@ fun ModuleItem(
                 FilledTonalButton(
                     modifier = Modifier.defaultMinSize(minWidth = 52.dp, minHeight = 32.dp),
                     onClick = { onUninstallClicked(module) },
-                    contentPadding = PaddingValues(
-                        start = 12.dp,
-                        top = 9.dp,
-                        end = 12.dp,
-                        bottom = 7.dp,
-                    ),
+                    contentPadding = ButtonDefaults.TextButtonContentPadding,
                 ) {
                     if (!module.remove) {
                         Icon(
@@ -1587,5 +1571,6 @@ fun ModuleItemPreview() {
         {},
         {},
         false,
+        false
     )
 }

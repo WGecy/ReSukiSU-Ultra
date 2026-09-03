@@ -35,26 +35,11 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v8
 
-    - uses: Swatinem/rust-cache@v2
-      if: github.event_name != 'pull_request'
-      with:
-        prefix-key: ksud-${{ inputs.target }}
-        workspaces: userspace/ksud
-        cache-targets: true
-        
-    - name: Setup cargo-ndk
-      run: cargo install cargo-ndk --locked
-        
-    - name: Assemble LKM bootstrap
-      run: |
-        clang --target=aarch64-linux-gnu -c -nostdlib \
-          -o userspace/ksud/.lkm_image_bootstrap.o \
-          userspace/ksud/src/lkm_image_bootstrap.S
-     
-    - name: Build ksud
-      run: |
-        cd userspace/ksud/
-        cargo ndk b -t ${{ inputs.target }} -P 26 -r -Z build-std=std,core,panic_abort -Z build-std-features="optimize_for_size" -Z trim-paths
+      - name: Prepare LKM fies
+        if: ${{ inputs.pack_lkm }}
+        run: |
+          cp aarch64-android*-lkm/*_kernelsu.ko ./userspace/ksud/bin/aarch64/
+          cp x86_64-android*-lkm/*_kernelsu.ko ./userspace/ksud/bin/x86_64/
 
       - name: Prepare ksuinit
         if: ${{ inputs.pack_ksuinit }}

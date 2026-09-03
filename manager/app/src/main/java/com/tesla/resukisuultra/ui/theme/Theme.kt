@@ -603,8 +603,18 @@ fun Modifier.blurEffect(
     val themeConfig = koinInject<ThemeConfig>()
     val cardConfig = koinInject<CardConfig>()
     if (!themeConfig.isEnableBlur || Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-        // 未启用 blur: 直接纯色背景, 不做背景重绘 (重绘是帧耗时 14ms 的元凶)
-        return Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
+        return renderBackgroundFallback(
+            compensateHorizontalOverscroll = compensateHorizontalOverscroll,
+            compensateVerticalOverscroll = compensateVerticalOverscroll,
+            useFixedSurfaceBoundsForOverscroll = useFixedSurfaceBoundsForOverscroll,
+        )
+    }
+
+    val renderState = LocalBackgroundRenderState.current
+    val backgroundAnchor = LocalBackgroundBlurAnchor.current
+    val stretchOverscrollState = LocalStretchOverscrollCompensationState.current
+    var coordinates by remember {
+        mutableStateOf<LayoutCoordinates?>(null)
     }
 
     return LocalBlurState.current?.let { backdrop ->
@@ -612,16 +622,44 @@ fun Modifier.blurEffect(
             MaterialTheme.colorScheme.surfaceContainer.copy(alpha = cardConfig.cardAlpha)
 
         this.then(
-            Modifier.textureBlur(
-                backdrop = backdrop,
-                shape = RectangleShape,
-                blurRadius = 16f,
-                colors = BlurColors(
-                    blendColors = listOf(
-                        BlendColorEntry(color = blendColor)
-                    )
+            Modifier
+                .onGloballyPositioned { newCoordinates ->
+                    coordinates = newCoordinates.takeIf { it.isAttached }
+                }
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { RectangleShape },
+                    effects = {
+                        renderState.blurFrameTick
+
+                        textureBlurEffect(
+                            blurRadiusX = 25f,
+                            colors = BlurColors(
+                                blendColors = listOf(
+                                    BlendColorEntry(color = blendColor)
+                                )
+                            ),
+                        )
+
+                        val boundsInBackground =
+                            coordinates?.boundsInBackgroundNow(backgroundAnchor)
+                        val stretchCompensation = stretchOverscrollState
+                            ?.resolveBitmapCompensation(
+                                backgroundCoordinates = backgroundAnchor,
+                                compensateHorizontal = compensateHorizontalOverscroll,
+                                compensateVertical = compensateVerticalOverscroll,
+                                compensationCoordinates = coordinates
+                                    .takeIf { useFixedSurfaceBoundsForOverscroll },
+                            )
+
+                        if (boundsInBackground != null && stretchCompensation != null) {
+                            stretchOverscrollCompensationEffect(
+                                boundsInBackground = boundsInBackground,
+                                compensation = stretchCompensation,
+                            )
+                        }
+                    },
                 )
-            )
         )
     } ?: renderBackgroundFallback(
         compensateHorizontalOverscroll = compensateHorizontalOverscroll,

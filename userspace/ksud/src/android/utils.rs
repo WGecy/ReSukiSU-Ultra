@@ -24,8 +24,7 @@ use crate::{
     android::{ksucalls, module, restorecon},
     assets, boot_patch,
     boot_patch::BootRestoreArgs,
-    );
-}
+};
 
 #[macro_export]
 macro_rules! debug_select {

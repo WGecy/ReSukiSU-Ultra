@@ -132,6 +132,7 @@ import com.tesla.resukisuultra.domain.usecase.SetSelinuxHideEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.SetStringPreferenceUseCase
 import com.tesla.resukisuultra.domain.usecase.SetStringSetPreferenceUseCase
 import com.tesla.resukisuultra.domain.usecase.SetSuEnabledUseCase
+import com.tesla.resukisuultra.domain.usecase.SetWebViewZygoteUmountEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.StartKernelFlashUseCase
 import com.tesla.resukisuultra.domain.usecase.SuSFSConfigUseCase
 import com.tesla.resukisuultra.domain.usecase.TakeModuleUriPermissionUseCase
@@ -323,6 +324,7 @@ val useCaseModule = module {
     factoryOf(::ConfigureSuLogUseCase)
     factoryOf(::SetSelinuxHideEnabledUseCase)
     factoryOf(::SetDefaultUmountModulesUseCase)
+    factoryOf(::SetWebViewZygoteUmountEnabledUseCase)
     factoryOf(::IsLateLoadModeUseCase)
     factoryOf(::GetAppProfileUseCase)
     factoryOf(::SetAppProfileUseCase)

@@ -53,7 +53,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,6 +62,7 @@ import com.tesla.resukisuultra.ui.component.KeyEventBlocker
 import com.tesla.resukisuultra.ui.component.SwipeableSnackbarHost
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.theme.CardConfig
+import com.tesla.resukisuultra.ui.theme.MonospaceFontFamily
 import com.tesla.resukisuultra.ui.util.LocalSnackbarHost
 import com.tesla.resukisuultra.ui.util.showReplacingSnackbar
 import com.tesla.resukisuultra.ui.viewmodel.KernelFlashUiAction
@@ -216,7 +216,7 @@ fun KernelFlashScreen(
                     modifier = Modifier.padding(16.dp),
                     text = logText,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = MonospaceFontFamily(),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }

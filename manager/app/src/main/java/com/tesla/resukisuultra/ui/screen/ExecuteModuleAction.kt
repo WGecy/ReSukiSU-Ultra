@@ -38,7 +38,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tesla.resukisuultra.R
@@ -47,6 +46,7 @@ import com.tesla.resukisuultra.ui.component.SwipeableSnackbarHost
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.theme.CardConfig
+import com.tesla.resukisuultra.ui.theme.MonospaceFontFamily
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import com.tesla.resukisuultra.ui.theme.blurSource
@@ -164,7 +164,7 @@ fun ExecuteModuleActionScreen(moduleId: String) {
                     modifier = Modifier.padding(8.dp),
                     text = moduleActionState.output,
                     fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = MonospaceFontFamily(),
                     lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
                 )
             }

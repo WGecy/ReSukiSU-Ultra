@@ -24,6 +24,7 @@ use crate::{
     android::{ksucalls, module, restorecon},
     assets, boot_patch,
     boot_patch::BootRestoreArgs,
+    defs,
 };
 
 #[macro_export]

@@ -354,6 +354,7 @@
     <string name="susfs_config_setting_title">Konfiguracja SuSFS</string>
     <string name="susfs_enable_config">Menadżer SUSFS</string>
     <string name="susfs_enable_config_summary">Włącz wbudowany menadżer SUSFS. Może konfliktować z innymi modułami.</string>
+    <string name="susfs_config_disable_warning">Wbudowany menadżer SUSFS jest wyłączony. Włącz go lub zainstaluj zewnętrzny moduł, aby używać funkcji SUSFS.</string>
     <string name="module_update_json">Zaktualizuj JSON</string>
     <string name="module_update_json_copied">Link aktualizacji JSON został skopiowany do schowka</string>
     <string name="show_more_module_info">Pokaż więcej informacji</string>

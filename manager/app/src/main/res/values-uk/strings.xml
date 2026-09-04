@@ -354,6 +354,7 @@
     <string name="susfs_config_setting_title">Налаштування SuSFS</string>
     <string name="susfs_enable_config">Менеджер SUSFS</string>
     <string name="susfs_enable_config_summary">Увімкнути вбудований менеджер SUSFS. Може конфліктувати зі сторонніми модулями.</string>
+    <string name="susfs_config_disable_warning">Вбудований менеджер SUSFS вимкнено.\nУвімкніть його або встановіть сторонній модуль, щоб використовувати функції SUSFS.</string>
     <string name="module_update_json">Оновити JSON</string>
     <string name="module_update_json_copied">URL для оновлення JSON скопійовано в буфер обміну</string>
     <string name="show_more_module_info">Показувати більше інформації про модуль</string>

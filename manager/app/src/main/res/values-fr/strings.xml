@@ -143,6 +143,7 @@
     <string name="hide_susfs_status_summary">Masquer les informations de la carte de lien sur la page d\'accueil</string>
     <string name="susfs_enable_config">Gestionnaire SUSFS</string>
     <string name="susfs_enable_config_summary">Active le gestionnaire SUSFS intégré. Peut entrer en conflit avec certains modules tiers.</string>
+    <string name="susfs_config_disable_warning">Le gestionnaire SUSFS intégré est désactivé. L\'activer ou installer un module SUSFS tiers pour utiliser les fonctionnalités SUSFS.</string>
     <string name="hide_link_card">Masquer le statut du lien de la carte</string>
     <string name="hide_link_card_summary">Masquer les informations de la carte de lien sur la page d\'accueil</string>
     <string name="theme_mode">Thème</string>

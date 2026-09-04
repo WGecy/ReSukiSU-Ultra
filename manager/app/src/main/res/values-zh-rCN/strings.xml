@@ -357,6 +357,7 @@
     <string name="susfs_config_setting_title">SUSFS</string>
     <string name="susfs_enable_config">SUSFS管理器</string>
     <string name="susfs_enable_config_summary">启用内置SUSFS管理器。这可能与第三方模块冲突。</string>
+    <string name="susfs_config_disable_warning">内置SUSFS管理器已关闭。启用它或安装第三方模块来使用SUSFS功能。</string>
     <string name="module_update_json">更新配置</string>
     <string name="module_update_json_copied">更新配置地址已复制到剪贴板</string>
     <string name="show_more_module_info">显示更多模块信息</string>

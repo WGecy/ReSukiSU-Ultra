@@ -329,6 +329,7 @@
     <string name="susfs_config_title">SuSFS Menedzser</string>
     <string name="susfs_enable_config">SuSFS Menedzser</string>
     <string name="susfs_enable_config_summary">Beépített SuSFS Menedzser engedélyezése vagy letiltása. Valamely harmadik féltől származó modullal összeférhetetlen lehet.</string>
+    <string name="susfs_config_disable_warning">Beépített SuSFS Menedzser letiltva. Engedélyezd, vagy telepíts egy harmadik féltől származó modult a SuSFS funkciók használatához.</string>
     <string name="superuser">Superuser</string>
     <string name="sulog_filter_sucompat">SU bináris</string>
     <string name="sulog_filter_root_execve">Root execve injekció</string>

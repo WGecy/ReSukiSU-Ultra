@@ -238,6 +238,8 @@
     <string name="app_categories">Pilihan Jenis Aplikasi</string>
     <string name="susfs_config_title">Konfigurasi SuSFS</string>
     <string name="susfs_config_setting_title">Konfigurasi SUSFS</string>
+    <string name="susfs_enable_config">manajer SUSFS</string>
+    <string name="susfs_enable_config_summary">Aktifkan manajer SUSFS bawaan, Dapat mengalami konflik dengan modul pihak ketiga.</string>
     <string name="module_update_json">Perbarui JSON</string>
     <string name="module_update_json_copied">URL Pembaruan JSON disalin ke papan klip</string>
     <string name="show_more_module_info">Tampilkan info modul lainnya</string>

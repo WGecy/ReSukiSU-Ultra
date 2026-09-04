@@ -314,6 +314,8 @@
     <string name="app_categories">應用程式類型選擇</string>
     <string name="susfs_config_title">SuSFS 設定</string>
     <string name="susfs_config_setting_title">SuSFS 設定</string>
+    <string name="susfs_enable_config">SUSFS 管理器</string>
+    <string name="susfs_enable_config_summary">啟用內置 SUSFS 管理器，可能與第三方模組衝突。</string>
     <string name="module_update_json">更新設定</string>
     <string name="module_update_json_copied">更新設定網址已複製到剪貼簿</string>
     <string name="show_more_module_info">顯示更多模組資訊</string>

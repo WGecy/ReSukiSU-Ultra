@@ -352,6 +352,8 @@
     <string name="app_categories">Вибір типу додатка</string>
     <string name="susfs_config_title">Налаштування SuSFS</string>
     <string name="susfs_config_setting_title">Налаштування SuSFS</string>
+    <string name="susfs_enable_config">Менеджер SUSFS</string>
+    <string name="susfs_enable_config_summary">Увімкнути вбудований менеджер SUSFS. Може конфліктувати зі сторонніми модулями.</string>
     <string name="module_update_json">Оновити JSON</string>
     <string name="module_update_json_copied">URL для оновлення JSON скопійовано в буфер обміну</string>
     <string name="show_more_module_info">Показувати більше інформації про модуль</string>

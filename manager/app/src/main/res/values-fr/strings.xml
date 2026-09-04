@@ -141,6 +141,8 @@
     <string name="hide_other_info_summary">Masque des informations sur le nombre de super utilisateurs et de modules sur la page d\'accueil</string>
     <string name="hide_susfs_status">Masquer le statut SuSFS</string>
     <string name="hide_susfs_status_summary">Masquer les informations de la carte de lien sur la page d\'accueil</string>
+    <string name="susfs_enable_config">Gestionnaire SUSFS</string>
+    <string name="susfs_enable_config_summary">Active le gestionnaire SUSFS intégré. Peut entrer en conflit avec certains modules tiers.</string>
     <string name="hide_link_card">Masquer le statut du lien de la carte</string>
     <string name="hide_link_card_summary">Masquer les informations de la carte de lien sur la page d\'accueil</string>
     <string name="theme_mode">Thème</string>

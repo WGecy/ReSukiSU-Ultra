@@ -90,9 +90,7 @@
     <string name="direct_install">Direkte Installation (empfohlen)</string>
     <string name="select_file">Datei auswählen</string>
     <string name="install_inactive_slot">In inaktiven Slot installieren (nach OTA)</string>
-    <string name="install_inactive_slot_warning">Nach einem Neustart wird dein Gerät **GEZWUNGEN** in den derzeit inaktiven Slot zu starten!
-\nBenutze dies nur nach Fertigstellung des OTA.
-\nFortfahren?</string>
+    <string name="install_inactive_slot_warning">Nach einem Neustart wird dein Gerät **GEZWUNGEN** in den derzeit inaktiven Slot zu starten! \nBenutze dies nur nach Fertigstellung des OTA. \nFortfahren?</string>
     <string name="install_next">Weiter</string>
     <string name="select_file_tip">%1$s Partitionsabbild empfohlen</string>
     <string name="select_kmi">KMI auswählen</string>
@@ -186,8 +184,8 @@
     <string name="icon_switched">Icon gewechselt</string>
     <string name="app_dpi_title">Angewendeter DPI</string>
     <string name="app_dpi_summary">Bildschirmanzahl nur für die aktuelle Anwendung anpassen</string>
-    <string name="dpi_size_small">Klein </string>
-    <string name="dpi_size_medium">Mittel </string>
+    <string name="dpi_size_small">Klein</string>
+    <string name="dpi_size_medium">Mittel</string>
     <string name="dpi_size_large">Groß</string>
     <string name="dpi_size_extra_large">übergröße</string>
     <string name="dpi_size_custom">anpassbar</string>

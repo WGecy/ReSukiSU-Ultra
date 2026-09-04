@@ -158,6 +158,7 @@ import com.tesla.resukisuultra.ui.component.ZipFileInfo
 import com.tesla.resukisuultra.ui.component.ZipType
 import com.tesla.resukisuultra.ui.component.rememberConfirmDialog
 import com.tesla.resukisuultra.ui.component.rememberLoadingDialog
+import com.tesla.resukisuultra.ui.component.rememberSearchAppBarScrollBehavior
 import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.LocalSegmentedItemShape
@@ -318,7 +319,9 @@ fun ModulePage(bottomPadding: Dp) {
     val hideInstallButton = isSafeMode || uiState.hasMagisk
 
     val topAppBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    val scrollBehavior = rememberSearchAppBarScrollBehavior(
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    )
 
     Scaffold(
         topBar = {

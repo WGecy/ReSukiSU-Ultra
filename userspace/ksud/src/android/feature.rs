@@ -28,6 +28,7 @@ pub enum FeatureId {
     SelinuxHide = 4,
     NetIsolate = 5,
     Fusebpf = 6,
+    WebviewZygoteUmount = 7,
 }
 
 impl FeatureId {
@@ -40,6 +41,7 @@ impl FeatureId {
             4 => Some(Self::SelinuxHide),
             5 => Some(Self::NetIsolate),
             6 => Some(Self::Fusebpf),
+            7 => Some(Self::WebviewZygoteUmount),
             _ => None,
         }
     }
@@ -53,6 +55,7 @@ impl FeatureId {
             Self::SelinuxHide => "selinux_hide",
             Self::NetIsolate => "netisolate",
             Self::Fusebpf => "fusebpf",
+            Self::WebviewZygoteUmount => "webview_zygote_umount",
         }
     }
 
@@ -73,6 +76,9 @@ impl FeatureId {
             }
             Self::NetIsolate => "UID network isolation",
             Self::Fusebpf => "FUSE-BPF lookup direct fix",
+            Self::WebviewZygoteUmount => {
+                "WebView Zygote Umount - unmount modules from WebView zygote and its isolated children"
+            }
         }
     }
 }
@@ -86,6 +92,7 @@ fn parse_feature_id(name: &str) -> Result<FeatureId> {
         "selinux_hide" | "4" => Ok(FeatureId::SelinuxHide),
         "netisolate" | "5" => Ok(FeatureId::NetIsolate),
         "fusebpf" | "6" => Ok(FeatureId::Fusebpf),
+        "webview_zygote_umount" | "7" => Ok(FeatureId::WebviewZygoteUmount),
         _ => bail!("Unknown feature: {name}"),
     }
 }
@@ -337,6 +344,7 @@ pub fn list_features() {
         FeatureId::SelinuxHide,
         FeatureId::NetIsolate,
         FeatureId::Fusebpf,
+        FeatureId::WebviewZygoteUmount,
     ];
 
     for feature_id in &all_features {
@@ -402,6 +410,7 @@ pub fn save_config() -> Result<()> {
         FeatureId::SelinuxHide,
         FeatureId::NetIsolate,
         FeatureId::Fusebpf,
+        FeatureId::WebviewZygoteUmount,
     ];
 
     for feature_id in &all_features {

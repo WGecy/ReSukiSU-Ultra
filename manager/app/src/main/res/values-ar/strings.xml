@@ -6,7 +6,7 @@
     <string name="home_click_to_install">إضغط للتثبيت</string>
     <string name="home_working">يعمل</string>
     <string name="home_unsupported">غير مدعوم</string>
-    <string name="home_unsupported_reason">KernelSU يدعم GKI kernels فقط</string>
+    <string name="home_unsupported_reason">لايوجد تعريف KernelSU في نواتك، نواة خاطئة؟</string>
     <string name="home_kernel">إصدار النواة</string>
     <string name="home_susfs_version">إصدار SuSFS</string>
     <string name="home_manager_version">إصدار المدير</string>
@@ -59,7 +59,7 @@
     <string name="module_uninstall_confirm">هل أنت متأكد أنك تريد إلغاء تثبيت الإضافة %s ?</string>
     <string name="module_uninstall_success">تم إلغاء تثبيتها %s</string>
     <string name="module_uninstall_failed">فشل إلغاء تثبيت %s</string>
-    <string name="module_version">الإصدار</string>
+    <string name="module_version">النسخة</string>
     <string name="module_author">المطور</string>
     <string name="refresh">إنعاش</string>
     <string name="show_system_apps">إظهار تطبيقات النظام</string>
@@ -71,7 +71,7 @@
     <string name="home_learn_kernelsu">تعلم KernelSU</string>
     <string name="home_click_to_learn_kernelsu">تعرف على كيفية تثبيت KernelSU واستخدام الإضافات</string>
     <string name="home_support_title">إدعمنا</string>
-    <string name="home_support_content">KernelSU سيظل دائماً مجانياً ومفتوح المصدر. مع ذلك، يمكنك أن تظهر لنا أنك تهتم بالتبرع.</string>
+    <string name="home_support_content">KernelSU مجاني، و سيظل دائماً مجانياً، ومفتوح المصدر. مع ذلك، يمكنك أن تظهر لنا أنك تهتم عبر التبرع</string>
     <string name="profile_default">الإفتراضي</string>
     <string name="profile_template">نموذج</string>
     <string name="profile_custom">مُخصّص</string>
@@ -81,14 +81,14 @@
     <string name="profile_umount_modules">الغاء تحميل الإضافات</string>
     <string name="failed_to_update_app_profile">فشل تحديث ملف تعريف التطبيق لـ %s</string>
     <string name="settings_umount_modules_default">الغاء تحميل الإضافات بشكل افتراضي</string>
-    <string name="settings_umount_modules_default_summary">القيمة الافتراضية العامة لـ\"إلغاء تحميل الإضافات\" في ملفات تعريف التطبيقات. إذا تم تمكينه، إزالة جميع تعديلات الإضافات على النظام للتطبيقات التي لا تحتوي على مجموعة ملف تعريف.</string>
-    <string name="profile_umount_modules_summary">سيسمح تمكين هذا الخيار لـKernelSU باستعادة أي ملفات معدلة بواسطة الإضافات لهذا التطبيق.</string>
+    <string name="settings_umount_modules_default_summary">القيمة الافتراضية العامة لـ\"إلغاء تحميل الإضافات\" في ملفات تعريف التطبيقات. إذا تم تمكينه، سيزيل جميع تعديلات الإضافات على النظام للتطبيقات التي لا تحتوي على مجموعة ملف تعريف</string>
+    <string name="profile_umount_modules_summary">سيسمح تمكين هذا الخيار لـKernelSU باستعادة أي ملفات معدلة بواسطة الإضافات لهذا التطبيق</string>
     <string name="profile_selinux_domain">المجال</string>
     <string name="profile_selinux_rules">القواعد</string>
     <string name="module_update">تحديث</string>
     <string name="module_downloading">تحميل الإضافة: %s</string>
     <string name="module_start_downloading">ابدأ التنزيل: %s</string>
-    <string name="new_version_available">الإصدار الجديد: %s متاح ، انقر للتحديث.</string>
+    <string name="new_version_available">الإصدار الجديد %s متاح ، انقر للتحديث</string>
     <string name="launch_app">تشغيل</string>
     <string name="force_stop_app" formatted="false">ايقاف إجباري</string>
     <string name="restart_app">إعادة تشغيل التطبيق</string>
@@ -124,9 +124,7 @@
     <string name="direct_install">تثبيت مباشر (موصى به)</string>
     <string name="select_file">اختيار ملف</string>
     <string name="install_inactive_slot">التثبيت على فتحة غير نشطة (بعد OTA)</string>
-    <string name="install_inactive_slot_warning">سيتم **إجبار** جهازك على التمهيد إلى الفتحة غير النشطة الحالية بعد إعادة التشغيل!
-\nاستخدم هذا الخيار فقط بعد انتهاء التحديث.
-\nأستمرار؟</string>
+    <string name="install_inactive_slot_warning">سيتم **إجبار** جهازك على التمهيد إلى الفتحة غير النشطة الحالية بعد إعادة التشغيل! \nاستخدم هذا الخيار فقط بعد انتهاء التحديث. \nأستمرار؟</string>
     <string name="install_next">التالي</string>
     <string name="select_file_tip">يوصى باستخدام صورة القسم %1$s</string>
     <string name="select_kmi">اختر KMI</string>
@@ -134,9 +132,9 @@
     <string name="settings_uninstall_temporary">إلغاء التثبيت مؤقتًا</string>
     <string name="settings_uninstall_permanent">إلغاء التثبيت بشكل دائم</string>
     <string name="settings_restore_stock_image">استعادة الصورة الاصلية</string>
-    <string name="settings_uninstall_temporary_message">قم بإلغاء تثبيت KernelSU مؤقتًا، واستعد إلى حالته الأصلية بعد إعادة التشغيل التالية.</string>
-    <string name="settings_uninstall_permanent_message">‬إلغاء تثبيت KernelSU .(الجذر وجميع الوحدات) بشكل كامل ودائم.</string>
-    <string name="settings_restore_stock_image_message">استعادة صورة المصنع المخزنة (في حالة وجود نسخة احتياطية)، والتي تُستخدم عادة قبل OTA؛ إذا كنت بحاجة إلى إلغاء تثبيت KernelSU، فيرجى استخدام \"إلغاء التثبيت الدائم\".</string>
+    <string name="settings_uninstall_temporary_message">قم بإلغاء تثبيت KernelSU مؤقتًا، واستعد إلى حالته الأصلية بعد إعادة التشغيل التالية</string>
+    <string name="settings_uninstall_permanent_message">‬إلغاء تثبيت KernelSU .(الروت وجميع الإضافات) بشكل كامل ودائم</string>
+    <string name="settings_restore_stock_image_message">استعادة صورة المصنع المخزنة (في حالة وجود نسخة احتياطية)، والتي تُستخدم عادة قبل OTA؛ إذا كنت بحاجة إلى إلغاء تثبيت KernelSU، فيرجى استخدام \"إلغاء التثبيت الدائم\"</string>
     <string name="flashing">تركيب</string>
     <string name="flash_success">نجح التركيب</string>
     <string name="flash_failed">فشل التركيب</string>
@@ -163,7 +161,7 @@
     <string name="settings_sucompat">إعادة توجيه ثنائي su</string>
     <string name="settings_sucompat_summary">يسمح للتطبيقات التي تم منحها صلاحيات Superuser في ملف تعريف التطبيق بالحصول على shell superuser من خلال تنفيذ /system/bin/su؛ فعال فقط للعمليات الجديدة.</string>
     <string name="settings_kernel_umount">إلغاء تحميل النواة</string>
-    <string name="settings_kernel_umount_summary">سلوك إلغاء تحميل مستوى النواة الذي يسيطر عليه KernelSU</string>
+    <string name="settings_kernel_umount_summary">فك تثبيت الإضافات من النواة في ملف تعريف التطبيق</string>
     <string name="simple_mode">وضع البساطة</string>
     <string name="simple_mode_summary">إخفاء البطاقات غير الضرورية عند تشغيلها</string>
     <string name="hide_other_info">إخفاء معلومات أخرى</string>
@@ -214,18 +212,18 @@
     <string name="kernel_version_log">إصدار النواة：%1$s</string>
     <string name="tool_version_log">استخدام أداة التصحيح：%1$s</string>
     <string name="configuration">تعيين</string>
-    <string name="app_settings">إعدادات التطبيق </string>
+    <string name="app_settings">إعدادات التطبيق</string>
     <string name="tools">ادوات</string>
     <string name="no_apps_found">التطبيق غير موجود</string>
     <string name="appearance_settings">تخصيص شريط الأدوات</string>
     <string name="back">عد مرة أخرى</string>
     <string name="background_set_success">تم تعيين الخلفية بنجاح</string>
     <string name="background_removed">إزالة خلفيات مخصصة</string>
-    <string name="icon_switch_summary">Change the launcher icon to KernelSU\'s icon.</string>
+    <string name="icon_switch_summary">غيّر أيقونة التطبيق لـKernelSU</string>
     <string name="app_dpi_title">تم تطبيق DPI</string>
     <string name="app_dpi_summary">ضبط كثافة عرض الشاشة للتطبيق الحالي فقط</string>
-    <string name="dpi_size_small">صغير </string>
-    <string name="dpi_size_medium">متوسط </string>
+    <string name="dpi_size_small">صغير</string>
+    <string name="dpi_size_medium">متوسط</string>
     <string name="dpi_size_large">كبير</string>
     <string name="dpi_size_extra_large">حجم كبير</string>
     <string name="dpi_size_custom">قابلة للتعديل</string>

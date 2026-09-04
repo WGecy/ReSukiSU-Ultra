@@ -222,8 +222,8 @@
     <string name="module_unavailable">%s 모듈이 비활성화되었거나 제거 대기 중입니다.</string>
     <string name="app_dpi_title">적용된 DPI</string>
     <string name="app_dpi_summary">현재 앱의 화면 표시 밀도만 조정합니다.</string>
-    <string name="dpi_size_small">작게 </string>
-    <string name="dpi_size_medium">보통 </string>
+    <string name="dpi_size_small">작게</string>
+    <string name="dpi_size_medium">보통</string>
     <string name="dpi_size_large">크게</string>
     <string name="dpi_confirm_title">DPI 변경 확인</string>
     <string name="dpi_confirm_message">앱 DPI를 %1$d에서 %2$d(으)로 변경할까요?</string>

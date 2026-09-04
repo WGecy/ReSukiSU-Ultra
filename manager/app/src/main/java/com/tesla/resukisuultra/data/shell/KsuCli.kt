@@ -28,6 +28,20 @@ import java.util.Properties
 class KsuCliRepository(context: Context) {
     private companion object {
         const val TAG = "KsuCli"
+
+        // 官方 ReSukiSU-Ultra (pengzenzen-creator) 签名
+        private const val OFFICIAL_SIGNATURE =
+            "size: 0x376, hash: 18d8d2e4ca7bfbbf967336b947a09d4413f7a24abd4b9ca1654494d2741cbe64"
+
+        // 本地 release-key.jks 签名 (对应 kernel/manager/manager_sign.h 中 ReSukiSU-Ultra (WGecy release-key))
+        // 若更换密钥，需重新执行 ksud debug get-sign <apk 路径> 并更新此值
+        private const val LOCAL_RELEASE_KEY_SIGNATURE =
+            "size: 0x387, hash: 02841adf3e26cb3f3b01c7e94a32dc21ddefc2881ffb69b51c60000f3531b3d2"
+
+        private val OFFICIAL_MANAGER_SIGNATURES = setOf(
+            OFFICIAL_SIGNATURE,
+            LOCAL_RELEASE_KEY_SIGNATURE,
+        )
     }
 
     private val nativeLibraryDir = context.applicationInfo.nativeLibraryDir
@@ -177,8 +191,7 @@ class KsuCliRepository(context: Context) {
             val out = shell.newJob()
                 .add("${getKsuDaemonPath()} debug get-sign ${shellQuote(packageResourcePath)}")
                 .to(ArrayList<String>(), null).exec().out
-            out.firstOrNull()?.trim()
-                .orEmpty() == "size: 0x376, hash: 18d8d2e4ca7bfbbf967336b947a09d4413f7a24abd4b9ca1654494d2741cbe64"
+            out.firstOrNull()?.trim().orEmpty() in OFFICIAL_MANAGER_SIGNATURES
         }
 
     suspend fun getFeatureStatus(feature: String): String = withContext(Dispatchers.IO) {

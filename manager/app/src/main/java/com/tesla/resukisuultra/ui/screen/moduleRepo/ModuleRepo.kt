@@ -3,7 +3,6 @@ import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +33,6 @@ import androidx.compose.material.icons.twotone.Extension
 import androidx.compose.material.icons.twotone.MoreVert
 import androidx.compose.material.icons.twotone.Star
 import androidx.compose.material.icons.twotone.WebAsset
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
@@ -98,6 +96,7 @@ import com.tesla.resukisuultra.ui.component.SearchAppBar
 import com.tesla.resukisuultra.ui.component.SwipeableSnackbarHost
 import com.tesla.resukisuultra.ui.component.rememberConfirmDialog
 import com.tesla.resukisuultra.ui.component.rememberCustomDialog
+import com.tesla.resukisuultra.ui.component.rememberSearchAppBarScrollBehavior
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.navigation.Navigator
 import com.tesla.resukisuultra.ui.navigation.Route
@@ -136,7 +135,9 @@ fun ModuleRepoScreen() {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHost = LocalSnackbarHost.current
     val topAppBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    val scrollBehavior = rememberSearchAppBarScrollBehavior(
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    )
     val currentModuleForChooseDialog = remember { mutableStateOf<CatalogModule?>(null) }
     val chooseDialog = rememberCustomDialog({ dismiss ->
         ChooseDialogContent(
@@ -165,9 +166,6 @@ fun ModuleRepoScreen() {
     Scaffold(
         topBar = {
             SearchAppBar(
-                modifier = if (isLoading) Modifier.background(MaterialTheme.colorScheme.surfaceContainer.copy(
-                    alpha = 0.8f
-                )) else Modifier,
                 title = stringResource(R.string.module_repo),
                 searchText = uiState.search,
                 onSearchTextChange = { query ->
@@ -210,12 +208,14 @@ fun ModuleRepoScreen() {
                 onRetry = refreshModules,
                 modifier = Modifier
                     .fillMaxSize()
+                    .blurSource()
                     .padding(innerPadding),
             )
         } else if (uiState.modules.isEmpty() && uiState.search.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .blurSource()
                     .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -349,7 +349,9 @@ fun OnlineModuleItem(
             .renderBackgroundBlur(),
     ) {
         Column(
-            modifier = Modifier.padding(22.dp, 18.dp, 22.dp, 12.dp)
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -454,8 +456,6 @@ fun OnlineModuleItem(
 
             HorizontalDivider(thickness = Dp.Hairline)
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             Row(horizontalArrangement = Arrangement.SpaceBetween) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.align(Alignment.CenterVertically)) {
                     Spacer(modifier = Modifier.weight(1f))
@@ -464,7 +464,12 @@ fun OnlineModuleItem(
                         onClick = {
                             navigator.push(Route.ModuleRepoDetail(module.moduleId))
                         },
-                        contentPadding = ButtonDefaults.TextButtonContentPadding,
+                        contentPadding = PaddingValues(
+                            start = 12.dp,
+                            top = 7.dp,
+                            end = 12.dp,
+                            bottom = 7.dp,
+                        ),
                     ) {
                         Icon(
                             modifier = Modifier.size(20.dp),
@@ -509,7 +514,12 @@ fun OnlineModuleItem(
                                     }
                                 }
                             },
-                            contentPadding = ButtonDefaults.TextButtonContentPadding,
+                            contentPadding = PaddingValues(
+                                start = 12.dp,
+                                top = 7.dp,
+                                end = 12.dp,
+                                bottom = 7.dp,
+                            ),
                         ) {
                             Icon(
                                 modifier = Modifier.size(20.dp),

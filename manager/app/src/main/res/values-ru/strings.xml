@@ -7,7 +7,7 @@
     <string name="home_working">Работает</string>
     <string name="home_unsupported">Не поддерживается</string>
     <string name="home_unsupported_reason">Драйвера KernelSU не найдены в ядре, не то ядро?</string>
-    <string name="home_kernel">Ядро</string>
+    <string name="home_kernel">Версия ядра</string>
     <string name="home_susfs_version">Статус SuSFS</string>
     <string name="home_manager_version">Версия менеджера</string>
     <string name="home_selinux_status">Состояние SELinux</string>
@@ -32,7 +32,7 @@
     <string name="sulog_clean_title">Очистить логи</string>
     <string name="sulog_filter_sucompat">Классический SU</string>
     <string name="sulog_filter_ioctl_grant_root">Выдать Root</string>
-    <string name="sulog_filter_daemon_restart">Перезапустить сервис</string>
+    <string name="sulog_filter_daemon_restart">Перезапустить демон</string>
     <string name="sulog_event_dropped">Событие прервано</string>
     <string name="sulog_drop_count">%s Потерялось</string>
     <string name="sulog_daemon_restart_count">Перезапустить #%s</string>
@@ -57,7 +57,6 @@
     <string name="reboot_download">Перезагрузить в Download</string>
     <string name="reboot_edl">Перезагрузить в EDL</string>
     <string name="about">О приложении</string>
-    <string name="about_anime_character_sticker"><![CDATA[Изображения стикеров аниме-персонажей в файлах защищены авторским правом %1$s, права на интеллектуальную собственность бренда, представленные на изображениях, принадлежат %2$s. Перед использованием этих файлов, помимо соблюдения %3$s, необходимо также получить разрешение от обоих авторов на использование данного художественного контента.]]></string>
     <string name="get_source_code">Проверить исходный код</string>
     <string name="get_source_code_detail">Проверить исходные код на GitHub</string>
     <string name="join_telegram_group">Присоединиться к сообществу</string>
@@ -81,7 +80,7 @@
     <string name="jailbreak_mode">Режим Jailbreak</string>
     <string name="home_jailbreak">Jailbreak</string>
     <string name="jailbreak_timeout">Jailbreak мог не удастся, проверьте логи</string>
-    <string name="jailbreak_flash_warning">Вы в **Jailbreak режиме**. Прошивка раздела на устройстве с **заблокированным загрузчиком** нарушит AVB (Android Verified Boot) и может привести к тому, что устройство **не загрузится**.\n\nУбедитесь, что загрузчик разблокирован!</string>
+    <string name="jailbreak_flash_warning">Вы находитесь в **Jailbreak режиме**. Прошивка раздела на устройстве с **заблокированным загрузчиком** нарушит AVB (Android Verified Boot) и может привести к тому, что устройство **не загрузится**.\n\nУбедитесь, что загрузчик разблокирован!</string>
     <string name="jailbreak_flash_warning_countdown">Продолжить (%1$d)</string>
     <string name="settings_auto_jailbreak">Автоматический Jailbreak</string>
     <string name="settings_auto_jailbreak_summary">Автоматически использовать Magica для повышения прав, если при загрузке обнаружится Permissive SELinux. Требует предоставления разрешения на автозапуск этого приложения.</string>
@@ -110,7 +109,7 @@
     <string name="profile_umount_modules">Размонтировать модули</string>
     <string name="failed_to_update_app_profile">Не удалось обновить профиль приложения для %s</string>
     <string name="debug_version_notice">Вы используете DEBUG сборку менеджера. Если вы не знаете, что это такое, немедленно переключитесь на RELEASE сборку</string>
-    <string name="unofficial_version_notice">"Менеджер, который вы используете, не является официальным менеджером %s, и вы можете не иметь возможности получить необходимые разрешения."</string>
+    <string name="unofficial_version_notice">Менеджер, который вы используете, не является официальным менеджером %s, и вы можете не иметь возможности получить необходимые разрешения.</string>
     <string name="conflict_with_apatch">Обнаружен APatch, все может перестать работать.</string>
     <string name="settings_umount_modules_default">Размонтировать модули по умолчанию</string>
     <string name="settings_umount_modules_default_summary">Глобальное значение по умолчанию для \"Размонтировать модули\" в профиле приложения. При включении будут удалены все модификации модулей в системе для приложений, у которых не задан профиль</string>
@@ -159,14 +158,12 @@
     <string name="direct_install">Прямая установка (Рекомендуется)</string>
     <string name="select_file">Выбрать файл</string>
     <string name="install_inactive_slot">Установка в неактивный слот (После OTA)</string>
-    <string name="install_inactive_slot_warning">Ваше устройство будет **ПРИНУДИТЕЛЬНО** загружено в текущий неактивный слот после перезагрузки!
-\n Используйте эту опцию только после завершения OTA.
-\n Продолжить?</string>
+    <string name="install_inactive_slot_warning">Ваше устройство будет **ПРИНУДИТЕЛЬНО** загружено в текущий неактивный слот после перезагрузки! \n Используйте эту опцию только после завершения OTA. \n Продолжить?</string>
     <string name="install_next">Далее</string>
     <string name="install_select_partition">Выбрать раздел</string>
-    <string name="install_upload_lkm_file">Использовать локальный файл LKM</string>
+    <string name="install_upload_lkm_file">Использовать локальный файл LKM (.ko)</string>
     <string name="install_only_support_ko_file">Поддерживаются только файлы .ko</string>
-    <string name="select_file_tip">Образ раздела %1$s рекомендуется</string>
+    <string name="select_file_tip">Рекомендуется образ %1$s для прошивки</string>
     <string name="select_kmi">Выбрать KMI</string>
     <string name="settings_uninstall">Удалить</string>
     <string name="settings_uninstall_temporary">Удалить на время</string>
@@ -258,7 +255,7 @@
     <string name="horizon_flashing">Прошивка ядра…</string>
     <string name="horizon_flash_complete_status">Прошивка завершена</string>
     <string name="select_slot_title">Выберите слот для прошивки</string>
-    <string name="select_slot_description">Пожалуйста, выберите целевой слот для прошивки загрузки</string>
+    <string name="select_slot_description">Пожалуйста, выберите целевой слот для прошивки boot</string>
     <string name="slot_a">Слот A</string>
     <string name="slot_b">Слот B</string>
     <string name="selected_slot">Выбран LKM: %1$s</string>
@@ -269,7 +266,7 @@
     <string name="horizon_copy_failed">Копирование не удалось</string>
     <string name="horizon_unknown_error">Неизвестная ошибка</string>
     <string name="flash_failed_message">Установка не выполнена</string>
-    <string name="Lkm_install_methods">Починить/установить LKM</string>
+    <string name="Lkm_install_methods">Исправить/установить LKM</string>
     <string name="GKI_install_methods">Прошить AnyKernel3</string>
     <string name="kernel_version_log">Ядро</string>
     <string name="tool_version_log">С помощью инструмента патрулирования：%1$s</string>
@@ -277,8 +274,8 @@
     <string name="app_settings">Настройки приложения</string>
     <string name="tools">Инструменты</string>
     <string name="no_apps_found">Приложение не найдено</string>
-    <string name="appearance_settings">Внешний вид</string>
-    <string name="predictive_back_settings">Предиктивное возвращение</string>
+    <string name="appearance_settings">Настройка панели инструментов</string>
+    <string name="predictive_back_settings">Предиктивный жест \"Назад\"</string>
     <string name="predictive_back_animation">Предиктивная анимация возвращения</string>
     <string name="predictive_back_exit_direction">Направления возвращения</string>
     <string name="predictive_back_animation_none">Нет</string>
@@ -292,7 +289,7 @@
     <string name="background_removed">Пользовательский фон удалён</string>
     <string name="icon_switch_title">Альт. иконка</string>
     <string name="icon_switch_summary">Поменять иконку приложения на иконку KernelSU</string>
-    <string name="icon_switched">Иконка поменяна</string>
+    <string name="icon_switched">Иконка применена</string>
     <string name="module_webui_alert">Сообщение от модуля %s</string>
     <string name="no_such_module">Модуль %s не существует</string>
     <string name="module_unavailable">Модуль %s отключен или ожидает удаления</string>
@@ -301,8 +298,8 @@
     <string name="dpi_size_small">маленький</string>
     <string name="dpi_size_medium">средний</string>
     <string name="dpi_size_large">большой</string>
-    <string name="dpi_size_extra_large"> огромный</string>
-    <string name="dpi_size_custom">настраиваемый</string>
+    <string name="dpi_size_extra_large">огромный</string>
+    <string name="dpi_size_custom">Уровень DPI</string>
     <string name="dpi_apply_settings">Применить настройки DPI</string>
     <string name="dpi_confirm_title">Подтвердите изменение DPI</string>
     <string name="dpi_confirm_message">Вы уверены, что хотите изменить DPI приложения с %1$d на %2$d?</string>
@@ -387,10 +384,10 @@
     <string name="sus_maps_description_title">Скрыть настоящий файл mmapped с разных карт в /proc/self/</string>
     <string name="sus_maps_description_text">Скрыть реальные пути к папкам памяти из /proc/self/[maps|smaps_rollup|map_files|mem|pagemap]. Обратите внимание: эта функция не поддерживает скрытие анонимных карт и может скрыть встроенные хуки или PLT хуки вызванные инъекцией самой библиотеки.</string>
     <string name="sus_maps_warning">Важное уведомление: для приложений с хорошо реализованными механизмами обнаружений эта функция может работать не эффективно .</string>
-    <string name="sus_maps_debug_info">Сначала найдите PID и UID целевого приложения, используя ps -enf, затем проверьте соответствующие пути в /proc/&lt;pid&gt;/maps и сравните номера устройства с номерами в /proc/1/mountinfo. Функция скрытия  будет работать должным образом только если номера устройств совпадают.</string>
+    <string name="sus_maps_debug_info">Сначала найдите PID и UID целевого приложения, используя ps -enf, затем проверьте соответствующие пути в /proc/&lt;pid&gt;/maps и сравните номера устройства с номерами в /proc/1/mountinfo. Функция скрытия будет работать должным образом только если номера устройств совпадают.</string>
     <string name="umount_path_manager">Управление путями размонтирования</string>
     <string name="umount_path_manager_summary">Управления путями размонтирования ядра</string>
-    <string name="no_any_umount_path">Нет пути размонтирования</string>
+    <string name="no_any_umount_path">Нет существующих путей для размонтирования</string>
     <string name="add_umount_path">Добавить путь размонтирования</string>
     <string name="mount_path">Смонтировать путь</string>
     <string name="umount_flags">Флаги размонтирования</string>
@@ -402,9 +399,9 @@
     <string name="operation_failed">Неудача</string>
     <string name="changes_take_effect_immediately">Все изменения вступят в силу сразу.</string>
     <string name="group_contains_apps">Содержит %d приложений</string>
-    <string name="meta_module_disabled">Модуль не смонтирован, так как мета-модуль отключен</string>
-    <string name="meta_module_removed">Модуль не смонтирован, так как мета-модуль будет удален</string>
-    <string name="no_meta_module_installed">Модуль не смонтирован, так как мета-модуль не установлен</string>
+    <string name="meta_module_disabled">Модуль не может быть смонтирован, так как мета-модуль был отключен</string>
+    <string name="meta_module_removed">Модуль не может быть смонтирован, так как мета-модуль был удален</string>
+    <string name="no_meta_module_installed">Модуль не может быть смонтирован, так как не установлен мета-модуль</string>
     <string name="network_offline">Вы в оффлайне</string>
     <string name="network_retry">Повторить</string>
     <string name="please_check_network">Проверьте ваше интернет-соединение и попробуйте снова</string>

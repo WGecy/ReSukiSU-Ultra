@@ -42,6 +42,7 @@ import androidx.compose.material.icons.twotone.GppGood
 import androidx.compose.material.icons.twotone.RestartAlt
 import androidx.compose.material.icons.twotone.Info
 import androidx.compose.material.icons.twotone.DataUsage
+import androidx.compose.material.icons.twotone.Language
 import androidx.compose.material.icons.twotone.Policy
 import androidx.compose.material.icons.twotone.RadioButtonChecked
 import androidx.compose.material.icons.twotone.RadioButtonUnchecked
@@ -331,6 +332,28 @@ fun SettingsCoreScreen() {
                                 )
                             }
 
+
+                            item {
+                                val webViewUmountSummary = when (uiState.webViewZygoteUmountStatus) {
+                                    "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
+                                    "managed" -> stringResource(id = R.string.feature_status_managed_summary)
+                                    else -> stringResource(id = R.string.settings_webview_zygote_umount_summary)
+                                }
+                                SettingsSwitchWidget(
+                                    icon = Icons.TwoTone.Language,
+                                    title = stringResource(id = R.string.settings_webview_zygote_umount),
+                                    description = webViewUmountSummary,
+                                    enabled = uiState.webViewZygoteUmountStatus == "supported",
+                                    checked = uiState.isWebViewZygoteUmountEnabled,
+                                    onCheckedChange = { checked ->
+                                        settingsViewModel.dispatch(
+                                            SettingsUiAction.SetWebViewZygoteUmountEnabled(
+                                                checked
+                                            )
+                                        )
+                                    },
+                                )
+                            }
 
                             item {
                                 val selinuxHideSummary = when (uiState.selinuxHideStatus) {
@@ -668,7 +691,7 @@ fun SettingsToolsScreen() {
                                 }
                             }
 
-                            if (homeState.systemStatus.lkmMode == true) {
+                            if (homeState.systemStatus.lkmMode == true && !homeState.systemStatus.isLateLoadMode) {
                                 item {
                                     UninstallItem {
                                         loadingDialog.withLoading(it)

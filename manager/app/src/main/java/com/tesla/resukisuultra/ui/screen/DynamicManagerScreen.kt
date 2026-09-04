@@ -54,6 +54,7 @@ import com.tesla.resukisuultra.ui.component.SearchAppBar
 import com.tesla.resukisuultra.ui.component.SwipeableSnackbarHost
 import com.tesla.resukisuultra.ui.component.rememberConfirmDialog
 import com.tesla.resukisuultra.ui.component.rememberCustomDialog
+import com.tesla.resukisuultra.ui.component.rememberSearchAppBarScrollBehavior
 import com.tesla.resukisuultra.ui.component.settings.SegmentedColumn
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.SettingsTextFieldWidget
@@ -78,8 +79,9 @@ fun DynamicManagerScreen() {
     val navigator = LocalNavigator.current
     val viewModel = koinViewModel<DynamicManagerViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val scrollBehavior =
+    val scrollBehavior = rememberSearchAppBarScrollBehavior(
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    )
     val pullToRefreshState = rememberPullToRefreshState()
     val snackbarHost = LocalSnackbarHost.current
     val scope = rememberCoroutineScope()

@@ -30,7 +30,6 @@ import androidx.compose.material.icons.twotone.FilterList
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
@@ -84,6 +83,7 @@ import com.tesla.resukisuultra.domain.model.SulogFile
 import com.tesla.resukisuultra.domain.model.toSulogDisplayName
 import com.tesla.resukisuultra.ui.component.SearchAppBar
 import com.tesla.resukisuultra.ui.component.WarningCard
+import com.tesla.resukisuultra.ui.component.rememberSearchAppBarScrollBehavior
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.SettingsChooseWidget
 import com.tesla.resukisuultra.ui.component.settings.lazySegmentColumn
@@ -149,10 +149,12 @@ private fun SulogScreenContent(
     actions: SulogActions,
 ) {
     val cardConfig: CardConfig = koinInject()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-        rememberTopAppBarState(
-            initialHeightOffset = -154f,
-            initialHeightOffsetLimit = -154f // from debugger
+    val scrollBehavior = rememberSearchAppBarScrollBehavior(
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+            rememberTopAppBarState(
+                initialHeightOffset = -154f,
+                initialHeightOffsetLimit = -154f // from debugger
+            )
         )
     )
     val pullToRefreshState = rememberPullToRefreshState()
@@ -215,12 +217,6 @@ private fun SulogScreenContent(
                                     DropdownMenuItem(
                                         selected = filter in state.selectedFilters,
                                         text = { Text(sulogFilterLabel(filter)) },
-                                        trailingIcon = {
-                                            Checkbox(
-                                                checked = filter in state.selectedFilters,
-                                                onCheckedChange = null,
-                                            )
-                                        },
                                         onClick = {
                                             haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
                                             actions.onToggleFilter(filter)
@@ -277,7 +273,7 @@ private fun SulogScreenContent(
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
                 ) {
                     item {
-                        Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding() + 8.dp))
+                        Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
                     }
 
                     item {
@@ -610,11 +606,6 @@ private fun LazyListScope.sulogEntriesSection(
                 entries,
                 key = { index, entry -> "$index-${entry.key}" }) { index, entry ->
                 SettingsBaseWidget(
-                    modifier = if (index < entries.lastIndex) {
-                        Modifier.padding(bottom = 2.dp)
-                    } else {
-                        Modifier
-                    },
                     onClick = { onEntryClick(entry) },
                     title = sulogEntryTitle(entry),
                     iconPlaceholder = false,

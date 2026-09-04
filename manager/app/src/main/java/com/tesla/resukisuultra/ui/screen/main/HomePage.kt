@@ -233,7 +233,7 @@ fun HomePage(
                         start = 16.dp,
                         end = 16.dp
                     ),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // 状态卡片
                 if (uiState.isCoreDataLoaded) {
@@ -271,6 +271,7 @@ fun HomePage(
                                 }
                             )
                         }
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     // 警告信息
@@ -286,6 +287,7 @@ fun HomePage(
                                 )
                             }
                         )
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     if (!uiState.systemStatus.isOfficialSignature) {
@@ -303,6 +305,7 @@ fun HomePage(
                                 )
                             }
                         )
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     if (BuildConfig.IS_PR_BUILD || uiState.systemStatus.isPrBuild) {
@@ -319,6 +322,7 @@ fun HomePage(
                                 )
                             }
                         )
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     if (uiState.systemStatus.kernelPatchImplementation == KernelPatchImplementation.OFFICIAL) {
@@ -335,6 +339,7 @@ fun HomePage(
                                 )
                             }
                         )
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     if (uiState.systemStatus.ksuVersion != null && !uiState.systemStatus.isRootAvailable) {
@@ -349,6 +354,7 @@ fun HomePage(
                                 )
                             }
                         )
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     HeroStatusCard(
@@ -389,9 +395,12 @@ fun HomePage(
                         }
                     )
                 }
+                Spacer(modifier = Modifier.height(10.dp))
 
                 ManagerUpdateCard(uiState.stableManagerUpdate)
+                Spacer(modifier = Modifier.height(10.dp))
                 ManagerUpdateCard(uiState.betaManagerUpdate)
+                Spacer(modifier = Modifier.height(10.dp))
                 if (uiState.isBetaManagerUpdateCheckFailed) {
                     WarningCard(
                         message = stringResource(R.string.beta_update_check_failed),
@@ -403,6 +412,7 @@ fun HomePage(
                             )
                         }
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
 
                 if (uiState.isExtendedDataLoaded) {
@@ -870,7 +880,7 @@ private fun InfoCard(
     isSimpleMode: Boolean,
     isHideSusfsStatus: Boolean,
     isHideZygiskImplement: Boolean,
-    isHideMetaModuleImplement: Boolean
+    isHideMetaModuleImplement: Boolean,
 ) {
     val managersList = systemInfo.managersList
 

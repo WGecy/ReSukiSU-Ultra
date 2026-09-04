@@ -9,15 +9,16 @@ import com.tesla.resukisuultra.domain.model.AppearanceSetting
 import com.tesla.resukisuultra.domain.model.PlatformSetting
 import com.tesla.resukisuultra.domain.model.SettingsPlatformSnapshot
 import com.tesla.resukisuultra.domain.model.coerceCompatibleWith
+import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.domain.usecase.ConfigureSuLogUseCase
 import com.tesla.resukisuultra.domain.usecase.GetKernelFeatureSettingsUseCase
 import com.tesla.resukisuultra.domain.usecase.GetPlatformFeatureStatusUseCase
 import com.tesla.resukisuultra.domain.usecase.LoadSettingsPlatformUseCase
-import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.domain.usecase.SetDefaultUmountModulesUseCase
 import com.tesla.resukisuultra.domain.usecase.SetKernelUmountEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.SetSelinuxHideEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.SetSuEnabledUseCase
+import com.tesla.resukisuultra.domain.usecase.SetWebViewZygoteUmountEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.UpdateAppearanceUseCase
 import com.tesla.resukisuultra.domain.usecase.UpdatePlatformSettingUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -100,7 +101,10 @@ data class SettingsUiState(
     val selinuxHideStatus: String = "",
     val isSelinuxHideEnabled: Boolean = false,
     val isRootAvailable: Boolean = false,
+    val webViewZygoteUmountStatus: String = "",
+    val isWebViewZygoteUmountEnabled: Boolean = false,
     val defaultUmountModules: Boolean = false,
+    val useBuiltinMonoFont: Boolean = false,
 )
 
 sealed interface SettingsUiAction {
@@ -139,6 +143,7 @@ sealed interface SettingsUiAction {
     data class SetAdbRoot(val enabled: Boolean) : SettingsUiAction
     data class SetSuLog(val enabled: Boolean) : SettingsUiAction
     data class SetDefaultUmountModules(val enabled: Boolean) : SettingsUiAction
+    data class SetWebViewZygoteUmountEnabled(val enabled: Boolean) : SettingsUiAction
 }
 
 sealed interface SettingsUiEvent {
@@ -160,6 +165,7 @@ class SettingsViewModel(
     private val setSelinuxHideEnabled: SetSelinuxHideEnabledUseCase,
     private val setDefaultUmountModules: SetDefaultUmountModulesUseCase,
     private val ksuCli: KsuCliRepository,
+    private val setWebViewZygoteUmountEnabled: SetWebViewZygoteUmountEnabledUseCase,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(SettingsUiState())
     val state: StateFlow<SettingsUiState> = mutableState.asStateFlow()
@@ -184,7 +190,7 @@ class SettingsViewModel(
         dispatch(SettingsUiAction.Initialize)
     }
 
-    fun initialize() {
+fun initialize() {
         applySnapshot(loadSettings(), resetTempDpi = true)
         loadFeatureSettings()
     }
@@ -213,6 +219,8 @@ class SettingsViewModel(
                     selinuxHideStatus = platform.selinuxHideStatus,
                     isRootAvailable = runCatching { ksuCliRepository.rootAvailable() }.getOrDefault(false),
                     isSelinuxHideEnabled = features.selinuxHideEnabled,
+                    webViewZygoteUmountStatus = platform.webViewZygoteUmountStatus,
+                    isWebViewZygoteUmountEnabled = features.webViewZygoteUmountEnabled,
                     defaultUmountModules = features.defaultUmountModules,
                 )
             }
@@ -431,7 +439,16 @@ class SettingsViewModel(
         }
     }
 
-    fun dispatch(action: SettingsUiAction) {
+    fun handleWebViewZygoteUmountChange(checked: Boolean) {
+        viewModelScope.launch {
+            if (setWebViewZygoteUmountEnabled(checked)) {
+                mutableState.update { it.copy( isWebViewZygoteUmountEnabled = checked) }
+            }
+        }
+    }
+
+
+fun dispatch(action: SettingsUiAction) {
         when (action) {
             SettingsUiAction.Initialize -> initialize()
             SettingsUiAction.InitializeFirstRun -> initializeFirstRunSettings()
@@ -472,7 +489,12 @@ class SettingsViewModel(
             is SettingsUiAction.SetSuLog -> handleSuLogChange(action.enabled)
             is SettingsUiAction.SetDefaultUmountModules ->
                 handleDefaultUmountModulesChange(action.enabled)
+            is SettingsUiAction.SetWebViewZygoteUmountEnabled -> handleWebViewZygoteUmountChange(action.enabled)
         }
+    }
+
+    fun handleBuiltinMonospaceFontChange(checked: Boolean) {
+        updatePlatformAsync(PlatformSetting.BuiltinMonospaceFont(checked))
     }
 
     private fun updateAppearanceAsync(setting: AppearanceSetting) {
@@ -518,6 +540,7 @@ class SettingsViewModel(
                 checkBetaUpdate = snapshot.checkBetaUpdate,
                 checkModuleUpdate = snapshot.checkModuleUpdate,
                 autoJailbreakEnabled = snapshot.autoJailbreakEnabled,
+                useBuiltinMonoFont = snapshot.useBuiltinMonoFont,
             )
         }
     }

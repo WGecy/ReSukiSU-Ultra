@@ -27,11 +27,7 @@ import androidx.compose.material.icons.automirrored.twotone.Article
 import androidx.compose.material.icons.twotone.Archive
 import androidx.compose.material.icons.twotone.ChevronRight
 import androidx.compose.material.icons.twotone.MoreVert
-import androidx.compose.material.icons.twotone.RestoreFromTrash
-import androidx.compose.material.icons.twotone.Save
 import androidx.compose.material.icons.twotone.SearchOff
-import androidx.compose.material.icons.twotone.Visibility
-import androidx.compose.material.icons.twotone.VisibilityOff
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
@@ -62,7 +58,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -81,6 +76,7 @@ import com.tesla.resukisuultra.ui.component.PackageIcon
 import com.tesla.resukisuultra.ui.component.SearchAppBar
 import com.tesla.resukisuultra.ui.component.SwipeableSnackbarHost
 import com.tesla.resukisuultra.ui.component.rememberConfirmDialog
+import com.tesla.resukisuultra.ui.component.rememberSearchAppBarScrollBehavior
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.lazySegmentColumn
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
@@ -102,7 +98,7 @@ import java.util.Date
 import java.util.Locale
 
 private data class SuperUserMenuItem(
-    val icon: ImageVector,
+    val checked: Boolean = false,
     val titleRes: Int,
     val onClick: () -> Unit
 )
@@ -115,7 +111,9 @@ fun SuperUserPage(bottomPadding: Dp) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val topAppBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    val scrollBehavior = rememberSearchAppBarScrollBehavior(
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    )
     val listState = rememberLazyListState()
     val snackBarHostState = LocalSnackbarHost.current
 
@@ -404,19 +402,17 @@ private fun SuperUserDropdown(
     ) {
         listOf(
             SuperUserMenuItem(
-                icon = if (uiState.showSystemApps) Icons.TwoTone.VisibilityOff else Icons.TwoTone.Visibility,
-                titleRes = if (uiState.showSystemApps) R.string.hide_system_apps else R.string.show_system_apps,
+                checked = uiState.showSystemApps,
+                titleRes = R.string.show_system_apps,
                 onClick = {
                     viewModel.dispatch(SuperUserUiAction.SetShowSystemApps(!uiState.showSystemApps))
                 }
             ),
             SuperUserMenuItem(
-                icon = Icons.TwoTone.Save,
                 titleRes = R.string.backup_allowlist,
                 onClick = onBackupAllowlist,
             ),
             SuperUserMenuItem(
-                icon = Icons.TwoTone.RestoreFromTrash,
                 titleRes = R.string.restore_allowlist,
                 onClick = onRestoreAllowlist,
             )
@@ -455,14 +451,8 @@ private fun SuperUserDropdown(
         ) {
             menuItems.forEachIndexed { index, menuItem ->
                 DropdownMenuItem(
-                    selected = false,
+                    selected = menuItem.checked,
                     text = { Text(stringResource(menuItem.titleRes)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = menuItem.icon,
-                            contentDescription = null,
-                        )
-                    },
                     onClick = {
                         onDismissRequest()
                         menuItem.onClick()

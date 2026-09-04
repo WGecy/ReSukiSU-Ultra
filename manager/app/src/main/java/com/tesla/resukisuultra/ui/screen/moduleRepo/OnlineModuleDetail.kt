@@ -553,7 +553,8 @@ fun ReleaseCard(
                             formatFileSize(assetInfo.size),
                             assetInfo.downloadCount
                         ),
-                        isOnBackground = false
+                        isOnBackground = false,
+                        containerColor = Color.Transparent,
                     ) {
                         FilledTonalButton(
                             onClick = onClick,

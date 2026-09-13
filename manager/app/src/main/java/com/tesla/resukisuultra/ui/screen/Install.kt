@@ -93,6 +93,7 @@ import com.tesla.resukisuultra.ui.theme.getCardElevation
 import com.tesla.resukisuultra.ui.theme.renderBackgroundBlur
 import com.tesla.resukisuultra.ui.viewmodel.InstallUiEvent
 import com.tesla.resukisuultra.ui.viewmodel.InstallViewModel
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -263,6 +264,7 @@ fun InstallScreen(
     }
 
     Scaffold(
+        contentWindowInsets = adaptiveScaffoldWindowInsets(),
         topBar = {
             TopBar(
                 onBack = { navigator.pop() },

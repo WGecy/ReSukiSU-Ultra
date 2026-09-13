@@ -142,6 +142,10 @@ void setup_ksu_cred(void)
 {
     setup_ksu_cred_selinux();
 #ifdef KSU_COMPAT_REQUIRE_SESSION_KEYRING
+    if (init_session_keyring == NULL) {
+        init_session_keyring = ksu_get_session_keyring(current_cred());
+    }
+
     setup_ksu_cred_session_keyring();
 #endif
 }
@@ -194,6 +198,10 @@ static const struct kernel_param_ops fusebpf_fix_ops = {
 static bool fusebpf_fix_enabled = true;
 module_param_cb(fusebpf_fix, &fusebpf_fix_ops, &fusebpf_fix_enabled, 0644);
 #endif
+#ifdef MODULE
+bool ksu_bundled = false;
+module_param_named(bundled, ksu_bundled, bool, 0);
+#endif
 
 char ksu_block_modules[256];
 module_param_string(block_modules, ksu_block_modules, sizeof(ksu_block_modules), 0);
@@ -205,7 +213,7 @@ int __init kernelsu_init(void)
     if (ksu_register_feature_handler(&fusebpf_handler))
         pr_err("Failed to register fusebpf feature handler\n");
 #endif
-    // clang-format off
+        // clang-format off
     
     // ddk in x86-64 doesn't have generated/compile.h
     // manually ifdef in there...

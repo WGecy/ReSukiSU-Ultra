@@ -11,15 +11,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,8 +29,8 @@ import androidx.compose.material.icons.twotone.Extension
 import androidx.compose.material.icons.twotone.MoreVert
 import androidx.compose.material.icons.twotone.Star
 import androidx.compose.material.icons.twotone.WebAsset
+import androidx.compose.material3.CheckableDropdownMenuItem
 import androidx.compose.material3.DropdownMenuGroup
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -108,6 +104,7 @@ import com.tesla.resukisuultra.ui.theme.renderBackgroundBlur
 import com.tesla.resukisuultra.ui.util.ActivityResumeEffect
 import com.tesla.resukisuultra.ui.util.LocalPermissionRequestInterface
 import com.tesla.resukisuultra.ui.util.LocalSnackbarHost
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import com.tesla.resukisuultra.ui.util.downloader.download
 import com.tesla.resukisuultra.ui.viewmodel.ModuleRepoUiAction
 import com.tesla.resukisuultra.ui.viewmodel.ModuleRepoUiState
@@ -197,9 +194,7 @@ fun ModuleRepoScreen() {
         },
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        contentWindowInsets = WindowInsets.safeDrawing.only(
-            WindowInsetsSides.Top + WindowInsetsSides.Horizontal
-        ),
+        contentWindowInsets = adaptiveScaffoldWindowInsets(),
         snackbarHost = { SwipeableSnackbarHost(hostState = snackBarHost) }
     ) { innerPadding ->
         if (isLoading) {
@@ -307,10 +302,10 @@ private fun ModuleRepoDropdown(
                 com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
             ),
         ) {
-            DropdownMenuItem(
+            CheckableDropdownMenuItem(
                 checked = uiState.sortStargazerCountFirst,
-                onCheckedChange = { checked ->
-                    viewModel.dispatch(ModuleRepoUiAction.SetStarsFirst(checked))
+                onCheckedChange = {
+                    viewModel.dispatch(ModuleRepoUiAction.SetStarsFirst(it))
                 },
                 text = { Text(stringResource(R.string.module_sort_star_first)) },
                 shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(0, 1),

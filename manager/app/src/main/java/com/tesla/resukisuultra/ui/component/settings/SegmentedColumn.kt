@@ -90,6 +90,7 @@ class SegmentedColumnScope {
         content: @Composable (Shape) -> Unit
     ) {
         val resolvedForceFlatTop = forceFlatTop || isInsideExpandableBody
+        val resolvedForceFlatBottom = forceFlatBottom || isInsideExpandableBody
         val resolvedVisible = visible && parentVisibilityMask
 
         items.add(
@@ -98,7 +99,7 @@ class SegmentedColumnScope {
                 visible = resolvedVisible,
                 customTopPadding = topPadding,
                 forceFlatTop = resolvedForceFlatTop,
-                forceFlatBottom = forceFlatBottom,
+                forceFlatBottom = resolvedForceFlatBottom,
                 content = content
             )
         )
@@ -128,7 +129,15 @@ class SegmentedColumnScope {
         isInsideExpandableBody = true
         parentVisibilityMask = previousVisibilityMask && animatedVisibility && expanded
 
+        val headerIndex = items.lastIndex
         bottomContent()
+
+        if (!previousInsideBody) {
+            val lastGroupIndex = items.lastIndex
+            if (lastGroupIndex >= headerIndex) {
+                items[lastGroupIndex] = items[lastGroupIndex].copy(forceFlatBottom = false)
+            }
+        }
 
         isInsideExpandableBody = previousInsideBody
         parentVisibilityMask = previousVisibilityMask
@@ -199,17 +208,22 @@ fun SegmentedColumn(
                         val baseTopRadius = if (isFirst) 16.dp else 5.dp
                         val baseBottomRadius = if (isLast) 16.dp else 5.dp
 
-                        val targetTopRadius = if (itemData.forceFlatTop) 0.dp else baseTopRadius
+                        // Blurred backgrounds must be rendered as one continuous group. Keep
+                        // only the outer corners rounded, regardless of item-level overrides.
+                        val forceFlatTop =
+                            if (themeConfig.isEnableBlurExp) !isFirst else itemData.forceFlatTop
+                        val forceFlatBottom =
+                            if (themeConfig.isEnableBlurExp) !isLast else itemData.forceFlatBottom
+
+                        val targetTopRadius = if (forceFlatTop) 0.dp else baseTopRadius
                         val targetBottomRadius =
-                            if (itemData.forceFlatBottom) 0.dp else baseBottomRadius
+                            if (forceFlatBottom) 0.dp else baseBottomRadius
 
                         val isDynamicDpSupported =
                             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-
                         val currentTopRadius = if (isDynamicDpSupported) {
                             animateDpAsState(targetTopRadius, dpSpring, label = "TopRadius").value
                         } else targetTopRadius
-
                         val currentBottomRadius = if (isDynamicDpSupported) {
                             animateDpAsState(
                                 targetBottomRadius,

@@ -11,6 +11,7 @@ const CMD_FUSEBPF_SET: u64 = 0x555d6;
 
 const SYSFS_PARAM: &str = "/sys/module/kernelsu/parameters/fusebpf_fix";
 
+#[allow(clippy::useless_conversion)]
 fn fusebpfctl(val: u32) -> i64 {
     unsafe {
         syscall(
@@ -34,6 +35,7 @@ pub(crate) fn set(enabled: bool) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub(crate) fn get() -> Result<bool> {
     let v =
         fs::read_to_string(SYSFS_PARAM).with_context(|| format!("read {SYSFS_PARAM} failed"))?;

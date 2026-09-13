@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -51,6 +50,7 @@ import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import com.tesla.resukisuultra.ui.theme.blurSource
 import com.tesla.resukisuultra.ui.util.LocalSnackbarHost
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import com.tesla.resukisuultra.ui.util.showReplacingSnackbar
 import com.tesla.resukisuultra.ui.viewmodel.ExecuteModuleActionUiAction
 import com.tesla.resukisuultra.ui.viewmodel.ExecuteModuleActionUiEvent
@@ -141,7 +141,7 @@ fun ExecuteModuleActionScreen(moduleId: String) {
         },
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        contentWindowInsets = WindowInsets.safeDrawing,
+        contentWindowInsets = adaptiveScaffoldWindowInsets(),
         snackbarHost = { SwipeableSnackbarHost(hostState = snackBarHost) }
     ) { innerPadding ->
         KeyEventBlocker {

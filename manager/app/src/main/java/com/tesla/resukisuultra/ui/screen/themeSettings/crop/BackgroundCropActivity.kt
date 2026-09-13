@@ -72,6 +72,7 @@ import androidx.compose.ui.window.PopupPositionProvider
 import com.tesla.resukisuultra.R
 import com.tesla.resukisuultra.ui.component.KeyPointSlider
 import com.tesla.resukisuultra.ui.theme.KernelSUTheme
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.callback.BitmapCropCallback
 import com.yalantis.ucrop.view.OverlayView
@@ -252,6 +253,7 @@ private fun BackgroundCropScreen(
     }
 
     Scaffold(
+        contentWindowInsets = adaptiveScaffoldWindowInsets(),
         topBar = {
             LargeFlexibleTopAppBar(
                 title = { Text(stringResource(R.string.background_crop_title)) },

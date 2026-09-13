@@ -4,8 +4,6 @@
 //! ksud 每次开机自动应用 (boot 完成后, 覆盖厂商 init 的 cpq 写入).
 //! 附加 10s 监听窗口: 厂商晚写入被纠正 (每 2s 检查, 保持则提前结束).
 use std::fs;
-use std::path::Path;
-use std::process::Command;
 use std::thread;
 use std::time::Duration;
 
@@ -67,6 +65,7 @@ fn apply_scheduler(name: &str) -> bool {
         let path = format!("/sys/block/{dev}/queue/scheduler");
         let _ = std::fs::write(&path, name);
         // 读回验证
+        #[allow(clippy::collapsible_if)]
         if let Ok(cur) = fs::read_to_string(&path) {
             if cur.contains(&format!("[{name}]")) {
                 success = true;

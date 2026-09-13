@@ -18,7 +18,6 @@ import com.tesla.resukisuultra.domain.usecase.SetDefaultUmountModulesUseCase
 import com.tesla.resukisuultra.domain.usecase.SetKernelUmountEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.SetSelinuxHideEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.SetSuEnabledUseCase
-import com.tesla.resukisuultra.domain.usecase.SetWebViewZygoteUmountEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.UpdateAppearanceUseCase
 import com.tesla.resukisuultra.domain.usecase.UpdatePlatformSettingUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -101,8 +100,6 @@ data class SettingsUiState(
     val selinuxHideStatus: String = "",
     val isSelinuxHideEnabled: Boolean = false,
     val isRootAvailable: Boolean = false,
-    val webViewZygoteUmountStatus: String = "",
-    val isWebViewZygoteUmountEnabled: Boolean = false,
     val defaultUmountModules: Boolean = false,
     val useBuiltinMonoFont: Boolean = false,
 )
@@ -143,7 +140,6 @@ sealed interface SettingsUiAction {
     data class SetAdbRoot(val enabled: Boolean) : SettingsUiAction
     data class SetSuLog(val enabled: Boolean) : SettingsUiAction
     data class SetDefaultUmountModules(val enabled: Boolean) : SettingsUiAction
-    data class SetWebViewZygoteUmountEnabled(val enabled: Boolean) : SettingsUiAction
 }
 
 sealed interface SettingsUiEvent {
@@ -164,8 +160,6 @@ class SettingsViewModel(
     private val setSuLogEnabled: ConfigureSuLogUseCase,
     private val setSelinuxHideEnabled: SetSelinuxHideEnabledUseCase,
     private val setDefaultUmountModules: SetDefaultUmountModulesUseCase,
-    private val ksuCli: KsuCliRepository,
-    private val setWebViewZygoteUmountEnabled: SetWebViewZygoteUmountEnabledUseCase,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(SettingsUiState())
     val state: StateFlow<SettingsUiState> = mutableState.asStateFlow()
@@ -174,7 +168,7 @@ class SettingsViewModel(
     init {
         // 读取 NoMount 开关状态 (内置挂载系统)
         viewModelScope.launch {
-            val out = ksuCli.exec("${ksuCli.getKsuDaemonPath()} nomount is-enabled")
+            val out = ksuCliRepository.exec("${ksuCliRepository.getKsuDaemonPath()} nomount is-enabled")
             mutableState.update {
                 it.copy(
                     isNomountEnabled = out?.trim() == "true",
@@ -219,8 +213,6 @@ fun initialize() {
                     selinuxHideStatus = platform.selinuxHideStatus,
                     isRootAvailable = runCatching { ksuCliRepository.rootAvailable() }.getOrDefault(false),
                     isSelinuxHideEnabled = features.selinuxHideEnabled,
-                    webViewZygoteUmountStatus = platform.webViewZygoteUmountStatus,
-                    isWebViewZygoteUmountEnabled = features.webViewZygoteUmountEnabled,
                     defaultUmountModules = features.defaultUmountModules,
                 )
             }
@@ -389,8 +381,8 @@ fun initialize() {
 
     fun handleNomountChange(checked: Boolean) {
         viewModelScope.launch {
-            val out = ksuCli.exec(
-                "${ksuCli.getKsuDaemonPath()} nomount set-enabled ${if (checked) 1 else 0}"
+            val out = ksuCliRepository.exec(
+                "${ksuCliRepository.getKsuDaemonPath()} nomount set-enabled ${if (checked) 1 else 0}"
             )
             if (out != null) {
                 mutableState.update { it.copy(isNomountEnabled = checked) }
@@ -439,15 +431,6 @@ fun initialize() {
         }
     }
 
-    fun handleWebViewZygoteUmountChange(checked: Boolean) {
-        viewModelScope.launch {
-            if (setWebViewZygoteUmountEnabled(checked)) {
-                mutableState.update { it.copy( isWebViewZygoteUmountEnabled = checked) }
-            }
-        }
-    }
-
-
 fun dispatch(action: SettingsUiAction) {
         when (action) {
             SettingsUiAction.Initialize -> initialize()
@@ -489,7 +472,6 @@ fun dispatch(action: SettingsUiAction) {
             is SettingsUiAction.SetSuLog -> handleSuLogChange(action.enabled)
             is SettingsUiAction.SetDefaultUmountModules ->
                 handleDefaultUmountModulesChange(action.enabled)
-            is SettingsUiAction.SetWebViewZygoteUmountEnabled -> handleWebViewZygoteUmountChange(action.enabled)
         }
     }
 

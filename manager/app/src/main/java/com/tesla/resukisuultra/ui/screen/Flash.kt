@@ -69,7 +69,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -97,6 +96,7 @@ import com.tesla.resukisuultra.ui.theme.blurEffect
 import com.tesla.resukisuultra.ui.theme.blurSource
 import com.tesla.resukisuultra.ui.theme.renderBackgroundBlur
 import com.tesla.resukisuultra.ui.util.LocalSnackbarHost
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import com.tesla.resukisuultra.ui.util.showReplacingSnackbar
 import com.tesla.resukisuultra.ui.viewmodel.FlashUiAction
 import com.tesla.resukisuultra.ui.viewmodel.FlashViewModel
@@ -441,6 +441,7 @@ fun FlashScreen(flashIt: FlashIt) {
     }
 
     Scaffold(
+        contentWindowInsets = adaptiveScaffoldWindowInsets(),
         topBar = {
             TopBar(
                 flashUiState.flashingStatus,

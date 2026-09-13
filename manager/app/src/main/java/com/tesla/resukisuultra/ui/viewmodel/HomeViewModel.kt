@@ -38,6 +38,8 @@ sealed interface HomeUiAction {
     data class SetHideZygiskImplement(val enabled: Boolean) : HomeUiAction
     data class SetHideMetaModuleImplement(val enabled: Boolean) : HomeUiAction
     data class SetHideLinkCard(val enabled: Boolean) : HomeUiAction
+    data class SetNavigationBarBadge(val enabled: Boolean) : HomeUiAction
+    data class SetHomeCardIcons(val enabled: Boolean) : HomeUiAction
     data class Reboot(val reason: String) : HomeUiAction
 }
 
@@ -94,7 +96,13 @@ class HomeViewModel(
                         it.copy(systemStatus = kernelStatus, isCoreDataLoaded = true)
                     }
 
-                    val basic = async { getBasicInfo(kernelStatus.managerUAPIVersion) }
+                    val includeSelinuxStatus = !state.value.isInitialDataLoaded
+                    val basic = async {
+                        getBasicInfo(
+                            managerUapiVersion = kernelStatus.managerUAPIVersion,
+                            includeSelinuxStatus = includeSelinuxStatus,
+                        )
+                    }
                     val module = async { getModuleOverview() }
                     val superusers = async { getSuperuserCount() }
                     val managers = async { getManagerRuntimeInfo() }
@@ -115,7 +123,9 @@ class HomeViewModel(
                                 androidVersion = basicInfo.androidVersion,
                                 deviceModel = basicInfo.deviceModel,
                                 managerVersion = basicInfo.managerVersion,
-                                selinuxStatus = basicInfo.selinuxStatus,
+                                selinuxStatus = current.systemInfo.selinuxStatus.ifEmpty {
+                                    basicInfo.selinuxStatus
+                                },
                                 susfsEnabled = susfsInfo?.enabled ?: false,
                                 susfsVersionSupported = susfsInfo?.enabled ?: false,
                                 susfsVersion = susfsInfo?.version.orEmpty(),
@@ -152,15 +162,20 @@ class HomeViewModel(
 
     fun handleHideSusfsStatusChange(enabled: Boolean) =
         updatePreference(PREF_HIDE_SUSFS, enabled) { it.copy(isHideSusfsStatus = enabled) }
-
     fun handleHideZygiskImplementChange(enabled: Boolean) =
         updatePreference(PREF_HIDE_ZYGISK, enabled) { it.copy(isHideZygiskImplement = enabled) }
-
     fun handleHideMetaModuleImplementChange(enabled: Boolean) =
         updatePreference(PREF_HIDE_META, enabled) { it.copy(isHideMetaModuleImplement = enabled) }
-
     fun handleHideLinkCardChange(enabled: Boolean) =
         updatePreference(PREF_HIDE_LINK, enabled) { it.copy(isHideLinkCard = enabled) }
+    fun handleNavigationBarBadgeChange(enabled: Boolean) =
+        updatePreference(PREF_SHOW_NAVIGATION_BAR_BADGE, enabled) {
+            it.copy(showNavigationBarBadge = enabled)
+        }
+    fun handleHomeCardIconsChange(enabled: Boolean) =
+        updatePreference(PREF_SHOW_HOME_CARD_ICONS, enabled) {
+            it.copy(showHomeCardIcons = enabled)
+        }
 
     fun dispatch(action: HomeUiAction) {
         when (action) {
@@ -172,6 +187,8 @@ class HomeViewModel(
             is HomeUiAction.SetHideZygiskImplement -> handleHideZygiskImplementChange(action.enabled)
             is HomeUiAction.SetHideMetaModuleImplement -> handleHideMetaModuleImplementChange(action.enabled)
             is HomeUiAction.SetHideLinkCard -> handleHideLinkCardChange(action.enabled)
+            is HomeUiAction.SetNavigationBarBadge -> handleNavigationBarBadgeChange(action.enabled)
+            is HomeUiAction.SetHomeCardIcons -> handleHomeCardIconsChange(action.enabled)
             is HomeUiAction.Reboot -> viewModelScope.launch {
                 reboot(action.reason).onFailure {
                     mutableEvents.tryEmit(HomeUiEvent.Error(it.message.orEmpty()))
@@ -223,6 +240,11 @@ class HomeViewModel(
                 isHideLinkCard = getBooleanPreference(PREF_HIDE_LINK),
                 isHideZygiskImplement = getBooleanPreference(PREF_HIDE_ZYGISK),
                 isHideMetaModuleImplement = getBooleanPreference(PREF_HIDE_META),
+                showNavigationBarBadge = getBooleanPreference(
+                    PREF_SHOW_NAVIGATION_BAR_BADGE,
+                    true,
+                ),
+                showHomeCardIcons = getBooleanPreference(PREF_SHOW_HOME_CARD_ICONS),
             )
         }
     }
@@ -247,5 +269,7 @@ class HomeViewModel(
         const val PREF_HIDE_LINK = "is_hide_link_card"
         const val PREF_HIDE_ZYGISK = "is_hide_zygisk_Implement"
         const val PREF_HIDE_META = "is_hide_meta_module_Implement"
+        const val PREF_SHOW_NAVIGATION_BAR_BADGE = "show_navigation_bar_badge"
+        const val PREF_SHOW_HOME_CARD_ICONS = "show_home_card_icons"
     }
 }

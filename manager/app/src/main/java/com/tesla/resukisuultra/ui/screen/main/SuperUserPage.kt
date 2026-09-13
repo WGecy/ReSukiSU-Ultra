@@ -10,14 +10,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -27,9 +23,12 @@ import androidx.compose.material.icons.automirrored.twotone.Article
 import androidx.compose.material.icons.twotone.Archive
 import androidx.compose.material.icons.twotone.ChevronRight
 import androidx.compose.material.icons.twotone.MoreVert
+import androidx.compose.material.icons.twotone.RestoreFromTrash
+import androidx.compose.material.icons.twotone.Save
 import androidx.compose.material.icons.twotone.SearchOff
+import androidx.compose.material.icons.twotone.Visibility
+import androidx.compose.material.icons.twotone.VisibilityOff
 import androidx.compose.material3.DropdownMenuGroup
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -39,6 +38,7 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -58,12 +58,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -74,9 +72,9 @@ import com.tesla.resukisuultra.domain.model.InstalledAppGroup
 import com.tesla.resukisuultra.ui.component.ConfirmResult
 import com.tesla.resukisuultra.ui.component.PackageIcon
 import com.tesla.resukisuultra.ui.component.SearchAppBar
+import com.tesla.resukisuultra.ui.component.rememberSearchAppBarScrollBehavior
 import com.tesla.resukisuultra.ui.component.SwipeableSnackbarHost
 import com.tesla.resukisuultra.ui.component.rememberConfirmDialog
-import com.tesla.resukisuultra.ui.component.rememberSearchAppBarScrollBehavior
 import com.tesla.resukisuultra.ui.component.settings.SettingsBaseWidget
 import com.tesla.resukisuultra.ui.component.settings.lazySegmentColumn
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
@@ -84,6 +82,7 @@ import com.tesla.resukisuultra.ui.navigation.Route
 import com.tesla.resukisuultra.ui.screen.LabelText
 import com.tesla.resukisuultra.ui.theme.blurSource
 import com.tesla.resukisuultra.ui.util.LocalSnackbarHost
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import com.tesla.resukisuultra.ui.util.showReplacingSnackbar
 import com.tesla.resukisuultra.ui.viewmodel.SortType
 import com.tesla.resukisuultra.ui.viewmodel.SuperUserUiAction
@@ -98,7 +97,7 @@ import java.util.Date
 import java.util.Locale
 
 private data class SuperUserMenuItem(
-    val checked: Boolean = false,
+    val icon: ImageVector,
     val titleRes: Int,
     val onClick: () -> Unit
 )
@@ -187,9 +186,6 @@ fun SuperUserPage(bottomPadding: Dp) {
     }
 
     Scaffold(
-        modifier = Modifier
-            .testTag(SUPER_USER_SCREEN_TEST_TAG)
-            .semantics { testTagsAsResourceId = true },
         topBar = {
             SearchAppBar(
                 title = stringResource(R.string.superuser),
@@ -238,7 +234,7 @@ fun SuperUserPage(bottomPadding: Dp) {
                 hostState = snackBarHostState
             )
         },
-        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+        contentWindowInsets = adaptiveScaffoldWindowInsets(includeBottom = false),
     ) { innerPadding ->
         SuperUserContent(
             innerPadding = innerPadding,
@@ -357,7 +353,6 @@ private fun SuperUserContent(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .testTag(SUPER_USER_LIST_TEST_TAG)
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
         ) {
             item {
@@ -365,13 +360,13 @@ private fun SuperUserContent(
             }
             lazySegmentColumn(
                 items = uiState.appGroupList,
-                key = { _, appGroup -> "${appGroup.uid}-${appGroup.mainApp.packageName}" },
-                contentType = { _, _ -> "AppGroupItem" }
+                key = { _, appGroup -> "${appGroup.uid}-${appGroup.profileKey}" },
+                contentType = { _, appGroup -> "${appGroup.uid}-${appGroup.profileKey}" },
             ) { _, appGroup ->
                 AppGroupItem(
                     appGroup = appGroup
                 ) {
-                    navigator.push(Route.AppProfile(appGroup.uid, appGroup.mainApp.packageName))
+                    navigator.push(Route.AppProfile(appGroup.uid, appGroup.profileKey))
                 }
             }
 
@@ -381,9 +376,6 @@ private fun SuperUserContent(
         }
     }
 }
-
-private const val SUPER_USER_LIST_TEST_TAG = "super_user_app_list"
-private const val SUPER_USER_SCREEN_TEST_TAG = "super_user_screen"
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -402,17 +394,19 @@ private fun SuperUserDropdown(
     ) {
         listOf(
             SuperUserMenuItem(
-                checked = uiState.showSystemApps,
-                titleRes = R.string.show_system_apps,
+                icon = if (uiState.showSystemApps) Icons.TwoTone.VisibilityOff else Icons.TwoTone.Visibility,
+                titleRes = if (uiState.showSystemApps) R.string.hide_system_apps else R.string.show_system_apps,
                 onClick = {
                     viewModel.dispatch(SuperUserUiAction.SetShowSystemApps(!uiState.showSystemApps))
                 }
             ),
             SuperUserMenuItem(
+                icon = Icons.TwoTone.Save,
                 titleRes = R.string.backup_allowlist,
                 onClick = onBackupAllowlist,
             ),
             SuperUserMenuItem(
+                icon = Icons.TwoTone.RestoreFromTrash,
                 titleRes = R.string.restore_allowlist,
                 onClick = onRestoreAllowlist,
             )
@@ -430,13 +424,16 @@ private fun SuperUserDropdown(
             ),
         ) {
             SortType.entries.forEachIndexed { index, sortType ->
-                DropdownMenuItem(
+                SelectableDropdownMenuItem(
                     selected = uiState.currentSortType == sortType,
-                    text = { Text(stringResource(sortType.displayNameRes)) },
                     onClick = {
                         viewModel.dispatch(SuperUserUiAction.SetSort(sortType))
                     },
-                    shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(index, SortType.entries.size),
+                    text = { Text(stringResource(sortType.displayNameRes)) },
+                    shapes = MenuDefaults.itemShape(
+                        index = index,
+                        count = SortType.entries.size,
+                    ),
                 )
             }
         }
@@ -450,14 +447,23 @@ private fun SuperUserDropdown(
             ),
         ) {
             menuItems.forEachIndexed { index, menuItem ->
-                DropdownMenuItem(
-                    selected = menuItem.checked,
+                SelectableDropdownMenuItem(
+                    selected = false,
                     text = { Text(stringResource(menuItem.titleRes)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = menuItem.icon,
+                            contentDescription = null,
+                        )
+                    },
                     onClick = {
                         onDismissRequest()
                         menuItem.onClick()
                     },
-                    shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(index, SortType.entries.size),
+                    shapes = MenuDefaults.itemShape(
+                        index = index,
+                        count = menuItems.size,
+                    ),
                 )
             }
         }
@@ -479,7 +485,7 @@ private fun AppGroupItem(
         description = if (appGroup.apps.size > 1) {
             stringResource(R.string.group_contains_apps, appGroup.apps.size)
         } else {
-            mainApp.packageName
+            mainApp.displayIdentifier
         },
         descriptionColumnContent = {
             Spacer(modifier = Modifier.height(5.dp))
@@ -527,7 +533,7 @@ private fun AppGroupItem(
         },
         leadingContent = {
             PackageIcon(
-                packageName = mainApp.packageName,
+                packageName = if (appGroup.isWebViewZygote) "android" else mainApp.packageName,
                 contentDescription = mainApp.label,
                 modifier = Modifier
                     .padding(4.dp)

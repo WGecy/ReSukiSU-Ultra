@@ -48,6 +48,8 @@ data class HomeDashboardState(
     val isHideZygiskImplement: Boolean = false,
     val isHideMetaModuleImplement: Boolean = false,
     val isHideLinkCard: Boolean = false,
+    val showNavigationBarBadge: Boolean = true,
+    val showHomeCardIcons: Boolean = false,
     val isInitialDataLoaded: Boolean = false,
     val isCoreDataLoaded: Boolean = false,
     val isExtendedDataLoaded: Boolean = false,

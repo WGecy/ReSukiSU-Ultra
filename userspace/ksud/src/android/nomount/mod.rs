@@ -182,11 +182,11 @@ impl NmSocket {
 }
 
 fn get_family_id(fd: i32) -> Result<u16> {
-    let mut buf = vec![0u8; NLMSG_HDRLEN + GENL_HDRLEN + 4 + 8];
+    let mut buf = [0u8; NLMSG_HDRLEN + GENL_HDRLEN + 4 + 8];
     let total_len = buf.len();
     buf[0..4].copy_from_slice(&(total_len as u32).to_ne_bytes());
     buf[4..6].copy_from_slice(&GENL_ID_CTRL.to_ne_bytes());
-    buf[6..8].copy_from_slice(&(NLM_F_REQUEST as u16).to_ne_bytes());
+    buf[6..8].copy_from_slice(&NLM_F_REQUEST.to_ne_bytes());
     buf[16] = CTRL_CMD_GETFAMILY;
     buf[17] = 1;
     let name = b"nomount\0"; // 家族名需 null 结尾 (与 nm.c len=8 一致)
@@ -211,12 +211,10 @@ fn get_family_id(fd: i32) -> Result<u16> {
 }
 
 fn check_error(rx: &[u8]) -> Result<()> {
-    if rx.len() >= NLMSG_HDRLEN && u16_from(rx, 4) == NLMSG_ERROR {
-        if rx.len() >= 20 {
-            let code = i32_from(rx, 16);
-            if code != 0 {
-                bail!("内核返回错误: {}", -code);
-            }
+    if rx.len() >= NLMSG_HDRLEN && u16_from(rx, 4) == NLMSG_ERROR && rx.len() >= 20 {
+        let code = i32_from(rx, 16);
+        if code != 0 {
+            bail!("内核返回错误: {}", -code);
         }
     }
     Ok(())
@@ -507,6 +505,7 @@ fn read_exclusions() -> Result<Vec<u32>> {
     };
     let mut uids = Vec::new();
     for part in content.split(|c: char| c.is_whitespace() || c == ',') {
+        #[allow(clippy::collapsible_if)]
         if let Ok(uid) = part.trim().parse::<u32>() {
             if !uids.contains(&uid) {
                 uids.push(uid);

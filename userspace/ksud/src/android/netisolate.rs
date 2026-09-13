@@ -15,11 +15,14 @@ pub(crate) const CMD_NETISOLATE_UID_ADD: u64 = 0x555d1;
 #[allow(dead_code)]
 pub(crate) const CMD_NETISOLATE_UID_REMOVE: u64 = 0x555d2;
 pub(crate) const CMD_NETISOLATE_UID_CLEAR: u64 = 0x555d3;
+#[allow(dead_code)]
 pub(crate) const CMD_NETISOLATE_UID_LIST: u64 = 0x555d4;
+#[allow(dead_code)]
 pub(crate) const CMD_NETISOLATE_GET_STATE: u64 = 0x555d5;
 
 const CONFIG_DIR: &str = "/data/adb/ksu/netisolate";
 
+#[allow(clippy::useless_conversion)]
 fn netisolatectl<T>(cmd: u64, arg: &mut T) -> i64 {
     unsafe {
         syscall(
@@ -51,6 +54,7 @@ pub(crate) fn uid_add(uid: u32) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub(crate) fn uid_remove(uid: u32) -> Result<()> {
     let mut val = uid;
     let ret = netisolatectl(CMD_NETISOLATE_UID_REMOVE, &mut val);

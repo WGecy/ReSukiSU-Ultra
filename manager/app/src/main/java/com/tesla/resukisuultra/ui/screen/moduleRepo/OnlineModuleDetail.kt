@@ -20,14 +20,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -105,6 +102,7 @@ import com.tesla.resukisuultra.ui.theme.blurSource
 import com.tesla.resukisuultra.ui.theme.renderBackgroundBlur
 import com.tesla.resukisuultra.ui.util.LocalPermissionRequestInterface
 import com.tesla.resukisuultra.ui.util.LocalSnackbarHost
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import com.tesla.resukisuultra.ui.viewmodel.ModuleDetailUiAction
 import com.tesla.resukisuultra.ui.viewmodel.ModuleDetailViewModel
 import com.tesla.resukisuultra.ui.viewmodel.formatFileSize
@@ -239,9 +237,7 @@ private fun OnlineModuleDetailContent(module: CatalogModule) {
         },
         containerColor = Color.Transparent,
         contentColor =  MaterialTheme.colorScheme.onSurface,
-        contentWindowInsets = WindowInsets.safeDrawing.only(
-            WindowInsetsSides.Top + WindowInsetsSides.Horizontal
-        ),
+        contentWindowInsets = adaptiveScaffoldWindowInsets(),
         snackbarHost = { SwipeableSnackbarHost(hostState = snackBarHost) }
     ) { innerPadding ->
         Column(

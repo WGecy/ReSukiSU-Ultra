@@ -1,9 +1,6 @@
 package com.tesla.resukisuultra.ui.screen.about
 import com.tesla.resukisuultra.ui.theme.ContinuousCornerShape
 
-import org.koin.compose.koinInject
-import com.tesla.resukisuultra.ui.theme.CardConfig
-import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,9 +60,13 @@ import com.tesla.resukisuultra.ui.component.settings.SettingsJumpPageWidget
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.navigation.Navigator
 import com.tesla.resukisuultra.ui.navigation.Route
+import com.tesla.resukisuultra.ui.theme.CardConfig
+import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import com.tesla.resukisuultra.ui.theme.blurSource
 import com.tesla.resukisuultra.ui.theme.renderBackgroundBlur
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
+import org.koin.compose.koinInject
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -82,6 +83,7 @@ fun AboutScreen() {
     )
 
     Scaffold(
+        contentWindowInsets = adaptiveScaffoldWindowInsets(),
         topBar = {
             LargeFlexibleTopAppBar(
                 modifier = Modifier.blurEffect(
@@ -145,7 +147,10 @@ fun AboutScreen() {
                     ),
                     message = AnnotatedString.fromHtml(
                         htmlString = stringResource(
-                            id = R.string.about_anime_character_sticker
+                            id = R.string.about_anime_character_sticker,
+                            "<b>怡子曰曰</b>",
+                            "<b>明风 OuO</b>",
+                            "<b><a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.txt\">CC BY-NC-SA 4.0</a></b>"
                         ),
                         linkStyles = TextLinkStyles(
                             style = SpanStyle(

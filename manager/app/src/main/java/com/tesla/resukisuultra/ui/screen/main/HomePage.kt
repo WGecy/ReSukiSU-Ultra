@@ -233,11 +233,11 @@ fun HomePage(
                         start = 16.dp,
                         end = 16.dp
                     ),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 // 状态卡片
                 if (uiState.isCoreDataLoaded) {
-                    if (uiState.systemStatus.requireNewKernel) {
+                    if (uiState.systemStatus.isManager && !uiState.systemStatus.isFullFeatured) {
                         if ((uiState.systemStatus.ksuVersion ?: 0) > BuildConfig.VERSION_CODE) {
                             WarningCard(
                                 message = stringResource(
@@ -271,7 +271,6 @@ fun HomePage(
                                 }
                             )
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     // 警告信息
@@ -287,7 +286,6 @@ fun HomePage(
                                 )
                             }
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     if (!uiState.systemStatus.isOfficialSignature) {
@@ -305,7 +303,6 @@ fun HomePage(
                                 )
                             }
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     if (BuildConfig.IS_PR_BUILD || uiState.systemStatus.isPrBuild) {
@@ -322,7 +319,6 @@ fun HomePage(
                                 )
                             }
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     if (uiState.systemStatus.kernelPatchImplementation == KernelPatchImplementation.OFFICIAL) {
@@ -339,7 +335,6 @@ fun HomePage(
                                 )
                             }
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     if (uiState.systemStatus.ksuVersion != null && !uiState.systemStatus.isRootAvailable) {
@@ -354,7 +349,6 @@ fun HomePage(
                                 )
                             }
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     HeroStatusCard(
@@ -395,12 +389,9 @@ fun HomePage(
                         }
                     )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
 
                 ManagerUpdateCard(uiState.stableManagerUpdate)
-                Spacer(modifier = Modifier.height(10.dp))
                 ManagerUpdateCard(uiState.betaManagerUpdate)
-                Spacer(modifier = Modifier.height(10.dp))
                 if (uiState.isBetaManagerUpdateCheckFailed) {
                     WarningCard(
                         message = stringResource(R.string.beta_update_check_failed),
@@ -412,7 +403,6 @@ fun HomePage(
                             )
                         }
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
 
                 if (uiState.isExtendedDataLoaded) {
@@ -535,13 +525,9 @@ fun RebootDropdownItems(
 ) {
     items.onEachIndexed { index, (id, reason) ->
         DropdownMenuItem(
-            selected = false,
+            shape = MenuDefaults.itemShape(index, items.size).shape,
             text = { Text(stringResource(id)) },
             onClick = { onReboot(reason) },
-            shapes = MenuDefaults.itemShape(
-                index = index,
-                count = items.size
-            )
         )
     }
 }
@@ -880,7 +866,7 @@ private fun InfoCard(
     isSimpleMode: Boolean,
     isHideSusfsStatus: Boolean,
     isHideZygiskImplement: Boolean,
-    isHideMetaModuleImplement: Boolean,
+    isHideMetaModuleImplement: Boolean
 ) {
     val managersList = systemInfo.managersList
 
@@ -938,7 +924,7 @@ private fun InfoCard(
                 label = stringResource(R.string.home_kernel),
                 value = systemInfo.kernelRelease,
             )
-            if (systemStatus.isValid) {
+            if (systemStatus.isFullFeatured) {
                 InfoCardItem(
                     icon = Icons.Outlined.Extension,
                     label = stringResource(R.string.home_kernel_version),
@@ -1002,7 +988,7 @@ private fun InfoCard(
                     value = managersText.ifEmpty { stringResource(R.string.no_active_manager) },
                 )
             }
-            if (!isSimpleMode && systemStatus.isValid) {
+            if (!isSimpleMode && systemStatus.isFullFeatured) {
                 InfoCardItem(
                     icon = Icons.Outlined.Tune,
                     label = stringResource(R.string.home_hook_type),

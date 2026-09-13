@@ -68,6 +68,7 @@ import com.tesla.resukisuultra.ui.theme.blurEffect
 import com.tesla.resukisuultra.ui.theme.blurSource
 import com.tesla.resukisuultra.ui.util.ActivityResumeEffect
 import com.tesla.resukisuultra.ui.util.LocalSnackbarHost
+import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import com.tesla.resukisuultra.ui.util.showReplacingSnackbar
 import com.tesla.resukisuultra.ui.viewmodel.UmountManagerScreenViewModel
 import com.tesla.resukisuultra.ui.viewmodel.UmountManagerUiAction
@@ -113,6 +114,7 @@ fun UmountManagerScreen() {
     }
 
     Scaffold(
+        contentWindowInsets = adaptiveScaffoldWindowInsets(),
         topBar = {
             LargeFlexibleTopAppBar(
                 modifier = Modifier

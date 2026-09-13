@@ -209,9 +209,8 @@ fn collect_rules(dir: &Path, mod_dir: &Path, rules: &mut Vec<(String, String)>) 
         rules.push((virtual_path.clone(), real_path.clone()));
 
         // 别名 (移植 metamount.sh 逻辑)
-        if rel.starts_with("system/") {
+        if let Some(alias) = rel.strip_prefix("system/") {
             // system/vendor/* → /vendor/* (模块在非 system 路径下没有对应文件时)
-            let alias = &rel["system/".len()..];
             let is_alias_partition = ALIAS_PARTITIONS
                 .iter()
                 .any(|p| alias.starts_with(&format!("{p}/")));

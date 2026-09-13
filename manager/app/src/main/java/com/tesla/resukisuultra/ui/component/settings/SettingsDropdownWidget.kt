@@ -1,14 +1,13 @@
 package com.tesla.resukisuultra.ui.component.settings
-import androidx.compose.ui.unit.dp
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.DropdownMenuGroup
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -77,24 +76,22 @@ fun SettingsDropdownWidget(
             ) {
                 // Use DropdownMenuGroup to create a visually distinct group
                 DropdownMenuGroup(
-                    shapes = androidx.compose.material3.MenuGroupShapes(
-                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
-                com.tesla.resukisuultra.ui.theme.ContinuousCornerShape(28.dp),
-            )
+                    shapes = MenuDefaults.groupShapes()
                 ) {
                     data.forEachIndexed { index, item ->
                         val isSelected = index == choice
 
-                        // Utilize the selectable variation of DropdownMenuItem
-                        // MenuDefaults.itemShape(index, count) automatically handles the shapes
-                        DropdownMenuItem(
+                        SelectableDropdownMenuItem(
                             selected = isSelected,
                             onClick = {
                                 onChoiceChange(index)
                                 expanded = false
                             },
                             text = { Text(text = item) },
-                            shapes = com.tesla.resukisuultra.ui.theme.menuItemShapes(index, data.size)
+                            shapes = MenuDefaults.itemShape(
+                                index = index,
+                                count = data.size
+                            ),
                         )
                     }
                 }

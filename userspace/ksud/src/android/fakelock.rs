@@ -66,6 +66,7 @@ pub(crate) fn apply_if_enabled() -> Result<()> {
 
     // bootmode 含 recovery → unknown (防 recovery 检测)
     for key in BOOT_KEYS {
+        #[allow(clippy::collapsible_if)]
         if let Some(val) = rp.get(key) {
             if val.contains("recovery") {
                 let _ = rp.set(key, "unknown");

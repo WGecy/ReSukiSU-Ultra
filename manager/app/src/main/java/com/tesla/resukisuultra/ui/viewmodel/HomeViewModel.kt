@@ -53,8 +53,8 @@ sealed interface HomeUiEvent {
 
 class HomeViewModel(
     val homeStateRepository: HomeStateRepository,
-    superUserRepository: SuperUserRepository,
-    moduleRepository: ModuleRepository,
+    private val superUserRepository: SuperUserRepository,
+    private val moduleRepository: ModuleRepository,
     private val ksuCliRepository: KsuCliRepository,
     private val checkManagerUpdate: CheckManagerUpdateUseCase,
     private val getKernelStatus: GetKernelStatusUseCase,
@@ -128,6 +128,15 @@ class HomeViewModel(
                         )
                     }
                     val managers = async { getManagerRuntimeInfo() }
+                    // 预热模块/超级用户仓库: 角标计数依赖仓库状态,
+                    // 启动时不刷新则计数为 0, 需进入对应页面才会出现
+                    val moduleRefresh = async {
+                        moduleRepository.refreshInstalledModules(
+                            manual = false,
+                            checkUpdates = false,
+                        )
+                    }
+                    val superuserRefresh = async { superUserRepository.refresh() }
                     val susfs = if (!uiState.value.isHideSusfsStatus) {
                         async { getSuSFSStatus() }
                     } else {
@@ -135,6 +144,8 @@ class HomeViewModel(
                     }
                     val basicInfo = basic.await()
                     val managerInfo = managers.await()
+                    moduleRefresh.await()
+                    superuserRefresh.await()
                     val susfsInfo = susfs?.await()
                     homeStateRepository.update { current ->
                         current.copy(

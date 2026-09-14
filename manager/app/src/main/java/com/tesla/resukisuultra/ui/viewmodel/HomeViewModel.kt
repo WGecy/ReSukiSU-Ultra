@@ -271,7 +271,10 @@ class HomeViewModel(
                     PREF_SHOW_NAVIGATION_BAR_BADGE,
                     true,
                 ),
-                showHomeCardIcons = getBooleanPreference(PREF_SHOW_HOME_CARD_ICONS),
+                showHomeCardIcons = getBooleanPreference(
+                    PREF_SHOW_HOME_CARD_ICONS,
+                    true,
+                ),
             )
         }
     }

@@ -29,10 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -57,6 +59,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tesla.resukisuultra.ui.screen.BottomBarDestination
+import com.tesla.resukisuultra.ui.theme.BottomBarStyle
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
@@ -66,12 +69,12 @@ import com.tesla.resukisuultra.ui.viewmodel.HomeViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
-// TODO Add FloatingBottomBar as an choice to user
 
 @SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavigationBar(
+    modifier: Modifier = Modifier,
     destinations: List<BottomBarDestination>,
     isBottomBar: Boolean
 ) {
@@ -88,7 +91,7 @@ fun NavigationBar(
     val page = LocalSelectedPage.current
     val handlePageChange = LocalHandlePageChange.current
 
-    if (isBottomBar) {
+    if (isBottomBar && themeConfig.bottomBarStyle == BottomBarStyle.FLOATING) {
         FloatingBottomBar(
             destinations = destinations,
             page = page,
@@ -97,6 +100,37 @@ fun NavigationBar(
             moduleCount = moduleCount,
             isHideOtherInfo = isHideOtherInfo,
         )
+    } else if (isBottomBar) {
+        FlexibleBottomAppBar(
+            modifier = modifier
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                )
+                .blurEffect(
+                    compensateHorizontalOverscroll = true,
+                    compensateVerticalOverscroll = true,
+                    useFixedSurfaceBoundsForOverscroll = true,
+                ),
+            containerColor =
+                if (themeConfig.isEnableBlur)
+                    Color.Transparent
+                else
+                    MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ) {
+            destinations.forEachIndexed { index, destination ->
+                BottomBarNavigationItem(
+                    isSelected = index == page,
+                    destination = destination,
+                    onClick = {
+                        handlePageChange(index)
+                    },
+                    superuserCount = superuserCount,
+                    moduleCount = moduleCount,
+                    isHideOtherInfo = isHideOtherInfo,
+                )
+            }
+        }
     } else {
         WideNavigationRail(
             modifier = Modifier
@@ -321,6 +355,49 @@ private fun NavigationRailItem(
                 overflow = TextOverflow.Visible
             )
         },
+    )
+}
+
+@Composable
+private fun RowScope.BottomBarNavigationItem(
+    isSelected: Boolean,
+    destination: BottomBarDestination,
+    onClick: () -> Unit,
+    superuserCount: Int,
+    moduleCount: Int,
+    isHideOtherInfo: Boolean,
+) {
+    NavigationBarItem(
+        selected = isSelected,
+        onClick = onClick,
+        icon = {
+            BadgedBox(
+                badge = {
+                    DestinationBadge(
+                        dest = destination,
+                        superUser = superuserCount,
+                        module = moduleCount,
+                        isHideOtherInfo = isHideOtherInfo,
+                    )
+                }
+            ) {
+                if (isSelected) {
+                    Icon(destination.iconSelected, stringResource(destination.label))
+                } else {
+                    Icon(destination.iconNotSelected, stringResource(destination.label))
+                }
+            }
+        },
+        label = {
+            Text(
+                stringResource(destination.label),
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Visible
+            )
+        },
+        alwaysShowLabel = false
     )
 }
 

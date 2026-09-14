@@ -133,7 +133,7 @@ fun SettingsCoreScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current
@@ -434,7 +434,7 @@ fun SettingsAppScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current
@@ -574,7 +574,7 @@ fun SettingsToolsScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current

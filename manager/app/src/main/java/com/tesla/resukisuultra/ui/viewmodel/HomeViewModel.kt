@@ -2,6 +2,9 @@ package com.tesla.resukisuultra.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tesla.resukisuultra.data.module.ModuleRepository
+import com.tesla.resukisuultra.data.packageinfo.SuperUserRepository
+import com.tesla.resukisuultra.data.shell.KsuCliRepository
 import com.tesla.resukisuultra.data.system.HomeStateRepository
 import com.tesla.resukisuultra.domain.model.HomeDashboardState
 import com.tesla.resukisuultra.domain.model.HomeSystemInfo
@@ -9,8 +12,6 @@ import com.tesla.resukisuultra.domain.model.ManagerUpdateChannel
 import com.tesla.resukisuultra.domain.usecase.CheckManagerUpdateUseCase
 import com.tesla.resukisuultra.domain.usecase.GetBooleanPreferenceUseCase
 import com.tesla.resukisuultra.domain.usecase.GetHomeBasicInfoUseCase
-import com.tesla.resukisuultra.domain.usecase.GetHomeModuleOverviewUseCase
-import com.tesla.resukisuultra.domain.usecase.GetHomeSuperuserCountUseCase
 import com.tesla.resukisuultra.domain.usecase.GetKernelStatusUseCase
 import com.tesla.resukisuultra.domain.usecase.GetManagerRuntimeInfoUseCase
 import com.tesla.resukisuultra.domain.usecase.GetSuSFSStatusUseCase
@@ -22,7 +23,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -48,21 +52,39 @@ sealed interface HomeUiEvent {
 }
 
 class HomeViewModel(
-    private val homeStateRepository: HomeStateRepository,
+    val homeStateRepository: HomeStateRepository,
+    superUserRepository: SuperUserRepository,
+    moduleRepository: ModuleRepository,
+    private val ksuCliRepository: KsuCliRepository,
     private val checkManagerUpdate: CheckManagerUpdateUseCase,
     private val getKernelStatus: GetKernelStatusUseCase,
     private val getManagerRuntimeInfo: GetManagerRuntimeInfoUseCase,
     private val getSuSFSStatus: GetSuSFSStatusUseCase,
     private val getBasicInfo: GetHomeBasicInfoUseCase,
-    private val getModuleOverview: GetHomeModuleOverviewUseCase,
-    private val getSuperuserCount: GetHomeSuperuserCountUseCase,
     private val isNetworkAvailable: IsNetworkAvailableUseCase,
     private val getBooleanPreference: GetBooleanPreferenceUseCase,
     private val setBooleanPreference: SetBooleanPreferenceUseCase,
     private val reboot: RebootUseCase,
 ) : ViewModel() {
-    val state = homeStateRepository.state
-    val uiState = state
+    val uiState = combine(
+        homeStateRepository.state,
+        superUserRepository.state,
+        moduleRepository.installedModules,
+    ) { homeState, superUserState, moduleState ->
+        homeState.copy(
+            systemInfo = homeState.systemInfo.copy(
+                moduleCount = moduleState.modules.size,
+                superuserCount = superUserState.groups.filter { it.allowSu }.size,
+                zygiskImplement = ksuCliRepository.getZygiskImplement(),
+                metaModuleImplement = ksuCliRepository.getMetaModuleImplement(),
+            )
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = HomeUiState()
+    )
+
     private val mutableEvents = MutableSharedFlow<HomeUiEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<HomeUiEvent> = mutableEvents.asSharedFlow()
 
@@ -82,7 +104,7 @@ class HomeViewModel(
     fun refreshData(refreshUI: Boolean = false): Job {
         if (!refreshUI) {
             refreshJob?.takeIf(Job::isActive)?.let { return it }
-            if (state.value.isInitialDataLoaded) return completedJob()
+            if (uiState.value.isInitialDataLoaded) return completedJob()
         }
         refreshManagerUpdates(force = refreshUI)
         return viewModelScope.launch {
@@ -91,29 +113,25 @@ class HomeViewModel(
                 try {
                     applyUserSettings()
                     val kernelStatus = runCatching { getKernelStatus() }
-                        .getOrElse { state.value.systemStatus }
+                        .getOrElse { uiState.value.systemStatus }
                     homeStateRepository.update {
                         it.copy(systemStatus = kernelStatus, isCoreDataLoaded = true)
                     }
 
-                    val includeSelinuxStatus = !state.value.isInitialDataLoaded
+                    val includeSelinuxStatus = !uiState.value.isInitialDataLoaded
                     val basic = async {
                         getBasicInfo(
                             managerUapiVersion = kernelStatus.managerUAPIVersion,
                             includeSelinuxStatus = includeSelinuxStatus,
                         )
                     }
-                    val module = async { getModuleOverview() }
-                    val superusers = async { getSuperuserCount() }
                     val managers = async { getManagerRuntimeInfo() }
-                    val susfs = if (!state.value.isHideSusfsStatus) {
+                    val susfs = if (!uiState.value.isHideSusfsStatus) {
                         async { getSuSFSStatus() }
                     } else {
                         null
                     }
                     val basicInfo = basic.await()
-                    val moduleInfo = module.await()
-                    val superuserCount = superusers.await()
                     val managerInfo = managers.await()
                     val susfsInfo = susfs?.await()
                     homeStateRepository.update { current ->
@@ -130,12 +148,8 @@ class HomeViewModel(
                                 susfsVersionSupported = susfsInfo?.enabled ?: false,
                                 susfsVersion = susfsInfo?.version.orEmpty(),
                                 susfsFeatures = susfsInfo?.enabledFeatures.orEmpty(),
-                                superuserCount = superuserCount,
-                                moduleCount = moduleInfo.count,
                                 managersList = managerInfo,
                                 isDynamicSignEnabled = managerInfo.dynamicSignatureEnabled,
-                                zygiskImplement = moduleInfo.zygiskImplementation,
-                                metaModuleImplement = moduleInfo.metaModuleImplementation,
                                 seccompStatus = basicInfo.seccompStatus,
                             ),
                             isInitialDataLoaded = true,

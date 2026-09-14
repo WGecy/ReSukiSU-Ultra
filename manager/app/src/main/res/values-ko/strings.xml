@@ -234,8 +234,6 @@
     <string name="category_root_apps">ROOT</string>
     <string name="category_custom_apps">사용자 지정</string>
     <string name="category_default_apps">기본값</string>
-    <string name="sort_name_asc">이름 오름차순</string>
-    <string name="sort_name_desc">이름 내림차순</string>
     <string name="no_apps_in_category">이 카테고리에 앱이 없습니다.</string>
     <string name="persistent">영구적</string>
     <string name="temporary">일시적</string>

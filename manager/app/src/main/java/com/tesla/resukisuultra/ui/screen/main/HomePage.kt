@@ -413,6 +413,7 @@ fun HomePage(
                         isHideSusfsStatus = uiState.isHideSusfsStatus,
                         isHideZygiskImplement = uiState.isHideZygiskImplement,
                         isHideMetaModuleImplement = uiState.isHideMetaModuleImplement,
+                        showHomeCardIcons = uiState.showHomeCardIcons,
                     )
 
                 }
@@ -877,7 +878,8 @@ private fun InfoCard(
     isSimpleMode: Boolean,
     isHideSusfsStatus: Boolean,
     isHideZygiskImplement: Boolean,
-    isHideMetaModuleImplement: Boolean
+    isHideMetaModuleImplement: Boolean,
+    showHomeCardIcons: Boolean,
 ) {
     val managersList = systemInfo.managersList
     val cardConfig = koinInject<CardConfig>()
@@ -925,42 +927,49 @@ private fun InfoCard(
                 icon = Icons.Outlined.PhoneAndroid,
                 label = stringResource(R.string.home_device_model),
                 value = systemInfo.deviceModel,
+                showIcon = showHomeCardIcons,
             )
             if (!isSimpleMode) {
                 InfoCardItem(
                     icon = Icons.Outlined.Android,
                     label = stringResource(R.string.home_android_version),
                     value = systemInfo.androidVersion,
+                    showIcon = showHomeCardIcons,
                 )
             }
             InfoCardItem(
                 icon = Icons.Outlined.DeveloperBoard,
                 label = stringResource(R.string.home_kernel),
                 value = systemInfo.kernelRelease,
+                showIcon = showHomeCardIcons,
             )
             if (systemStatus.isFullFeatured) {
                 InfoCardItem(
                     icon = Icons.Outlined.Extension,
                     label = stringResource(R.string.home_kernel_version),
                     value = systemStatus.ksuFullVersion.orEmpty(),
+                    showIcon = showHomeCardIcons,
                 )
             }
             InfoCardItem(
                 icon = Icons.Outlined.Info,
                 label = stringResource(R.string.home_manager_version),
                 value = "${systemInfo.managerVersion.first} (${systemInfo.managerVersion.second}/${systemInfo.managerVersion.third})",
+                showIcon = showHomeCardIcons,
             )
             if (!isSimpleMode && !isHideSusfsStatus && systemInfo.susfsEnabled && systemInfo.susfsVersion.isNotEmpty()) {
                 InfoCardItem(
                     icon = Icons.Outlined.Shield,
                     label = stringResource(R.string.home_susfs_version),
                     value = systemInfo.susfsVersion,
+                    showIcon = showHomeCardIcons,
                 )
             }
             InfoCardItem(
                 icon = Icons.Outlined.Lock,
                 label = stringResource(R.string.home_selinux_status),
                 value = systemInfo.selinuxStatus,
+                showIcon = showHomeCardIcons,
             )
             InfoCardItem(
                 icon = Icons.Outlined.Security,
@@ -969,10 +978,11 @@ private fun InfoCard(
                     -1 -> stringResource(R.string.seccomp_status_not_supported)
                     0 -> stringResource(R.string.seccomp_status_disabled)
                     1 -> stringResource(R.string.seccomp_status_strict)
-                    2 -> stringResource(R.string.seccomp_status_filter)
-                    else -> stringResource(R.string.seccomp_status_unknown)
-                },
-            )
+                2 -> stringResource(R.string.seccomp_status_filter)
+                else -> stringResource(R.string.seccomp_status_unknown)
+            },
+            showIcon = showHomeCardIcons,
+        )
             if (!isSimpleMode && managersList != null) {
                 val signatureMap =
                     managersList.managers.orEmpty().groupBy { it.signatureIndex }
@@ -1000,6 +1010,7 @@ private fun InfoCard(
                     icon = Icons.Outlined.Groups,
                     label = stringResource(R.string.multi_manager_list),
                     value = managersText.ifEmpty { stringResource(R.string.no_active_manager) },
+                    showIcon = showHomeCardIcons,
                 )
             }
             if (!isSimpleMode && systemStatus.isFullFeatured) {
@@ -1007,6 +1018,7 @@ private fun InfoCard(
                     icon = Icons.Outlined.Tune,
                     label = stringResource(R.string.home_hook_type),
                     value = systemStatus.hookType,
+                    showIcon = showHomeCardIcons,
                 )
             }
             if (!isHideZygiskImplement && !isSimpleMode && systemInfo.zygiskImplement.isNotEmpty() && systemInfo.zygiskImplement != "None") {
@@ -1014,6 +1026,7 @@ private fun InfoCard(
                     icon = Icons.Outlined.Layers,
                     label = stringResource(R.string.home_zygisk_implement),
                     value = systemInfo.zygiskImplement,
+                    showIcon = showHomeCardIcons,
                 )
             }
             if (!isHideMetaModuleImplement && !isSimpleMode && systemInfo.metaModuleImplement.isNotEmpty() && systemInfo.metaModuleImplement != "None") {
@@ -1021,6 +1034,7 @@ private fun InfoCard(
                     icon = Icons.Outlined.Extension,
                     label = stringResource(R.string.home_meta_module_implement),
                     value = systemInfo.metaModuleImplement,
+                    showIcon = showHomeCardIcons,
                 )
             }
         }
@@ -1032,6 +1046,7 @@ private fun InfoCardItem(
     icon: ImageVector,
     label: String,
     value: String,
+    showIcon: Boolean = true,
 ) {
     Row(
         modifier = Modifier
@@ -1039,15 +1054,17 @@ private fun InfoCardItem(
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.Top
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(18.dp)
-                .padding(top = 2.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.width(12.dp))
+        if (showIcon) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(18.dp)
+                    .padding(top = 2.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.width(12.dp))
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,

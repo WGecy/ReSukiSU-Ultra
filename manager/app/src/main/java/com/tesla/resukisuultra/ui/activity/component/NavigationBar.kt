@@ -49,7 +49,6 @@ import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
 import com.tesla.resukisuultra.ui.util.LocalBlurState
 import com.tesla.resukisuultra.ui.util.LocalHandlePageChange
-import com.tesla.resukisuultra.ui.util.LocalPagerState
 import com.tesla.resukisuultra.ui.util.LocalSelectedPage
 import com.tesla.resukisuultra.ui.viewmodel.HomeViewModel
 import org.koin.compose.koinInject
@@ -75,7 +74,6 @@ fun NavigationBar(
     val isHideOtherInfo = uiState.isHideOtherInfo
     val page = LocalSelectedPage.current
     val handlePageChange = LocalHandlePageChange.current
-    val pagerState = LocalPagerState.current
 
     if (isBottomBar && themeConfig.bottomBarStyle == BottomBarStyle.FLOATING) {
         Box(
@@ -91,14 +89,14 @@ fun NavigationBar(
             contentAlignment = Alignment.Center
         ) {
             FloatingBottomBar(
-                selectedIndex = pagerState.targetPage,
+                selectedIndex = page,
                 onSelected = { handlePageChange(it) },
                 tabsCount = destinations.size,
                 isBlurEnabled = LocalBlurState.current != null,
             ) { activateTab ->
                 destinations.forEachIndexed { index, destination ->
                     FloatingBottomBarItem(
-                        selected = index == pagerState.targetPage,
+                        selected = index == page,
                         onClick = { activateTab(index) },
                         modifier = Modifier.defaultMinSize(minWidth = 76.dp)
                     ) {

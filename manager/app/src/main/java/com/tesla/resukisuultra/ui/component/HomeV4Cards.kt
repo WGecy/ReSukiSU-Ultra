@@ -60,10 +60,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tesla.resukisuultra.ui.theme.CardConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
+import org.koin.compose.koinInject
 
 /**
  * FolkPatch HomeV4 风格卡片:
@@ -143,6 +145,8 @@ fun HeroStatusCard(
     onClickInstall: () -> Unit = {},
     onClickJailbreak: () -> Unit = {},
 ) {
+    val cardConfig = koinInject<CardConfig>()
+
     // 呼吸动画: 仅 working 态常驻 (非 working 静止 — 省 GPU)
     val breathAlpha = if (isWorking) {
         val infiniteTransition = rememberInfiniteTransition(label = "breathing")
@@ -182,8 +186,8 @@ fun HeroStatusCard(
     // 静态渐变 (颜色由 animateColorAsState 驱动), 呼吸 alpha 走 GPU
     val gradientBrush = Brush.linearGradient(
         colors = listOf(
-            containerColor,
-            containerColor.copy(alpha = 0.8f)
+            containerColor.copy(alpha = cardConfig.cardAlpha),
+            containerColor.copy(alpha = 0.8f * cardConfig.cardAlpha)
         )
     )
 
@@ -441,11 +445,15 @@ fun TonalLikeCard(
     modifier: Modifier = Modifier,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
+    val cardConfig = koinInject<CardConfig>()
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(
+                alpha = cardConfig.cardAlpha
+            ),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {

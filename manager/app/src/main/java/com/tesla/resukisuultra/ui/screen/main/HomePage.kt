@@ -650,6 +650,7 @@ private fun StatusCard(
     onClickInstall: () -> Unit = {},
     onClickJailbreak: () -> Unit = {}
 ) {
+    val cardConfig = koinInject<CardConfig>()
     val systemStatus = uiState.systemStatus
     val onClick = { _: Offset ->
         if (systemStatus.isRootAvailable || systemStatus.kernelVersion.isGKI()) {
@@ -673,7 +674,9 @@ private fun StatusCard(
                 onClick = { onClick(Offset.Zero) },
                 shape = ContinuousCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(
+                        alpha = cardConfig.cardAlpha
+                    ),
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             ) {
@@ -795,6 +798,7 @@ private fun StatusBadge(
 fun LearnMoreCard() {
     val uriHandler = LocalUriHandler.current
     val url = stringResource(R.string.home_learn_kernelsu_url)
+    val cardConfig = koinInject<CardConfig>()
 
     Card(
         modifier = Modifier
@@ -802,7 +806,9 @@ fun LearnMoreCard() {
             .clickable { uriHandler.openUri(url) },
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright,
+            containerColor = MaterialTheme.colorScheme.surfaceBright.copy(
+                alpha = cardConfig.cardAlpha
+            ),
         )
     ) {
         Row(
@@ -829,13 +835,16 @@ fun LearnMoreCard() {
 @Composable
 fun DonateCard() {
     val uriHandler = LocalUriHandler.current
+    val cardConfig = koinInject<CardConfig>()
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { uriHandler.openUri("https://patreon.com/weishu") },
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright,
+            containerColor = MaterialTheme.colorScheme.surfaceBright.copy(
+                alpha = cardConfig.cardAlpha
+            ),
         )
     ) {
         Row(
@@ -869,13 +878,16 @@ private fun InfoCard(
     isHideMetaModuleImplement: Boolean
 ) {
     val managersList = systemInfo.managersList
+    val cardConfig = koinInject<CardConfig>()
 
     // FolkPatch SystemInfoCard: TonalCard + 标题(图标+信息) + 分割线 + 带图标条目
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright,
+            containerColor = MaterialTheme.colorScheme.surfaceBright.copy(
+                alpha = cardConfig.cardAlpha
+            ),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {

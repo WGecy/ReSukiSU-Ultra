@@ -180,7 +180,7 @@ fun SettingsCoreScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
@@ -481,7 +481,7 @@ fun SettingsAppScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
@@ -621,7 +621,7 @@ fun SettingsToolsScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(

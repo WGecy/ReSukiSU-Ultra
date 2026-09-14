@@ -240,8 +240,6 @@
     <string name="settings_check_update_summary">Verificar automaticamente se há atualizações do módulo e do gerenciador</string>
     <string name="app_profile_template_id_exist">O ID do modelo já existe!</string>
     <string name="command_execution_failed">A execução do comando falhou: %1$s</string>
-    <string name="hide_other_info">Ocultar outras informações</string>
-    <string name="hide_other_info_summary">Oculta informações sobre o número de super usuários e módulos na página inicial</string>
     <string name="hide_susfs_status">Ocultar status SuSFS</string>
     <string name="hide_susfs_status_summary">Ocultar informações de status SuSFS na página inicial</string>
     <string name="hide_link_card">Ocultar status do link</string>

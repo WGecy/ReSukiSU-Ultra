@@ -232,8 +232,6 @@
     <string name="theme_settings">Ustawienia motywu</string>
     <string name="simple_mode">Tryb uproszczony</string>
     <string name="simple_mode_summary">Ukrywa niepotrzebne karty</string>
-    <string name="hide_other_info">Ukryj pozostałe informacje</string>
-    <string name="hide_other_info_summary">Ukrywa czerwoną kropkę dotyczącą liczby superuserów i modułów na paski nawigacji</string>
     <string name="hide_susfs_status">Ukryj status SuSFS</string>
     <string name="hide_susfs_status_summary">Ukrywa status SuSFS na stronie głównej</string>
     <string name="hide_zygisk_implement">Ukryj status Zygisk</string>

@@ -164,8 +164,6 @@
     <string name="settings_kernel_umount_summary">فك تثبيت الإضافات من النواة في ملف تعريف التطبيق</string>
     <string name="simple_mode">وضع البساطة</string>
     <string name="simple_mode_summary">إخفاء البطاقات غير الضرورية عند تشغيلها</string>
-    <string name="hide_other_info">إخفاء معلومات أخرى</string>
-    <string name="hide_other_info_summary">يخفي معلومات عن عدد المستخدمين المتميزين والوحدات ووحدات KPM على الصفحة الرئيسية</string>
     <string name="hide_susfs_status">إخفاء حالة SuSFS</string>
     <string name="hide_susfs_status_summary">إخفاء معلومات حالة SuSFS على الصفحة الرئيسية</string>
     <string name="hide_link_card">إخفاء حالة بطاقة الرابط</string>

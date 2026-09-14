@@ -538,8 +538,6 @@
     <string name="settings_check_update">Güncelleme bildirimleri</string>
     <string name="settings_check_update_summary">Modül ve yönetici güncellemelerini otomatik olarak kontrol et</string>
     <string name="command_execution_failed">Komut yürütülemedi: %1$s</string>
-    <string name="hide_other_info">Diğer bilgileri gizle</string>
-    <string name="hide_other_info_summary">Gezinme çubuğunda süper kullanıcı ve modül sayısını gösteren kırmızı noktayı gizleyin</string>
     <string name="hide_susfs_status">SuSFS durumunu gizle</string>
     <string name="hide_susfs_status_summary">Ana sayfadaki SuSFS durum bilgisini gizleyin</string>
     <string name="hide_zygisk_implement">Zygisk durumunu gizle</string>

@@ -280,8 +280,6 @@
     <string name="settings_check_update">更新の通知</string>
     <string name="settings_check_update_summary">モジュールとマネージャーの更新を自動的にチェックします</string>
     <string name="command_execution_failed">コマンドの実行に失敗しました: %1$s</string>
-    <string name="hide_other_info">その他の情報を非表示</string>
-    <string name="hide_other_info_summary">ナビゲーションバーページでスーパーユーザー、モジュールの数のドットを非表示にします。</string>
     <string name="hide_susfs_status">SuSFS ステータスを非表示</string>
     <string name="hide_susfs_status_summary">ホームページ上の SuSFS ステータス情報を非表示にします。</string>
     <string name="hide_zygisk_implement">Zygisk のステータスを非表示</string>

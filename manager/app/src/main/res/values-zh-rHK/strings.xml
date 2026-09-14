@@ -534,8 +534,6 @@
     <string name="settings_check_update">更新提醒</string>
     <string name="settings_check_update_summary">自動檢查模組和管理器更新</string>
     <string name="command_execution_failed">命令執行失敗：%1$s</string>
-    <string name="hide_other_info">強迫症開關</string>
-    <string name="hide_other_info_summary">隱藏導航列上嘅超級用戶數、模組數紅點</string>
     <string name="hide_susfs_status">隱藏 SuSFS 狀態資訊</string>
     <string name="hide_susfs_status_summary">隱藏主頁上嘅 SuSFS 狀態資訊</string>
     <string name="hide_zygisk_implement">隱藏 Zygisk 狀態資訊</string>

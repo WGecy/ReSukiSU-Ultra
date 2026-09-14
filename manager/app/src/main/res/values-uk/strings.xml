@@ -538,8 +538,6 @@
     <string name="settings_check_update">Сповіщення про оновлення</string>
     <string name="settings_check_update_summary">Автоматично перевіряти наявність оновлень модуля та менеджера</string>
     <string name="command_execution_failed">Не вдалося виконати команду: %1$s</string>
-    <string name="hide_other_info">Приховати іншу інформацію</string>
-    <string name="hide_other_info_summary">Приховує червону крапку про кількість суперкористувачів та модулів на сторінці навігаційної панелі</string>
     <string name="hide_susfs_status">Приховати статус SuSFS</string>
     <string name="hide_susfs_status_summary">Приховує інформацію про стан SuSFS на головній сторінці</string>
     <string name="hide_zygisk_implement">Приховати стан Zygisk</string>

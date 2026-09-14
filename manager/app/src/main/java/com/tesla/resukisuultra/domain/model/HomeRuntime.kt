@@ -43,7 +43,6 @@ data class HomeDashboardState(
     val betaManagerUpdate: ManagerUpdateInfo? = null,
     val isBetaManagerUpdateCheckFailed: Boolean = false,
     val isSimpleMode: Boolean = false,
-    val isHideOtherInfo: Boolean = false,
     val isHideSusfsStatus: Boolean = false,
     val isHideZygiskImplement: Boolean = false,
     val isHideMetaModuleImplement: Boolean = false,

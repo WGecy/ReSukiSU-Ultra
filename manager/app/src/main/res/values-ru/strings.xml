@@ -538,8 +538,6 @@
     <string name="settings_check_update">Уведомления об обновлениях</string>
     <string name="settings_check_update_summary">Автоматически проверять обновления модулей и менеджера</string>
     <string name="command_execution_failed">Выполнение команды не удалось: %1$s</string>
-    <string name="hide_other_info">Скрыть другую информацию</string>
-    <string name="hide_other_info_summary">Скрывать информацию о количестве приложений с рут-доступом и модулей на главной странице</string>
     <string name="hide_susfs_status">Скрыть статус SuSFS</string>
     <string name="hide_susfs_status_summary">Скрывать информацию о статусе SuSFS на главной странице</string>
     <string name="hide_zygisk_implement">Скрыть статус Zygisk</string>

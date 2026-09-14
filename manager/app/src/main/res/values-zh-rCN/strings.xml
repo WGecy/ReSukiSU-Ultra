@@ -551,8 +551,6 @@
     <string name="command_execution_failed">命令执行失败：%1$s</string>
     <string name="settings_nomount">启用内置挂载系统</string>
     <string name="settings_nomount_summary">启用内置 NoMount 无痕挂载（VFS 注入，无需安装模块）</string>
-    <string name="hide_other_info">强迫症开关</string>
-    <string name="hide_other_info_summary">隐藏导航栏上的超级用户数和模块数红点</string>
     <string name="hide_susfs_status">隐藏 SuSFS 状态信息</string>
     <string name="hide_susfs_status_summary">隐藏主页上的 SuSFS 状态信息</string>
     <string name="hide_zygisk_implement">隐藏 Zygisk 状态信息</string>

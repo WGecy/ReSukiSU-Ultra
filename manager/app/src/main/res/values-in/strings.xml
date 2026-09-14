@@ -534,8 +534,6 @@
     <string name="settings_check_update_summary">Periksa otomatis pembaruan modul dan manajer</string>
     <string name="app_profile_template_id_exist">ID templat sudah ada!</string>
     <string name="command_execution_failed">Eksekusi perintah gagal: %1$s</string>
-    <string name="hide_other_info">Sembunyikan info lain</string>
-    <string name="hide_other_info_summary">Sembunyikan notifikasi titik merah (jumlah Super User dan modul) di bilah navigasi</string>
     <string name="hide_susfs_status">Sembunyikan status SuSFs</string>
     <string name="hide_susfs_status_summary">Sembunyikan informasi status SuSFS di halaman utama</string>
     <string name="hide_zygisk_implement">Sembunyikan status zygisk</string>

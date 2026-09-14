@@ -719,19 +719,6 @@ private fun SegmentedColumnScope.hideOptionsSettings(
     moduleViewModel: ModuleViewModel,
 ) {
     item {
-        // 隐藏模块数量等信息
-        SettingsSwitchWidget(
-            icon = Icons.TwoTone.VisibilityOff,
-            title = stringResource(R.string.hide_other_info),
-            description = stringResource(R.string.hide_other_info_summary),
-            checked = homeUiState.isHideOtherInfo,
-            onCheckedChange = { enabled ->
-                homeViewModel.dispatch(HomeUiAction.SetHideOtherInfo(enabled))
-            }
-        )
-    }
-
-    item {
         // SuSFS 状态信息
         SettingsSwitchWidget(
             icon = Icons.TwoTone.VisibilityOff,

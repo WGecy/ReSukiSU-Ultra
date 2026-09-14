@@ -538,8 +538,6 @@
     <string name="settings_check_update">Frissítéssel kapcsolatos értesítések</string>
     <string name="settings_check_update_summary">Modul- és kezelőfrissítések automatikus keresése</string>
     <string name="command_execution_failed">Parancs futtatása nem sikerült: %1$s</string>
-    <string name="hide_other_info">Egyéb infók elrejtése</string>
-    <string name="hide_other_info_summary">Elrejt információkat a navigációs sávban mint a superuser jogosultak és modulok számát</string>
     <string name="hide_susfs_status">SuSFS Állapot elrejtése</string>
     <string name="hide_susfs_status_summary">Elrejti a SuSFS állapotával kapcsolatos státuszinformációkat a kezdőlapról</string>
     <string name="hide_zygisk_implement">Zygisk Állapot elrejtése</string>

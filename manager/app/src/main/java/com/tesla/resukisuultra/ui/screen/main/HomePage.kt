@@ -424,8 +424,10 @@ fun HomePage(
                         enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) +
                             slideInVertically(spring(stiffness = Spring.StiffnessMediumLow), initialOffsetY = { it / 6 }),
                     ) {
-                        DonateCard()
-                        LearnMoreCard()
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            DonateCard()
+                            LearnMoreCard()
+                        }
                     }
                 }
 

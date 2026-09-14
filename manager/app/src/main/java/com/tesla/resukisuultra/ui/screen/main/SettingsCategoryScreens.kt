@@ -133,7 +133,7 @@ fun SettingsCoreScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current
@@ -180,7 +180,7 @@ fun SettingsCoreScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
@@ -434,7 +434,7 @@ fun SettingsAppScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current
@@ -481,7 +481,7 @@ fun SettingsAppScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
@@ -574,7 +574,7 @@ fun SettingsToolsScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current
@@ -621,7 +621,7 @@ fun SettingsToolsScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(

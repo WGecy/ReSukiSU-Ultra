@@ -208,6 +208,8 @@
     <string name="background_crop_rotation_angle">旋转角度</string>
     <string name="settings_config_enable_blur">启用模糊</string>
     <string name="settings_config_enable_blur_summary">对此 App 启用模糊处理</string>
+    <string name="enable_floating_bottom_bar">悬浮底栏</string>
+    <string name="enable_floating_bottom_bar_summary">使用 Apple 风格的悬浮底栏</string>
     <string name="settings_exp_draw_background_to_blur">将自定义背景渲染到模糊</string>
     <string name="settings_exp_draw_background_to_blur_description">实验性功能，后果自负</string>
     <string name="settings_config_use_custom_background_seed_color">从自定义背景图片中取色</string>
@@ -314,13 +316,12 @@
     <string name="kernel_flashing">内核刷写</string>
     <string name="warning_of_meta_module_title">需要元模块</string>
     <string name="warning_of_meta_module_summary">这个模块需要挂载一些文件。需要安装元模块，使它正常工作</string>
-    <string name="sort_name_asc">名称升序</string>
-    <string name="sort_name_desc">名称降序</string>
-    <string name="sort_install_time_new">安装时间（新）</string>
-    <string name="sort_install_time_old">安装时间（旧）</string>
-    <string name="sort_size_desc">大小降序</string>
-    <string name="sort_size_asc">大小升序</string>
+    <string name="sort_name">名称</string>
+    <string name="sort_install_time">安装时间</string>
+    <string name="sort_update_time">更新时间</string>
+    <string name="sort_size">大小</string>
     <string name="sort_usage_freq">使用频率</string>
+    <string name="reverse_order">倒序</string>
     <string name="no_apps_in_category">此分类中没有应用</string>
     <string name="persistent">持久</string>
     <string name="temporary">临时</string>
@@ -550,8 +551,6 @@
     <string name="command_execution_failed">命令执行失败：%1$s</string>
     <string name="settings_nomount">启用内置挂载系统</string>
     <string name="settings_nomount_summary">启用内置 NoMount 无痕挂载（VFS 注入，无需安装模块）</string>
-    <string name="hide_other_info">强迫症开关</string>
-    <string name="hide_other_info_summary">隐藏导航栏上的超级用户数和模块数红点</string>
     <string name="hide_susfs_status">隐藏 SuSFS 状态信息</string>
     <string name="hide_susfs_status_summary">隐藏主页上的 SuSFS 状态信息</string>
     <string name="hide_zygisk_implement">隐藏 Zygisk 状态信息</string>

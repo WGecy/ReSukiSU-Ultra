@@ -155,7 +155,6 @@
     <string name="settings_mode_default">기본값</string>
     <string name="simple_mode">간소화 모드</string>
     <string name="simple_mode_summary">켜져 있을 때 불필요한 카드를 숨깁니다.</string>
-    <string name="hide_other_info">기타 정보 숨기기</string>
     <string name="hide_susfs_status">SuSFS 상태 숨기기</string>
     <string name="hide_susfs_status_summary">홈 화면에서 SuSFS 상태 정보를 숨깁니다.</string>
     <string name="hide_zygisk_implement">Zygisk 상태 숨기기</string>
@@ -234,8 +233,6 @@
     <string name="category_root_apps">ROOT</string>
     <string name="category_custom_apps">사용자 지정</string>
     <string name="category_default_apps">기본값</string>
-    <string name="sort_name_asc">이름 오름차순</string>
-    <string name="sort_name_desc">이름 내림차순</string>
     <string name="no_apps_in_category">이 카테고리에 앱이 없습니다.</string>
     <string name="persistent">영구적</string>
     <string name="temporary">일시적</string>

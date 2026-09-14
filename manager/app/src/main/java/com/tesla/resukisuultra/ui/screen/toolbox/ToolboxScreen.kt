@@ -192,7 +192,7 @@ fun ToolboxScreen() {
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         if (subpages.isEmpty()) {

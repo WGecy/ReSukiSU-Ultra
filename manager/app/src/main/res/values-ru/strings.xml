@@ -284,12 +284,6 @@
     <string name="kernel_flashing">Прошить ядро</string>
     <string name="warning_of_meta_module_title">Требуется мета-модуль</string>
         <string name="warning_of_meta_module_summary">Данный модуль хочет смонтировать /system, мета-модуль обработает это. В ином случае, он может не работать</string>
-    <string name="sort_name_asc">Название (по возрастанию)</string>
-    <string name="sort_name_desc">Название (по убыванию)</string>
-    <string name="sort_install_time_new">Время установки (новые)</string>
-    <string name="sort_install_time_old">Время установки (старые)</string>
-    <string name="sort_size_desc">Размер (по убыванию)</string>
-    <string name="sort_size_asc">Размер (по возрастанию)</string>
     <string name="sort_usage_freq">Частота использования</string>
     <string name="no_apps_in_category">В этой категории нет приложений</string>
     <string name="persistent">Постоянный</string>
@@ -544,8 +538,6 @@
     <string name="settings_check_update">Уведомления об обновлениях</string>
     <string name="settings_check_update_summary">Автоматически проверять обновления модулей и менеджера</string>
     <string name="command_execution_failed">Выполнение команды не удалось: %1$s</string>
-    <string name="hide_other_info">Скрыть другую информацию</string>
-    <string name="hide_other_info_summary">Скрывать информацию о количестве приложений с рут-доступом и модулей на главной странице</string>
     <string name="hide_susfs_status">Скрыть статус SuSFS</string>
     <string name="hide_susfs_status_summary">Скрывать информацию о статусе SuSFS на главной странице</string>
     <string name="hide_zygisk_implement">Скрыть статус Zygisk</string>

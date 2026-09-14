@@ -307,12 +307,6 @@
     <string name="module_unavailable">Module %s désactivé ou en attente de suppression</string>
     <string name="warning_of_meta_module_title">Métamodule requis</string>
     <string name="warning_of_meta_module_summary">Ce module tente de monter le volume /system, montage géré par métamodule. Sans métamodule, ce module risque de ne pas fonctionner</string>
-    <string name="sort_name_asc">Par nom</string>
-    <string name="sort_name_desc">Par nom (décroissant)</string>
-    <string name="sort_install_time_new">Par date d\'installation (décroissant)</string>
-    <string name="sort_install_time_old">Par date d\'installation</string>
-    <string name="sort_size_desc">Par taille (décroissant)</string>
-    <string name="sort_size_asc">Par taille</string>
     <string name="sort_usage_freq">Par fréquence d\'utilisation</string>
     <string name="no_apps_in_category">Aucune application dans cette catégorie</string>
     <string name="persistent">Persistante</string>
@@ -541,8 +535,6 @@
     <string name="settings_check_update">Notifications de mise à jour</string>
     <string name="settings_check_update_summary">Vérifier automatiquement les mises à jour du module et du gestionnaire</string>
     <string name="command_execution_failed">L\'exécution de la commande a échoué : %1$s</string>
-    <string name="hide_other_info">Masquer les autres infos</string>
-    <string name="hide_other_info_summary">Masque des informations sur le nombre de super utilisateurs et de modules sur la page d\'accueil</string>
     <string name="hide_susfs_status">Masquer le statut SuSFS</string>
     <string name="hide_susfs_status_summary">Masquer les informations de la carte de lien sur la page d\'accueil</string>
     <string name="hide_link_card">Masquer le statut du lien de la carte</string>

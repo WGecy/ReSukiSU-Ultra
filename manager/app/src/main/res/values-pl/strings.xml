@@ -232,8 +232,6 @@
     <string name="theme_settings">Ustawienia motywu</string>
     <string name="simple_mode">Tryb uproszczony</string>
     <string name="simple_mode_summary">Ukrywa niepotrzebne karty</string>
-    <string name="hide_other_info">Ukryj pozostałe informacje</string>
-    <string name="hide_other_info_summary">Ukrywa czerwoną kropkę dotyczącą liczby superuserów i modułów na paski nawigacji</string>
     <string name="hide_susfs_status">Ukryj status SuSFS</string>
     <string name="hide_susfs_status_summary">Ukrywa status SuSFS na stronie głównej</string>
     <string name="hide_zygisk_implement">Ukryj status Zygisk</string>
@@ -329,12 +327,6 @@
     <string name="category_root_apps">Root</string>
     <string name="category_custom_apps">Niestandardowe</string>
     <string name="category_default_apps">Domyślne</string>
-    <string name="sort_name_asc">Alfabetycznie (A-Z)</string>
-    <string name="sort_name_desc">Alfabetycznie (Z-A)</string>
-    <string name="sort_install_time_new">Czas instalacji (Nowe)</string>
-    <string name="sort_install_time_old">Czas instalacji (Stare)</string>
-    <string name="sort_size_desc">Rozmiar - malejąco</string>
-    <string name="sort_size_asc">Rozmiar - rosnąco</string>
     <string name="sort_usage_freq">Częstotliwość używania</string>
     <string name="no_apps_in_category">Brak aplikacji w tej kategorii</string>
     <string name="persistent">Trwały</string>

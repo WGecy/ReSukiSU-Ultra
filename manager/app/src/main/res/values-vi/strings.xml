@@ -204,12 +204,6 @@
     <string name="module_failed_count">Cài đặt module %d thất bại</string>
         <string name="warning_of_meta_module_title">Yêu cầu Siêu Module</string>
         <string name="warning_of_meta_module_summary">Module này muốn mount /system, Siêu Module sẽ xử lý việc đó. Nếu không, nó có thể không hoạt động</string>
-    <string name="sort_name_asc">Tên (Tăng dần)</string>
-    <string name="sort_name_desc">Tên (Giảm dần)</string>
-    <string name="sort_install_time_new">Thời gian cài đặt (Mới)</string>
-    <string name="sort_install_time_old">Thời gian cài đặt (Cũ)</string>
-    <string name="sort_size_desc">Kích thước (Giảm dần)</string>
-    <string name="sort_size_asc">Kích thước (Tăng dần)</string>
     <string name="sort_usage_freq">Tần suất sử dụng</string>
     <string name="no_apps_in_category">Không có ứng dụng nào trong danh mục này</string>
     <string name="susfs_config_title">Cấu hình SuSFS</string>
@@ -409,8 +403,6 @@
     <string name="settings_check_update">Thông báo cập nhật</string>
     <string name="settings_check_update_summary">Tự động kiểm tra bản cập nhật của mô-đun và trình quản lý</string>
     <string name="command_execution_failed">Thực thi lệnh thất bại: %1$s</string>
-    <string name="hide_other_info">Ẩn thông tin số lượng</string>
-    <string name="hide_other_info_summary">Ẩn thông tin về số lượng ở các mục Superuser và Module trên thanh điều hướng</string>
     <string name="hide_susfs_status">Ẩn trạng thái SuSFS</string>
     <string name="hide_susfs_status_summary">Ẩn thông tin trạng thái SuSFS ở trang chủ</string>
     <string name="hide_zygisk_implement">Ẩn trạng thái Zygisk</string>

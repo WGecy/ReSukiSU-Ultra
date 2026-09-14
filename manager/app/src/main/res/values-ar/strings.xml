@@ -164,8 +164,6 @@
     <string name="settings_kernel_umount_summary">فك تثبيت الإضافات من النواة في ملف تعريف التطبيق</string>
     <string name="simple_mode">وضع البساطة</string>
     <string name="simple_mode_summary">إخفاء البطاقات غير الضرورية عند تشغيلها</string>
-    <string name="hide_other_info">إخفاء معلومات أخرى</string>
-    <string name="hide_other_info_summary">يخفي معلومات عن عدد المستخدمين المتميزين والوحدات ووحدات KPM على الصفحة الرئيسية</string>
     <string name="hide_susfs_status">إخفاء حالة SuSFS</string>
     <string name="hide_susfs_status_summary">إخفاء معلومات حالة SuSFS على الصفحة الرئيسية</string>
     <string name="hide_link_card">إخفاء حالة بطاقة الرابط</string>
@@ -229,7 +227,6 @@
     <string name="installing_module">تم تثبيت الوحدة %1$d/%2$d</string>
     <string name="module_failed_count">أخفق %d في تثبيت وحدة جديدة</string>
     <string name="kernel_flashing">ضرب النواة</string>
-
     <string name="iosched_title">مجدول الإدخال/الإخراج</string>
     <string name="iosched_current">المجدول الحالي</string>
     <string name="iosched_in_use">قيد الاستخدام</string>

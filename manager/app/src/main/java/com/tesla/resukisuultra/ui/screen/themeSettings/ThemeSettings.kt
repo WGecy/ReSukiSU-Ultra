@@ -623,7 +623,7 @@ private fun AppearanceSettings(
             )
         }
 
-        item(visible = isPortrait) {
+        item(visible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isPortrait) {
             SettingsSwitchWidget(
                 icon = Icons.TwoTone.Dock,
                 title = stringResource(R.string.enable_floating_bottom_bar),

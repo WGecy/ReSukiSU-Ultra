@@ -145,8 +145,6 @@ fun HeroStatusCard(
     onClickInstall: () -> Unit = {},
     onClickJailbreak: () -> Unit = {},
 ) {
-    val cardConfig = koinInject<CardConfig>()
-
     // 呼吸动画: 仅 working 态常驻 (非 working 静止 — 省 GPU)
     val breathAlpha = if (isWorking) {
         val infiniteTransition = rememberInfiniteTransition(label = "breathing")
@@ -184,10 +182,12 @@ fun HeroStatusCard(
     )
 
     // 静态渐变 (颜色由 animateColorAsState 驱动), 呼吸 alpha 走 GPU
+    // 工作状态卡保持完全不透明, 不随 cardAlpha 调节 —
+    // 避免半透明叠加呼吸效果导致文字辨认困难
     val gradientBrush = Brush.linearGradient(
         colors = listOf(
-            containerColor.copy(alpha = cardConfig.cardAlpha),
-            containerColor.copy(alpha = 0.8f * cardConfig.cardAlpha)
+            containerColor,
+            containerColor.copy(alpha = 0.8f)
         )
     )
 

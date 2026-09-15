@@ -436,4 +436,5 @@
     <string name="iosched_about">Giới thiệu</string>
     <string name="settings_soft_reboot">Khởi động lại mềm</string>
     <string name="settings_soft_reboot_summary">Ưu tiên khởi động lại mềm khi khởi động lại (giữ jailbreak, vẫn áp dụng thay đổi mô-đun)</string>
+    <string name="about_anime_character_sticker"><![CDATA[Hệ thống biểu tượng được cấp phép theo điều khoản thỏa thuận đặc biệt: tác phẩm do 怡子曰曰 vẽ minh họa, quyền tác giả thuộc về 明风 OuO, và các biểu tượng định dạng vector do dự án này cung cấp.]]></string>
 </resources>

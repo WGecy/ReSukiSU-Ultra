@@ -187,7 +187,8 @@ fun SettingsCoreScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .blurSource(),
             contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
         ) {
             item {
@@ -488,7 +489,8 @@ fun SettingsAppScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .blurSource(),
             contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
         ) {
             item {
@@ -628,7 +630,8 @@ fun SettingsToolsScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .blurSource(),
             contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
         ) {
             item {

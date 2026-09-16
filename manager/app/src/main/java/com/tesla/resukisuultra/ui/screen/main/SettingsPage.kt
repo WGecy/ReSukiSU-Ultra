@@ -184,7 +184,8 @@ fun SettingsPage(bottomPadding: Dp) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .blurSource(),
             contentPadding = PaddingValues(
                 start = SPACING_MEDIUM,
                 top = SPACING_LARGE,

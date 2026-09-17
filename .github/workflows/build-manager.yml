@@ -177,9 +177,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
-
       - name: Build APK
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
@@ -419,6 +416,8 @@ jobs:
 
       - name: 删除旧 Release (固定 tag v4.3.0-latest)
         continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           # 一个版本一个 tag (ci-$VERSION): 资产只本次, 不堆积; ci- 前缀不污染 versionName
           # delete 加重试 + 验证
@@ -446,3 +445,4 @@ jobs:
           files: manager/*.apk
           prerelease: true
           fail_on_unmatched_files: false
+          update_release: false

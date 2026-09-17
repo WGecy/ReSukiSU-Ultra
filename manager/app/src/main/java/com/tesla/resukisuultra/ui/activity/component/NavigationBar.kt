@@ -1,38 +1,21 @@
 package com.tesla.resukisuultra.ui.activity.component
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
+import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -40,8 +23,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRail
@@ -49,61 +32,149 @@ import androidx.compose.material3.WideNavigationRailColors
 import androidx.compose.material3.WideNavigationRailDefaults
 import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tesla.resukisuultra.ui.component.FloatingBottomBar
+import com.tesla.resukisuultra.ui.component.FloatingBottomBarItem
 import com.tesla.resukisuultra.ui.screen.BottomBarDestination
+import com.tesla.resukisuultra.ui.theme.BottomBarStyle
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
+import com.tesla.resukisuultra.ui.util.LocalBlurState
 import com.tesla.resukisuultra.ui.util.LocalHandlePageChange
+import com.tesla.resukisuultra.ui.util.LocalPagerState
 import com.tesla.resukisuultra.ui.util.LocalSelectedPage
 import com.tesla.resukisuultra.ui.viewmodel.HomeViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop
 
-// TODO Add FloatingBottomBar as an choice to user
 
 @SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavigationBar(
+    modifier: Modifier = Modifier,
     destinations: List<BottomBarDestination>,
     isBottomBar: Boolean
 ) {
     val themeConfig: ThemeConfig = koinInject()
     val cardConfig: CardConfig = koinInject()
-    // 是否隐藏 badge
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
-    val isHideOtherInfo = uiState.isHideOtherInfo
     val superuserCount = uiState.systemInfo.superuserCount
     val moduleCount = uiState.systemInfo.moduleCount
-
-    // 翻页处理
+    val showNavigationBarBadge = uiState.showNavigationBarBadge
     val page = LocalSelectedPage.current
     val handlePageChange = LocalHandlePageChange.current
+    val pagerState = LocalPagerState.current
 
-    if (isBottomBar) {
-        FloatingBottomBar(
-            destinations = destinations,
-            page = page,
-            onPageChange = handlePageChange,
-            superuserCount = superuserCount,
-            moduleCount = moduleCount,
-            isHideOtherInfo = isHideOtherInfo,
-        )
-    } else {
-        WideNavigationRail(
+    if (isBottomBar && themeConfig.bottomBarStyle == BottomBarStyle.FLOATING && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        Box(
             modifier = Modifier
+                .fillMaxWidth()
                 .windowInsetsPadding(
                     WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal)
                 )
-                .blurEffect(),
+                .padding(
+                    bottom = 12.dp + WindowInsets.navigationBars.asPaddingValues()
+                        .calculateBottomPadding()
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            FloatingBottomBar(
+                selectedIndex = pagerState.targetPage,
+                onSelected = { handlePageChange(it) },
+                tabsCount = destinations.size,
+                isBlurEnabled = LocalBlurState.current != null,
+            ) { activateTab ->
+                destinations.forEachIndexed { index, destination ->
+                    FloatingBottomBarItem(
+                        selected = index == pagerState.targetPage,
+                        onClick = { activateTab(index) },
+                        modifier = Modifier.defaultMinSize(minWidth = 76.dp)
+                    ) {
+                        val contentColor = LocalContentColor.current
+                        val count = when (destination) {
+                            BottomBarDestination.SuperUser -> superuserCount
+                            BottomBarDestination.Module -> moduleCount
+                            else -> 0
+                        }
+                        val icon: @Composable () -> Unit = {
+                            Icon(
+                                imageVector = destination.iconSelected,
+                                contentDescription = stringResource(destination.label),
+                                tint = contentColor
+                            )
+                        }
+                        if (count > 0 && showNavigationBarBadge) {
+                            BadgedBox(badge = { Badge { Text(count.toString()) } }) { icon() }
+                        } else {
+                            icon()
+                        }
+                        Text(
+                            text = stringResource(destination.label),
+                            color = contentColor,
+                            fontSize = 11.sp,
+                            lineHeight = 14.sp,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Visible
+                        )
+                    }
+                }
+            }
+        }
+    } else if (isBottomBar) {
+        FlexibleBottomAppBar(
+            modifier = modifier
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                )
+                .blurEffect(
+                    compensateHorizontalOverscroll = true,
+                    compensateVerticalOverscroll = true,
+                    useFixedSurfaceBoundsForOverscroll = true,
+                ),
+            containerColor =
+                if (themeConfig.isEnableBlur)
+                    Color.Transparent
+                else
+                    MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ) {
+            destinations.forEachIndexed { index, destination ->
+                BottomBarNavigationItem(
+                    isSelected = index == page,
+                    destination = destination,
+                    onClick = {
+                        handlePageChange(index)
+                    },
+                    superuserCount = superuserCount,
+                    moduleCount = moduleCount,
+                    showNavigationBarBadge = showNavigationBarBadge,
+                )
+            }
+        }
+    } else {
+        WideNavigationRail(
+            modifier = modifier
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                )
+                .blurEffect(
+                    compensateHorizontalOverscroll = true,
+                    compensateVerticalOverscroll = false,
+                    useFixedSurfaceBoundsForOverscroll = true,
+                ),
             colors = WideNavigationRailColors(
                 containerColor =
                     if (themeConfig.isEnableBlur)
@@ -125,149 +196,8 @@ fun NavigationBar(
                     },
                     superuserCount = superuserCount,
                     moduleCount = moduleCount,
-                    isHideOtherInfo = isHideOtherInfo,
+                    showNavigationBarBadge = showNavigationBarBadge,
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FloatingBottomBar(
-    destinations: List<BottomBarDestination>,
-    page: Int,
-    onPageChange: (Int) -> Unit,
-    superuserCount: Int,
-    moduleCount: Int,
-    isHideOtherInfo: Boolean,
-) {
-    // 指示器 spring 跟随选中页 (folkx 参数)
-    val animatedIndex = remember { Animatable(page.toFloat()) }
-    LaunchedEffect(page) {
-        animatedIndex.animateTo(
-            targetValue = page.toFloat(),
-            animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f),
-        )
-    }
-
-    val itemSize = 52.dp
-    val itemSpacing = 6.dp
-    val containerPadding = 8.dp
-    val barHeight = 68.dp
-    val barWidth = (itemSize * destinations.size) +
-        (itemSpacing * (destinations.size - 1)) +
-        (containerPadding * 2)
-
-    // 纯色 + 动态取色 (MaterialKolor dynamicColorScheme)
-    val containerColor = MaterialTheme.colorScheme.surfaceContainer
-    val indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-    val selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer
-    val unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = with(LocalDensity.current) {
-                WindowInsets.navigationBars.getBottom(this).toDp()
-            })
-    ) {
-        val screenWidth = maxWidth
-        val horizontalScreenPadding = when {
-            screenWidth > 600.dp -> 32.dp
-            screenWidth > 400.dp -> 24.dp
-            else -> 16.dp
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = horizontalScreenPadding, vertical = 14.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Surface(
-                modifier = Modifier
-                    .width(barWidth)
-                    .height(barHeight)
-                    ,
-                shape = com.tesla.resukisuultra.ui.theme.ContinuousCapsule(),
-                color = containerColor,
-                tonalElevation = 3.dp,
-                shadowElevation = 6.dp,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = containerPadding)
-                ) {
-                    // 滑动指示器 (offset = item 位置, 与 Row 对齐)
-                    val density = LocalDensity.current
-                    val itemSizePx = with(density) { itemSize.toPx() }
-                    val itemSpacingPx = with(density) { itemSpacing.toPx() }
-                    val indicatorOffset = (itemSizePx + itemSpacingPx) * animatedIndex.value
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(vertical = 8.dp)
-                            .offset {
-                                IntOffset(
-                                    x = indicatorOffset.toInt(),
-                                    y = 0,
-                                )
-                            }
-                            .width(itemSize)
-                            .clip(CircleShape)
-                            .background(indicatorColor),
-                    )
-
-                    // 图标项 (clip 先行 → 圆形点击波纹)
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.spacedBy(itemSpacing),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        destinations.forEachIndexed { index, destination ->
-                            Box(
-                                modifier = Modifier
-                                    .size(itemSize)
-                                    .clip(CircleShape)
-                                    .clickable(
-                                        interactionSource = remember {
-                                            androidx.compose.foundation.interaction.MutableInteractionSource()
-                                        },
-                                        indication = androidx.compose.material3.ripple(),
-                                    ) { onPageChange(index) },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                BadgedBox(
-                                    badge = {
-                                        DestinationBadge(
-                                            dest = destination,
-                                            superUser = superuserCount,
-                                            module = moduleCount,
-                                            isHideOtherInfo = isHideOtherInfo,
-                                        )
-                                    }
-                                ) {
-                                    Icon(
-                                        if (index == page) {
-                                            destination.iconSelected
-                                        } else {
-                                            destination.iconNotSelected
-                                        },
-                                        stringResource(destination.label),
-                                        tint = if (index == page) {
-                                            selectedIconColor
-                                        } else {
-                                            unselectedIconColor
-                                        },
-                                        modifier = Modifier.size(24.dp),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -280,7 +210,7 @@ private fun NavigationRailItem(
     onClick: () -> Unit,
     superuserCount: Int,
     moduleCount: Int,
-    isHideOtherInfo: Boolean
+    showNavigationBarBadge: Boolean,
 ) {
     WideNavigationRailItem(
         railExpanded = false,
@@ -293,22 +223,14 @@ private fun NavigationRailItem(
                         dest = destination,
                         superUser = superuserCount,
                         module = moduleCount,
-                        isHideOtherInfo = isHideOtherInfo,
+                        show = showNavigationBarBadge,
                     )
                 }
             ) {
                 if (isSelected) {
-                    Icon(
-                        destination.iconSelected,
-                        stringResource(destination.label),
-                        modifier = Modifier.size(24.dp),
-                    )
+                    Icon(destination.iconSelected, stringResource(destination.label))
                 } else {
-                    Icon(
-                        destination.iconNotSelected,
-                        stringResource(destination.label),
-                        modifier = Modifier.size(24.dp),
-                    )
+                    Icon(destination.iconNotSelected, stringResource(destination.label))
                 }
             }
         },
@@ -325,11 +247,54 @@ private fun NavigationRailItem(
 }
 
 @Composable
+private fun RowScope.BottomBarNavigationItem(
+    isSelected: Boolean,
+    destination: BottomBarDestination,
+    onClick: () -> Unit,
+    superuserCount: Int,
+    moduleCount: Int,
+    showNavigationBarBadge: Boolean,
+) {
+    NavigationBarItem(
+        selected = isSelected,
+        onClick = onClick,
+        icon = {
+            BadgedBox(
+                badge = {
+                    DestinationBadge(
+                        dest = destination,
+                        superUser = superuserCount,
+                        module = moduleCount,
+                        show = showNavigationBarBadge,
+                    )
+                }
+            ) {
+                if (isSelected) {
+                    Icon(destination.iconSelected, stringResource(destination.label))
+                } else {
+                    Icon(destination.iconNotSelected, stringResource(destination.label))
+                }
+            }
+        },
+        label = {
+            Text(
+                stringResource(destination.label),
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Visible
+            )
+        },
+        alwaysShowLabel = false
+    )
+}
+
+@Composable
 private fun DestinationBadge(
     dest: BottomBarDestination,
     superUser: Int,
     module: Int,
-    isHideOtherInfo: Boolean
+    show: Boolean,
 ) {
     val count = when (dest) {
         BottomBarDestination.SuperUser -> superUser
@@ -338,7 +303,7 @@ private fun DestinationBadge(
     }
 
     AnimatedVisibility(
-        visible = count > 0 && !isHideOtherInfo,
+        visible = count > 0 && show,
         enter = fadeIn(),
         exit = fadeOut()
     ) {

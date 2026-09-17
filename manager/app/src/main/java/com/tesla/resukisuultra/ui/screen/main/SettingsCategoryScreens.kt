@@ -133,7 +133,7 @@ fun SettingsCoreScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current
@@ -180,15 +180,20 @@ fun SettingsCoreScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
-            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .blurSource(),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                start = 0.dp,
+                end = 0.dp,
+                bottom = innerPadding.calculateBottomPadding() + 8.dp,
+            ),
         ) {
             item {
                 val modeItems = listOf(
@@ -434,7 +439,7 @@ fun SettingsAppScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current
@@ -481,15 +486,20 @@ fun SettingsAppScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
-            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .blurSource(),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                start = 0.dp,
+                end = 0.dp,
+                bottom = innerPadding.calculateBottomPadding() + 8.dp,
+            ),
         ) {
             item {
                     // 应用设置卡片
@@ -574,7 +584,7 @@ fun SettingsToolsScreen() {
     val settingsViewModel = koinViewModel<SettingsViewModel>()
     val homeViewModel = koinViewModel<HomeViewModel>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val context = LocalContext.current
@@ -621,15 +631,20 @@ fun SettingsToolsScreen() {
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
-            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .blurSource(),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                start = 0.dp,
+                end = 0.dp,
+                bottom = innerPadding.calculateBottomPadding() + 8.dp,
+            ),
         ) {
             item {
                     // 工具卡片

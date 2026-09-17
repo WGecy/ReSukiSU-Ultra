@@ -72,8 +72,6 @@ import com.tesla.resukisuultra.domain.usecase.GetBooleanPreferenceUseCase
 import com.tesla.resukisuultra.domain.usecase.GetCatalogModuleUseCase
 import com.tesla.resukisuultra.domain.usecase.GetDefaultUmountModulesUseCase
 import com.tesla.resukisuultra.domain.usecase.GetHomeBasicInfoUseCase
-import com.tesla.resukisuultra.domain.usecase.GetHomeModuleOverviewUseCase
-import com.tesla.resukisuultra.domain.usecase.GetHomeSuperuserCountUseCase
 import com.tesla.resukisuultra.domain.usecase.GetInstallEnvironmentUseCase
 import com.tesla.resukisuultra.domain.usecase.GetKernelFeatureSettingsUseCase
 import com.tesla.resukisuultra.domain.usecase.GetKernelStatusUseCase
@@ -299,8 +297,6 @@ val repositoryModule = module {
 val useCaseModule = module {
     factoryOf(::InitializeApplicationUseCase)
     factoryOf(::GetHomeBasicInfoUseCase)
-    factoryOf(::GetHomeModuleOverviewUseCase)
-    factoryOf(::GetHomeSuperuserCountUseCase)
     factoryOf(::IsNetworkAvailableUseCase)
     factoryOf(::LoadSettingsPlatformUseCase)
     factoryOf(::UpdateAppearanceUseCase)

@@ -261,12 +261,6 @@
     <string name="kernel_flashing">Çekirdek Yükleniyor</string>
     <string name="warning_of_meta_module_title">Meta modül gerektirir</string>
     <string name="warning_of_meta_module_summary">Bu modül, meta modül tarafından yönetilen /system bölümünü bağlamak istiyor. Bu modül meta modül olmadan çalışmayabilir</string>
-    <string name="sort_name_asc">İsme göre artan sırada</string>
-    <string name="sort_name_desc">İsme göre azalan sırada</string>
-    <string name="sort_install_time_new">Kurulum zamanı (yeni)</string>
-    <string name="sort_install_time_old">Kurulum zamanı (eski)</string>
-    <string name="sort_size_desc">Boyuta göre azalan sırada</string>
-    <string name="sort_size_asc">Boyuta göre artan sırada</string>
     <string name="sort_usage_freq">Kullanım sıklığına göre</string>
     <string name="no_apps_in_category">Bu kategoride uygulama yok</string>
     <string name="persistent">Kalıcı</string>
@@ -544,8 +538,6 @@
     <string name="settings_check_update">Güncelleme bildirimleri</string>
     <string name="settings_check_update_summary">Modül ve yönetici güncellemelerini otomatik olarak kontrol et</string>
     <string name="command_execution_failed">Komut yürütülemedi: %1$s</string>
-    <string name="hide_other_info">Diğer bilgileri gizle</string>
-    <string name="hide_other_info_summary">Gezinme çubuğunda süper kullanıcı ve modül sayısını gösteren kırmızı noktayı gizleyin</string>
     <string name="hide_susfs_status">SuSFS durumunu gizle</string>
     <string name="hide_susfs_status_summary">Ana sayfadaki SuSFS durum bilgisini gizleyin</string>
     <string name="hide_zygisk_implement">Zygisk durumunu gizle</string>

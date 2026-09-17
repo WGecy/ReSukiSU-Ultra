@@ -2,16 +2,8 @@ package com.tesla.resukisuultra.ui.screen.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -43,7 +35,6 @@ import com.tesla.resukisuultra.ui.activity.component.rememberScrollConnection
 import com.tesla.resukisuultra.ui.rememberMaterial3BlurBackdrop
 import com.tesla.resukisuultra.ui.screen.BottomBarDestination
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
-import com.tesla.resukisuultra.ui.theme.blurSource
 import com.tesla.resukisuultra.ui.util.LocalBlurState
 import com.tesla.resukisuultra.ui.util.LocalHandlePageChange
 import com.tesla.resukisuultra.ui.util.LocalPagerPage
@@ -61,21 +52,70 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MainScreen() {
     val themeConfig: ThemeConfig = koinInject()
     val homeViewModel = koinViewModel<HomeViewModel>()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val pages = remember(homeState.systemStatus.isFullFeatured) {
         BottomBarDestination.getPages(homeState.systemStatus.isFullFeatured)
     }
 
+    val coroutineScope = rememberCoroutineScope()
     var uiSelectedPage by rememberSaveable { mutableIntStateOf(0) }
-    val handlePageChange: (Int) -> Unit = { page ->
-        uiSelectedPage = page
+    val pagerState = rememberPagerState(
+        initialPage = uiSelectedPage,
+        pageCount = { pages.size }
+    )
+    var userScrollEnabled by remember { mutableStateOf(true) }
+    var animating by remember { mutableStateOf(false) }
+    var animateJob by remember { mutableStateOf<Job?>(null) }
+    var lastRequestedPage by remember { mutableIntStateOf(pagerState.currentPage) }
+
+    val handlePageChange: (Int) -> Unit = remember(pagerState, coroutineScope) {
+        { page ->
+            uiSelectedPage = page
+            if (page == pagerState.currentPage) {
+                if (animateJob != null && lastRequestedPage != page) {
+                    animateJob?.cancel()
+                    animateJob = null
+                    animating = false
+                    userScrollEnabled = true
+                }
+                lastRequestedPage = page
+            } else {
+                if (animateJob != null && lastRequestedPage == page) {
+                    // Already animating to the requested page
+                } else {
+                    animateJob?.cancel()
+                    animating = true
+                    userScrollEnabled = false
+                    val job = coroutineScope.launch {
+                        try {
+                            pagerState.animateScrollToPage(page)
+                        } finally {
+                            if (animateJob === this) {
+                                userScrollEnabled = true
+                                animating = false
+                                animateJob = null
+                            }
+                        }
+                    }
+                    animateJob = job
+                    lastRequestedPage = page
+                }
+            }
+        }
     }
 
-    BackHandler(uiSelectedPage != 0) {
-        uiSelectedPage = 0
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            if (!animating) uiSelectedPage = page
+        }
+    }
+
+    BackHandler(pagerState.currentPage != 0) {
+        handlePageChange(0)
     }
 
     CompositionLocalProvider(
+        LocalPagerState provides pagerState,
         LocalHandlePageChange provides handlePageChange,
         LocalSelectedPage provides uiSelectedPage
     ) {
@@ -84,28 +124,27 @@ fun MainScreen() {
         ) {
             val isPortrait = maxWidth < maxHeight || (maxHeight / maxWidth > 1.4f)
             val content = @Composable { paddingBottom: Dp ->
-                // folkx 引擎切换 (照搬 FolkPatch linear: 左右滑动 + spring(0.8,300) + fade)
-                if (pages.isNotEmpty()) {
-                AnimatedContent(
-                    targetState = uiSelectedPage,
-                    transitionSpec = {
-                        if (targetState > initialState) {
-                            (slideInHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), initialOffsetX = { it })) togetherWith
-                                (slideOutHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), targetOffsetX = { -it }))
-                        } else {
-                            (slideInHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), initialOffsetX = { -it })) togetherWith
-                                (slideOutHorizontally(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f), targetOffsetX = { it }))
-                        }
-                    },
+                HorizontalPager(
+                    modifier = Modifier.fillMaxSize(),
+                    state = pagerState,
+                    userScrollEnabled = userScrollEnabled,
+                    beyondViewportPageCount = 1,
                 ) { pageIndex ->
+                    if (pages.isEmpty()) return@HorizontalPager
+
                     val snackBarHostState = remember { SnackbarHostState() }
                     CompositionLocalProvider(
                         LocalSnackbarHost provides snackBarHostState,
+                        LocalPagerPage provides pageIndex,
+                        LocalBlurState provides rememberMaterial3BlurBackdrop(
+                            enableBlur = themeConfig.isEnableBlur,
+                            pagerState = pagerState,
+                            pagerPage = pageIndex,
+                        ),
                     ) {
                         val destination = pages[pageIndex]
                         destination.direction(paddingBottom)
                     }
-                }
                 }
             }
 

@@ -266,12 +266,6 @@
     <string name="kernel_flashing">核心刷寫</string>
     <string name="warning_of_meta_module_title">需要元模組</string>
         <string name="warning_of_meta_module_summary">這個模組需要掛載一些檔案。需要安裝元模組，使它正常工作</string>
-    <string name="sort_name_asc">名稱升序</string>
-    <string name="sort_name_desc">名稱降序</string>
-    <string name="sort_install_time_new">安裝時間（新）</string>
-    <string name="sort_install_time_old">安裝時間（舊）</string>
-    <string name="sort_size_desc">大小降序</string>
-    <string name="sort_size_asc">大小升序</string>
     <string name="sort_usage_freq">使用頻率</string>
     <string name="no_apps_in_category">此分類中冇應用程式</string>
     <string name="persistent">持久</string>
@@ -398,6 +392,8 @@
     <string name="background_crop_rotation_angle">旋轉角度</string>
     <string name="settings_config_enable_blur">啟用模糊</string>
     <string name="settings_config_enable_blur_summary">為此應用程式啟用模糊處理</string>
+    <string name="enable_floating_bottom_bar">懸浮底部欄</string>
+    <string name="enable_floating_bottom_bar_summary">使用 Apple 風格懸浮底部欄</string>
     <string name="settings_exp_draw_background_to_blur">繪製自訂背景以實現模糊效果</string>
     <string name="settings_exp_draw_background_to_blur_description">實驗性功能，使用風險自負</string>
     <string name="settings_config_use_custom_background_seed_color">從自訂背景選取顏色</string>
@@ -538,8 +534,6 @@
     <string name="settings_check_update">更新提醒</string>
     <string name="settings_check_update_summary">自動檢查模組和管理器更新</string>
     <string name="command_execution_failed">命令執行失敗：%1$s</string>
-    <string name="hide_other_info">強迫症開關</string>
-    <string name="hide_other_info_summary">隱藏導航列上嘅超級用戶數、模組數紅點</string>
     <string name="hide_susfs_status">隱藏 SuSFS 狀態資訊</string>
     <string name="hide_susfs_status_summary">隱藏主頁上嘅 SuSFS 狀態資訊</string>
     <string name="hide_zygisk_implement">隱藏 Zygisk 狀態資訊</string>

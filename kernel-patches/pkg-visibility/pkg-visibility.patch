@@ -127,7 +127,7 @@ diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
 index b453b1f718dd..a6042f1c2980 100644
 --- a/fs/fuse/readdir.c
 +++ b/fs/fuse/readdir.c
-@@ -8,6 +8,105 @@
+@@ -8,6 +8,97 @@
  
  
  #include "fuse_i.h"

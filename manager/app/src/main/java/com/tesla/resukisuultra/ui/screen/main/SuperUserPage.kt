@@ -26,6 +26,7 @@ import androidx.compose.material.icons.twotone.MoreVert
 import androidx.compose.material.icons.twotone.RestoreFromTrash
 import androidx.compose.material.icons.twotone.Save
 import androidx.compose.material.icons.twotone.SearchOff
+import androidx.compose.material.icons.twotone.SwapVert
 import androidx.compose.material.icons.twotone.Visibility
 import androidx.compose.material.icons.twotone.VisibilityOff
 import androidx.compose.material3.DropdownMenuGroup
@@ -99,7 +100,9 @@ import java.util.Locale
 private data class SuperUserMenuItem(
     val icon: ImageVector,
     val titleRes: Int,
-    val onClick: () -> Unit
+    val checked: Boolean = false,
+    val onClick: () -> Unit,
+    val closeOnClick: Boolean = true,
 )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -364,7 +367,8 @@ private fun SuperUserContent(
                 contentType = { _, appGroup -> "${appGroup.uid}-${appGroup.profileKey}" },
             ) { _, appGroup ->
                 AppGroupItem(
-                    appGroup = appGroup
+                    appGroup = appGroup,
+                    isManager = appGroup.uid in uiState.managerUids,
                 ) {
                     navigator.push(Route.AppProfile(appGroup.uid, appGroup.profileKey))
                 }
@@ -389,13 +393,25 @@ private fun SuperUserDropdown(
 ) {
     val menuItems = remember(
         uiState.showSystemApps,
+        uiState.reverseOrder,
         onBackupAllowlist,
         onRestoreAllowlist,
     ) {
         listOf(
             SuperUserMenuItem(
+                icon = Icons.TwoTone.SwapVert,
+                titleRes = R.string.reverse_order,
+                checked = uiState.reverseOrder,
+                closeOnClick = false,
+                onClick = {
+                    viewModel.dispatch(SuperUserUiAction.SetReverseOrder(!uiState.reverseOrder))
+                }
+            ),
+            SuperUserMenuItem(
                 icon = if (uiState.showSystemApps) Icons.TwoTone.VisibilityOff else Icons.TwoTone.Visibility,
                 titleRes = if (uiState.showSystemApps) R.string.hide_system_apps else R.string.show_system_apps,
+                checked = uiState.showSystemApps,
+                closeOnClick = false,
                 onClick = {
                     viewModel.dispatch(SuperUserUiAction.SetShowSystemApps(!uiState.showSystemApps))
                 }
@@ -448,7 +464,7 @@ private fun SuperUserDropdown(
         ) {
             menuItems.forEachIndexed { index, menuItem ->
                 SelectableDropdownMenuItem(
-                    selected = false,
+                    selected = menuItem.checked,
                     text = { Text(stringResource(menuItem.titleRes)) },
                     leadingIcon = {
                         Icon(
@@ -457,7 +473,7 @@ private fun SuperUserDropdown(
                         )
                     },
                     onClick = {
-                        onDismissRequest()
+                        if (menuItem.closeOnClick) onDismissRequest()
                         menuItem.onClick()
                     },
                     shapes = MenuDefaults.itemShape(
@@ -474,6 +490,7 @@ private fun SuperUserDropdown(
 @Composable
 private fun AppGroupItem(
     appGroup: InstalledAppGroup,
+    isManager: Boolean,
     onClick: () -> Unit,
 ) {
     val mainApp = appGroup.mainApp
@@ -513,6 +530,12 @@ private fun AppGroupItem(
                     LabelText(
                         label = "DEFAULT",
                         containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                }
+                if (isManager) {
+                    LabelText(
+                        label = "MANAGER",
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
                     )
                 }
                 if (appGroup.apps.size > 1) {

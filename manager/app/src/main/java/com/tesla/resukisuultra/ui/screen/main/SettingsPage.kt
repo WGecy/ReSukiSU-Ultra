@@ -140,7 +140,7 @@ fun SettingsPage(bottomPadding: Dp) {
     val homeViewModel = koinViewModel<HomeViewModel>()
     val generateBugreport = koinInject<GenerateBugreportUseCase>()
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
+    val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         settingsViewModel.dispatch(SettingsUiAction.LoadFeatureSettings)
@@ -184,10 +184,10 @@ fun SettingsPage(bottomPadding: Dp) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .blurSource(),
             contentPadding = PaddingValues(
                 start = SPACING_MEDIUM,
-                top = SPACING_LARGE,
+                top = innerPadding.calculateTopPadding() + SPACING_LARGE,
                 end = SPACING_MEDIUM,
                 bottom = SPACING_LARGE
             ),

@@ -139,6 +139,7 @@ class ThemeConfig(
     var isEnableBlur by mutableStateOf(false)
     var isEnableBlurExp by mutableStateOf(false)
     var isUseBackgroundSeedColor by mutableStateOf(false)
+    var bottomBarStyle by mutableStateOf(BottomBarStyle.MATERIAL3_EXPRESSIVE)
 
     // 主题变化检测
     private var lastDarkModeState: Boolean? = null
@@ -221,6 +222,11 @@ class BackgroundManager(
         settings.putBoolean("enable_blur_exp", enable)
     }
 
+    fun saveBottomBarStyle(style: BottomBarStyle) {
+        config.bottomBarStyle = style
+        settings.putInt("bottom_bar_style", style.ordinal)
+    }
+
     fun saveUseBackgroundSeedColor(enable: Boolean) {
         config.isUseBackgroundSeedColor = enable
         settings.putBoolean("use_background_seed_color", enable)
@@ -283,8 +289,7 @@ class BackgroundManager(
         }
 
         config.backgroundDim = prefs.getFloat("background_dim", 0f).coerceIn(0f, 1f)
-        config.isEnableBlur = prefs.getBoolean("enable_blur", false)
-        config.isEnableBlurExp = false // 玻璃效果已移除 (2026-08-20)
+        config.isEnableBlurExp = prefs.getBoolean("enable_blur_exp", false)
         config.isUseBackgroundSeedColor = prefs.getBoolean("use_background_seed_color", false)
         config.isHighContrastMode = prefs.getBoolean("high_contrast_mode", false)
     }
@@ -360,6 +365,7 @@ fun KernelSUTheme(
         themeRepository = themeRepository,
         backgroundManager = backgroundManager,
         cardConfig = cardConfig,
+        settings = settings,
     )
 
     // 创建颜色方案
@@ -409,6 +415,7 @@ private fun ThemeInitializer(
     themeRepository: ThemeRepository,
     backgroundManager: BackgroundManager,
     cardConfig: CardConfig,
+    settings: AppSettingsRepository,
 ) {
     val themeChanged = themeConfig.detectThemeChange(systemIsDark)
     val scope = rememberCoroutineScope()
@@ -441,6 +448,8 @@ private fun ThemeInitializer(
             themeConfig.dynamicPaletteStyle = themeRepository.loadDynamicPaletteStyle(
                 themeConfig.dynamicColorSpec,
             )
+            themeConfig.isEnableBlur = settings.getBoolean("enable_blur", false)
+            themeConfig.bottomBarStyle = BottomBarStyle.fromOrdinal(settings.getInt("bottom_bar_style", 0))
             cardConfig.load()
 
             if (!themeConfig.backgroundImageLoaded && !themeConfig.preventBackgroundRefresh) {
@@ -618,8 +627,13 @@ fun Modifier.blurEffect(
     }
 
     return LocalBlurState.current?.let { backdrop ->
+        // 0.8f like haze, for material design without custom background enable
+        val blurTintAlpha = if (cardConfig.isCustomBackgroundEnabled)
+            cardConfig.cardAlpha
+        else 0.8f
+
         val blendColor =
-            MaterialTheme.colorScheme.surfaceContainer.copy(alpha = cardConfig.cardAlpha)
+            MaterialTheme.colorScheme.surfaceContainer.copy(alpha = blurTintAlpha)
 
         this.then(
             Modifier
@@ -674,6 +688,7 @@ private fun Modifier.renderBackgroundFallback(
     useFixedSurfaceBoundsForOverscroll: Boolean,
 ): Modifier = composed {
     val themeConfig = koinInject<ThemeConfig>()
+    val cardConfig = koinInject<CardConfig>()
     val renderState = LocalBackgroundRenderState.current
     var coordinates by remember {
         mutableStateOf<LayoutCoordinates?>(null)
@@ -681,6 +696,12 @@ private fun Modifier.renderBackgroundFallback(
 
     val backgroundColor = MaterialTheme.colorScheme.surfaceContainer
     val dimColor = backgroundColor.copy(alpha = themeConfig.backgroundDim)
+    // 与模糊路径的 blendColor 保持一致: 自定义背景时按卡片透明度,
+    // 否则 0.8f 雾面, 保证关闭/不支持模糊时顶栏仍可调节不透明度
+    val blurTintAlpha = if (cardConfig.isCustomBackgroundEnabled)
+        cardConfig.cardAlpha
+    else 0.8f
+    val blendColor = backgroundColor.copy(alpha = blurTintAlpha)
     val backgroundBitmap = renderState.imageBitmap
     val backgroundAnchor = LocalBackgroundBlurAnchor.current
     val pagerPage = LocalPagerPage.current
@@ -777,6 +798,7 @@ private fun Modifier.renderBackgroundFallback(
                     )
                 }
                 drawRect(color = dimColor)
+                drawRect(color = blendColor)
             } else {
                 drawRect(color = backgroundColor)
             }

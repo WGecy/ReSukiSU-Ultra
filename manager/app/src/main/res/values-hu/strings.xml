@@ -278,12 +278,6 @@
     <string name="kernel_flashing">Kernel telepítés</string>
     <string name="warning_of_meta_module_title">Metamodul szükséges</string>
     <string name="warning_of_meta_module_summary">Ez a modul adatot akar csatolni a fájlrendszer /system névterébe, ehhez metamodul szükséges. Másképp a megfelelő működés nem garantált</string>
-    <string name="sort_name_asc">ABC sorrendben növekvő</string>
-    <string name="sort_name_desc">ABC sorrendben csökkenő</string>
-    <string name="sort_install_time_new">Telepítés ideje szerint (újabbak előre)</string>
-    <string name="sort_install_time_old">Telepítés ideje szerint (régebbiek előre)</string>
-    <string name="sort_size_desc">Tárhelyben elfoglalt méretük szerint csökkenő</string>
-    <string name="sort_size_asc">Tárhelyben elfoglalt méretük szerint növekvő</string>
     <string name="sort_usage_freq">Leggyakrabban használtak</string>
     <string name="no_apps_in_category">Ebben a kategóriában applikáció nem található</string>
     <string name="sulog_search_placeholder">Keresés naplóban</string>
@@ -544,8 +538,6 @@
     <string name="settings_check_update">Frissítéssel kapcsolatos értesítések</string>
     <string name="settings_check_update_summary">Modul- és kezelőfrissítések automatikus keresése</string>
     <string name="command_execution_failed">Parancs futtatása nem sikerült: %1$s</string>
-    <string name="hide_other_info">Egyéb infók elrejtése</string>
-    <string name="hide_other_info_summary">Elrejt információkat a navigációs sávban mint a superuser jogosultak és modulok számát</string>
     <string name="hide_susfs_status">SuSFS Állapot elrejtése</string>
     <string name="hide_susfs_status_summary">Elrejti a SuSFS állapotával kapcsolatos státuszinformációkat a kezdőlapról</string>
     <string name="hide_zygisk_implement">Zygisk Állapot elrejtése</string>
@@ -582,4 +574,15 @@
     <string name="iosched_about">Névjegy</string>
     <string name="settings_soft_reboot">Szoftver újraindítás</string>
     <string name="settings_soft_reboot_summary">Előnyben részesítse a szoftver újraindítást (megtartja a jailbreaket, a modulmódosítások még érvényesülnek)</string>
+    <string name="home_card_icons_summary">Kezdőlap kártyáinak ikonosítása</string>
+    <string name="home_card_icons">Ikonok megjelenítése a kezdőlap kártyáin</string>
+    <string name="navigation_bar_badge_summary">Superuser folyamatok és modulok számának megjelenítése a navigációs sávon</string>
+    <string name="navigation_bar_badge">Bélyegek a navigációs sávon</string>
+    <string name="sort_size">Méret szerint</string>
+    <string name="reverse_order">Fordított sorrendben</string>
+    <string name="sort_update_time">Legutóbbi frissítés ideje szerint</string>
+    <string name="sort_install_time">Telepítés ideje szerint</string>
+    <string name="sort_name">Név szerint</string>
+    <string name="enable_floating_bottom_bar">Lebegő alsó sáv</string>
+    <string name="enable_floating_bottom_bar_summary">Apple iOS stílusú lebegő alsó sáv használata.</string>
 </resources>

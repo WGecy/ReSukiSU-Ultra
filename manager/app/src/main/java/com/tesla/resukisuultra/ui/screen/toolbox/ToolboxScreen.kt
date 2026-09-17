@@ -62,6 +62,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
 import com.tesla.resukisuultra.ui.theme.blurEffect
+import com.tesla.resukisuultra.ui.theme.blurSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -192,7 +193,7 @@ fun ToolboxScreen() {
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = Color.Transparent,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         if (subpages.isEmpty()) {
@@ -205,7 +206,9 @@ fun ToolboxScreen() {
             }
         } else {
             HorizontalPager(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blurSource(),
                 state = pagerState,
                 beyondViewportPageCount = 1,
             ) { page ->

@@ -78,7 +78,7 @@ enum Commands {
         kmi: Option<String>,
 
         /// manager package name
-        #[arg(long, default_value_t = String::from("com.resukisu.resukisu"))]
+        #[arg(long, default_value_t = String::from(defs::DEFAULT_PACKAGE_NAME))]
         package_name: String,
     },
 
@@ -104,6 +104,9 @@ enum Commands {
     Install {
         #[arg(long, default_value = None)]
         libadbroot: Option<PathBuf>,
+
+        #[arg(long, default_value = None)]
+        data_path: Option<PathBuf>,
     },
 
     /// Unload KernelSU kernel module (LKM Only)
@@ -252,7 +255,7 @@ enum Debug {
     /// Set the manager app, kernel CONFIG_KSU_DEBUG should be enabled.
     SetManager {
         /// manager package name
-        #[arg(default_value_t = String::from("com.resukisu.resukisu"))]
+        #[arg(default_value_t = String::from(defs::DEFAULT_PACKAGE_NAME))]
         apk: String,
     },
 
@@ -294,6 +297,9 @@ enum Debug {
 
     /// Get kernel info
     Info,
+
+    /// Print default package name
+    Package,
 }
 
 #[derive(clap::Subcommand, Debug)]
@@ -654,7 +660,7 @@ pub fn run() -> Result<()> {
             UmountConfigOp::Clear => umount_config::wipe_umount(),
             UmountConfigOp::List => umount_config::list_umount(),
         },
-        Commands::SoftReboot => init_event::soft_reboot(),
+        Commands::SoftReboot => crate::android::soft_reboot::soft_reboot(),
         Commands::Insmod { module, params } => debug::insmod(&module, &params),
         Commands::Module { command } => {
             utils::switch_mnt_ns(1)?;
@@ -758,7 +764,10 @@ pub fn run() -> Result<()> {
                 }
             }
         }
-        Commands::Install { libadbroot } => utils::install(libadbroot),
+        Commands::Install {
+            libadbroot,
+            data_path,
+        } => utils::install(libadbroot, data_path),
         Commands::Unload => crate::android::unload::unload(),
         Commands::Uninstall { package_name } => utils::uninstall(&package_name),
         Commands::Sepolicy { command } => match command {
@@ -869,6 +878,10 @@ pub fn run() -> Result<()> {
                     "pr_build: {}",
                     (info.flags & uapi::KSU_GET_INFO_FLAG_PR_BUILD) != 0
                 );
+                Ok(())
+            }
+            Debug::Package => {
+                println!("{}", defs::DEFAULT_PACKAGE_NAME);
                 Ok(())
             }
         },

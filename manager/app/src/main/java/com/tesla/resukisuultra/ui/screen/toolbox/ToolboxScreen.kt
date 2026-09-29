@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -45,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tesla.resukisuultra.R
+import com.tesla.resukisuultra.ui.component.HorizontalPagerWithInteraction
 import com.tesla.resukisuultra.ui.component.settings.AppBackButton
 import com.tesla.resukisuultra.ui.navigation.LocalNavigator
 import com.tesla.resukisuultra.ui.navigation.Route
@@ -205,7 +205,7 @@ fun ToolboxScreen() {
                 LoadingIndicator()
             }
         } else {
-            HorizontalPager(
+            HorizontalPagerWithInteraction(
                 modifier = Modifier
                     .fillMaxSize()
                     .blurSource(),

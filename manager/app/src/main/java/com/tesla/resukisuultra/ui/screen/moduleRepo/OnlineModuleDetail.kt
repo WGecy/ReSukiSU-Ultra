@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -106,6 +105,7 @@ import com.tesla.resukisuultra.ui.util.adaptiveScaffoldWindowInsets
 import com.tesla.resukisuultra.ui.viewmodel.ModuleDetailUiAction
 import com.tesla.resukisuultra.ui.viewmodel.ModuleDetailViewModel
 import com.tesla.resukisuultra.ui.viewmodel.formatFileSize
+import com.tesla.resukisuultra.ui.component.HorizontalPagerWithInteraction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -247,7 +247,7 @@ private fun OnlineModuleDetailContent(module: CatalogModule) {
                 .blurSource()
         ) {
 
-            HorizontalPager(
+            HorizontalPagerWithInteraction(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->

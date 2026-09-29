@@ -15,6 +15,14 @@ extra["androidSourceCompatibility"] = JavaVersion.VERSION_21
 extra["androidTargetCompatibility"] = JavaVersion.VERSION_21
 extra["managerVersionCode"] = 30000 + getGitCommitCount() + 800
 extra["managerVersionName"] = getGitDescribe()
+extra["isPrBuild"] = project.findProperty("IS_PR_BUILD")?.toString()?.toBoolean() ?: false
+extra["defaultManagerPackageName"] = "com.tesla.resukisuultra"
+extra["managerPackageName"] = project.findProperty("KSU_PACKAGE_NAME")?.toString() ?: extra["defaultManagerPackageName"]
+extra["defaultManagerAppName"] = if (extra["isPrBuild"] == true) "ReSukiSU Ultra PR" else "ReSukiSU Ultra"
+extra["managerName"] = project.findProperty("KSU_NAME")?.toString() ?: extra["defaultManagerAppName"]
+
+val isSpoofedBuild = project.findProperty("IS_SPOOFED_BUILD")?.toString()?.toBoolean() ?: false
+
 
 fun getGitCommitCount(): Int {
     // 用 origin/main (与内核构建 fetch 后的 commit 数一致, 保证版本对齐)
@@ -25,7 +33,11 @@ fun getGitCommitCount(): Int {
 
 fun getGitDescribe(): String {
     // 只匹配 v4.3.0 精确 tag: CI 构建 tag (ci-*) 与历史构建 tag (v4.3.0_*) 不污染 versionName
-    return providers.exec {
+    val desc = providers.exec {
         commandLine("git", "describe", "--tags", "--match", "v4.3.0", "--always", "--abbrev=0")
     }.standardOutput.asText.get().trim()
+    if (isSpoofedBuild) {
+        return "$desc-spoofed"
+    }
+    return desc
 }

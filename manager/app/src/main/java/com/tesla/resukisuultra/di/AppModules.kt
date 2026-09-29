@@ -165,6 +165,8 @@ import com.tesla.resukisuultra.ui.viewmodel.TemplateEditorViewModel
 import com.tesla.resukisuultra.ui.viewmodel.TemplateViewModel
 import com.tesla.resukisuultra.ui.viewmodel.UmountManagerScreenViewModel
 import com.tesla.resukisuultra.ui.webui.MonetColorsProvider
+import com.tesla.resukisuultra.data.count.CountRepository
+import com.tesla.resukisuultra.domain.usecase.IsSoftRebootPreferredUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -221,6 +223,7 @@ val coreModule = module {
 val repositoryModule = module {
     single { KsuCliRepository(androidApplication()) }
     single { NetIsolateRepository(androidApplication(), get()) }
+    singleOf(::CountRepository)
     singleOf(::InstalledPackageCache)
     singleOf(::AppIconDataSource)
     singleOf(::RootServiceRepository)
@@ -302,6 +305,7 @@ val useCaseModule = module {
     factoryOf(::UpdateAppearanceUseCase)
     factoryOf(::UpdatePlatformSettingUseCase)
     factoryOf(::GetPlatformFeatureStatusUseCase)
+    factoryOf(::IsSoftRebootPreferredUseCase)
     factoryOf(::CheckManagerUpdateUseCase)
     factoryOf(::EnsureManagerInstalledUseCase)
     factoryOf(::RebootUseCase)

@@ -7,6 +7,7 @@ import com.tesla.resukisuultra.domain.model.FlashOperationUpdate
 import com.tesla.resukisuultra.domain.usecase.CheckFlashModuleMountUseCase
 import com.tesla.resukisuultra.domain.usecase.ExecuteFlashOperationUseCase
 import com.tesla.resukisuultra.domain.usecase.RebootUseCase
+import com.tesla.resukisuultra.domain.usecase.IsSoftRebootPreferredUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +48,9 @@ sealed interface FlashUiAction {
         val verifiedModule: String? = null,
     ) : FlashUiAction
 
-    data object Reboot : FlashUiAction
+    data class Reboot(
+        val allowSoftReboot: Boolean
+    ) : FlashUiAction
 }
 
 sealed interface FlashUiEvent {
@@ -63,6 +66,7 @@ sealed interface FlashUiEvent {
 
 class FlashViewModel(
     private val reboot: RebootUseCase,
+    private val isSoftRebootPreferred: IsSoftRebootPreferredUseCase,
     private val executeFlashOperation: ExecuteFlashOperationUseCase? = null,
     private val checkFlashModuleMount: CheckFlashModuleMountUseCase? = null,
 ) : ViewModel() {
@@ -168,8 +172,10 @@ class FlashViewModel(
                 )
             }
 
-            FlashUiAction.Reboot -> viewModelScope.launch {
-                reboot().onFailure {
+            is FlashUiAction.Reboot -> viewModelScope.launch {
+                val reason =
+                    if (isSoftRebootPreferred() && action.allowSoftReboot) "soft_reboot" else ""
+                reboot(reason).onFailure {
                     mutableEvents.tryEmit(FlashUiEvent.Error(it.message.orEmpty()))
                 }
             }

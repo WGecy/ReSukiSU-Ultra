@@ -14,6 +14,7 @@ import com.tesla.resukisuultra.domain.usecase.SetModuleEnabledUseCase
 import com.tesla.resukisuultra.domain.usecase.SetModuleRemovedUseCase
 import com.tesla.resukisuultra.domain.usecase.TransliterateTextUseCase
 import com.tesla.resukisuultra.domain.usecase.UpdateCachedModuleEnabledUseCase
+import com.tesla.resukisuultra.domain.usecase.IsSoftRebootPreferredUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -90,6 +91,7 @@ class ModuleViewModel(
     private val setModuleEnabled: SetModuleEnabledUseCase,
     private val setModuleRemoved: SetModuleRemovedUseCase,
     private val reboot: RebootUseCase,
+    private val isSoftRebootPreferred: IsSoftRebootPreferredUseCase,
 ) : ViewModel() {
     private val controls = MutableStateFlow(ModuleControls())
     private val mutableEvents = MutableSharedFlow<ModuleUiEvent>(extraBufferCapacity = 1)
@@ -165,7 +167,8 @@ class ModuleViewModel(
             }
 
             ModuleUiAction.Reboot -> viewModelScope.launch {
-                reboot().onFailure { mutableEvents.tryEmit(ModuleUiEvent.Error(it.message.orEmpty())) }
+                val reason = if (isSoftRebootPreferred()) "soft_reboot" else ""
+                reboot(reason).onFailure { mutableEvents.tryEmit(ModuleUiEvent.Error(it.message.orEmpty())) }
             }
         }
     }

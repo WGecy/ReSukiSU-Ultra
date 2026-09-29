@@ -378,9 +378,13 @@ fun NavContainer(
                 exitDirection = settings.predictiveBackExitDirection,
             )
         }
-        val swipeBackDirection = when (LocalLayoutDirection.current) {
-            LayoutDirection.Rtl -> NavSwipeDirection.RightToLeft
-            LayoutDirection.Ltr -> NavSwipeDirection.LeftToRight
+        val swipeBackDirection = if (settings.enableSwipeDismiss) {
+            when (LocalLayoutDirection.current) {
+                LayoutDirection.Rtl -> NavSwipeDirection.RightToLeft
+                LayoutDirection.Ltr -> NavSwipeDirection.LeftToRight
+            }
+        } else {
+            NavSwipeDirection.None
         }
         val interceptPredictiveBack =
             settings.predictiveBackAnimation == PredictiveBackAnimation.None && backStack.size > 1
@@ -432,7 +436,7 @@ fun NavContainer(
                     backgroundRenderState = backgroundRenderState,
                     useBlur = useBlur,
                 ) {
-                    MainScreen()
+                    MainScreen(pagerInterceptionMode = settings.pagerInterceptionMode)
                 }
             }
             entry<Route.AppProfileTemplate>(swipeDismiss = swipeBackDirection) {
@@ -535,7 +539,7 @@ fun NavContainer(
                     backgroundRenderState = backgroundRenderState,
                     useBlur = useBlur,
                 ) {
-                    MainScreen()
+                    MainScreen(pagerInterceptionMode = settings.pagerInterceptionMode)
                 }
             }
             entry<Route.SuperUser>(swipeDismiss = NavSwipeDirection.None) {
@@ -546,7 +550,7 @@ fun NavContainer(
                     backgroundRenderState = backgroundRenderState,
                     useBlur = useBlur,
                 ) {
-                    MainScreen()
+                    MainScreen(pagerInterceptionMode = settings.pagerInterceptionMode)
                 }
             }
             entry<Route.Module>(swipeDismiss = NavSwipeDirection.None) {
@@ -557,7 +561,7 @@ fun NavContainer(
                     backgroundRenderState = backgroundRenderState,
                     useBlur = useBlur,
                 ) {
-                    MainScreen()
+                    MainScreen(pagerInterceptionMode = settings.pagerInterceptionMode)
                 }
             }
             entry<Route.Settings>(swipeDismiss = NavSwipeDirection.None) {
@@ -568,7 +572,7 @@ fun NavContainer(
                     backgroundRenderState = backgroundRenderState,
                     useBlur = useBlur,
                 ) {
-                    MainScreen()
+                    MainScreen(pagerInterceptionMode = settings.pagerInterceptionMode)
                 }
             }
             entry<Route.ThemeSettings>(swipeDismiss = swipeBackDirection) {
@@ -667,7 +671,7 @@ fun NavContainer(
                     backgroundRenderState = backgroundRenderState,
                     useBlur = useBlur,
                 ) {
-                    KernelFlashScreen(key.kernelUri, key.selectedSlot)
+                    KernelFlashScreen(key.kernelUri, key.selectedSlot, key.skipKsud)
                 }
             }
         }
@@ -759,13 +763,16 @@ private fun ManagerNavEntry(
     }
 }
 
-private fun Route.Flash.toFlashIt(): FlashIt = when (type) {
+private fun Route.Flash.toFlashIt(): FlashIt = when (flashType) {
     Route.Flash.TYPE_BOOT -> FlashIt.FlashBoot(
         boot = bootUri,
         lkmUri = lkmUri,
         kmi = kmi,
         ota = ota,
         partition = partition,
+        allowShell = allowShell,
+        enableAdb = enableAdb,
+        forceBackup = forceBackup,
     )
 
     Route.Flash.TYPE_MODULE -> FlashIt.FlashModule(uris.firstOrNull().orEmpty())

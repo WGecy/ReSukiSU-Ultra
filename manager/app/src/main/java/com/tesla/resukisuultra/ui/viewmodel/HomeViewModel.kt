@@ -2,6 +2,7 @@ package com.tesla.resukisuultra.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tesla.resukisuultra.data.count.CountRepository
 import com.tesla.resukisuultra.data.module.ModuleRepository
 import com.tesla.resukisuultra.data.packageinfo.SuperUserRepository
 import com.tesla.resukisuultra.data.shell.KsuCliRepository
@@ -54,6 +55,7 @@ class HomeViewModel(
     val homeStateRepository: HomeStateRepository,
     private val superUserRepository: SuperUserRepository,
     private val moduleRepository: ModuleRepository,
+    private val countRepository: CountRepository,
     private val ksuCliRepository: KsuCliRepository,
     private val checkManagerUpdate: CheckManagerUpdateUseCase,
     private val getKernelStatus: GetKernelStatusUseCase,
@@ -69,11 +71,22 @@ class HomeViewModel(
         homeStateRepository.state,
         superUserRepository.state,
         moduleRepository.installedModules,
-    ) { homeState, superUserState, moduleState ->
+        countRepository.state,
+    ) { homeState, superUserState, moduleState, countState ->
+        val superuserCount = if (superUserState.groups.isNotEmpty()) {
+            superUserState.groups.filter { it.allowSu }.size
+        } else {
+            countState.superuserCount
+        }
+        val moduleCount = if (moduleState.modules.isNotEmpty()) {
+            moduleState.modules.size
+        } else {
+            countState.moduleCount
+        }
         homeState.copy(
             systemInfo = homeState.systemInfo.copy(
-                moduleCount = moduleState.modules.size,
-                superuserCount = superUserState.groups.filter { it.allowSu }.size,
+                moduleCount = moduleCount,
+                superuserCount = superuserCount,
                 zygiskImplement = runCatching { ksuCliRepository.getZygiskImplement() }
                     .getOrDefault("None"),
                 metaModuleImplement = runCatching { ksuCliRepository.getMetaModuleImplement() }
@@ -94,8 +107,8 @@ class HomeViewModel(
     private var updateJob: Job? = null
 
     init {
-        // Every navigation-scoped instance publishes persisted toggles to the shared state source.
         applyUserSettings()
+        viewModelScope.launch { countRepository.refresh() }
     }
 
     suspend fun awaitInitialData() {

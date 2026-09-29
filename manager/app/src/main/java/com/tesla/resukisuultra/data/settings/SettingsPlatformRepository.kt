@@ -17,6 +17,9 @@ import com.tesla.resukisuultra.magica.BootCompletedReceiver
 import com.tesla.resukisuultra.ui.theme.BackgroundManager
 import com.tesla.resukisuultra.ui.theme.CardConfig
 import com.tesla.resukisuultra.ui.theme.ThemeConfig
+import com.materialkolor.PaletteStyle
+import com.materialkolor.dynamiccolor.ColorSpec
+import com.tesla.resukisuultra.Natives
 import com.topjohnwu.superuser.ShellUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +83,10 @@ class SettingsPlatformRepository(
             checkModuleUpdate = loadModuleUpdatePreference(),
             autoJailbreakEnabled = settings.getBoolean("auto_jailbreak", false),
             useBuiltinMonoFont = themeConfig.useBuiltinMonoFont,
+            // 键名沿用本地既有偏好 KEY_USE_SOFT_REBOOT ("soft_reboot"), 保证 UI 开关与软重启逻辑同源
+            useSoftReboot = settings.getBoolean("soft_reboot", false),
+            enableSwipeDismiss = settings.getBoolean("enable_swipe_dismiss", true),
+            pagerInterceptionMode = settings.getInt("pager_interception_mode", 1).coerceIn(0, 2),
         )
     }
 
@@ -186,6 +193,15 @@ class SettingsPlatformRepository(
                 settings.putBoolean("use_builtin_monospace_font", setting.enabled)
                 themeConfig.useBuiltinMonoFont = setting.enabled
             }
+
+            is PlatformSetting.UseSoftReboot ->
+                settings.putBoolean("soft_reboot", setting.enabled)
+
+            is PlatformSetting.SwipeDismiss ->
+                settings.putBoolean("enable_swipe_dismiss", setting.enabled)
+
+            is PlatformSetting.PagerInterceptionMode ->
+                settings.putInt("pager_interception_mode", setting.value.coerceIn(0, 2))
         }
         Result.success(load())
     } catch (error: CancellationException) {
@@ -193,6 +209,10 @@ class SettingsPlatformRepository(
     } catch (error: Exception) {
         Result.failure(error)
     }
+
+    fun isSoftRebootPreferred(): Boolean =
+        Natives.isFullFeatured() &&
+            (Natives.isLateLoadMode || settings.getBoolean("soft_reboot", false))
 
     suspend fun getFeatureStatus(): PlatformFeatureStatus = withContext(Dispatchers.IO) {
         PlatformFeatureStatus(
@@ -288,8 +308,9 @@ class SettingsPlatformRepository(
 
     private fun toggleLauncherIcon(useAlt: Boolean) {
         val packageName = application.packageName
-        val main = ComponentName(packageName, "$packageName.ui.MainActivity")
-        val alias = ComponentName(packageName, "$packageName.ui.MainActivityAlias")
+        // 组件类名固定为本地 namespace, 不能跟随 applicationId (spoofed 构建会改包名)
+        val main = ComponentName(packageName, "com.tesla.resukisuultra.ui.MainActivity")
+        val alias = ComponentName(packageName, "com.tesla.resukisuultra.ui.MainActivityAlias")
         application.packageManager.setComponentEnabledSetting(
             if (useAlt) alias else main,
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,

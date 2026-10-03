@@ -27,7 +27,7 @@ pub enum FeatureId {
     AdbRoot = 3,
     SelinuxHide = 4,
     NetIsolate = 5,
-    Fusebpf = 6,
+    // 6: 已废弃 (原 Fusebpf) —— 内核侧 v3 补丁后该修复无条件生效, 无运行时开关
     WebviewZygoteUmount = 7,
 }
 
@@ -40,7 +40,6 @@ impl FeatureId {
             3 => Some(Self::AdbRoot),
             4 => Some(Self::SelinuxHide),
             5 => Some(Self::NetIsolate),
-            6 => Some(Self::Fusebpf),
             7 => Some(Self::WebviewZygoteUmount),
             _ => None,
         }
@@ -54,7 +53,6 @@ impl FeatureId {
             Self::AdbRoot => "adb_root",
             Self::SelinuxHide => "selinux_hide",
             Self::NetIsolate => "netisolate",
-            Self::Fusebpf => "fusebpf",
             Self::WebviewZygoteUmount => "webview_zygote_umount",
         }
     }
@@ -75,7 +73,6 @@ impl FeatureId {
                 "SELinux Hide - sanitize /sys/fs/selinux access results for app UIDs"
             }
             Self::NetIsolate => "UID network isolation",
-            Self::Fusebpf => "FUSE-BPF lookup direct fix",
             Self::WebviewZygoteUmount => {
                 "WebView Zygote Umount - unmount modules from WebView zygote and its isolated children"
             }
@@ -91,7 +88,6 @@ fn parse_feature_id(name: &str) -> Result<FeatureId> {
         "adb_root" | "3" => Ok(FeatureId::AdbRoot),
         "selinux_hide" | "4" => Ok(FeatureId::SelinuxHide),
         "netisolate" | "5" => Ok(FeatureId::NetIsolate),
-        "fusebpf" | "6" => Ok(FeatureId::Fusebpf),
         "webview_zygote_umount" | "7" => Ok(FeatureId::WebviewZygoteUmount),
         _ => bail!("Unknown feature: {name}"),
     }
@@ -343,7 +339,6 @@ pub fn list_features() {
         FeatureId::AdbRoot,
         FeatureId::SelinuxHide,
         FeatureId::NetIsolate,
-        FeatureId::Fusebpf,
         FeatureId::WebviewZygoteUmount,
     ];
 
@@ -409,7 +404,6 @@ pub fn save_config() -> Result<()> {
         FeatureId::AdbRoot,
         FeatureId::SelinuxHide,
         FeatureId::NetIsolate,
-        FeatureId::Fusebpf,
         FeatureId::WebviewZygoteUmount,
     ];
 

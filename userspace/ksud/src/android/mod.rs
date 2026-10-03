@@ -3,7 +3,6 @@ mod debug;
 mod dynamic_manager;
 mod fakelock;
 mod feature;
-mod fusebpf;
 mod init_event;
 pub mod iosched;
 mod ksucalls;

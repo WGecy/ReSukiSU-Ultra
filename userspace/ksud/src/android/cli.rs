@@ -184,12 +184,6 @@ enum Commands {
         op: IoSchedOp,
     },
 
-    /// ReSukiSU-Ultra: FUSEBPF 直通修复开关
-    Fusebpf {
-        #[command(subcommand)]
-        command: FusebpfOp,
-    },
-
     /// Manage initrc injection
     Initrc {
         #[command(subcommand)]
@@ -548,14 +542,6 @@ enum Kernel {
 }
 
 #[derive(clap::Subcommand, Debug)]
-enum FusebpfOp {
-    /// 开启修复 (默认)
-    Enable,
-    /// 关闭修复 (直通)
-    Disable,
-}
-
-#[derive(clap::Subcommand, Debug)]
 enum DynamicManagerOp {
     /// Get the signature of the current dynamic manager (size+hash)
     Get {
@@ -645,11 +631,7 @@ pub fn run() -> Result<()> {
             IoSchedOp::Apply { scheduler } => crate::android::iosched::apply_now(&scheduler),
             IoSchedOp::Clear => crate::android::iosched::clear(),
         },
-        Commands::Fusebpf { command } => match command {
-            FusebpfOp::Enable => crate::android::fusebpf::set(true),
-            FusebpfOp::Disable => crate::android::fusebpf::set(false),
-        },
-        Commands::PostFsData => init_event::on_post_data_fs(),
+        Commands::PostFsData => init_event::on_post_fs_data(),
         Commands::BootCompleted => {
             init_event::on_boot_completed();
             Ok(())

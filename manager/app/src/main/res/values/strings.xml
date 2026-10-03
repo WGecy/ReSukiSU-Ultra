@@ -666,8 +666,6 @@
     <string name="netisolate_blocked">Blocked</string>
     <string name="netisolate_add_selected">Add selected (%1$d)</string>
     <string name="netisolate_show_system">Show system apps</string>
-    <string name="settings_fusebpf_fix">FUSEBPF passthrough fix</string>
-    <string name="settings_fusebpf_fix_summary">Prevent unauthorized apps from reading package names via FUSE-BPF bypassing install-list permissions</string>
     <string name="settings_fake_lock">Hide Bootloader unlock state</string>
     <string name="settings_fake_lock_summary">Partially hide the Bootloader unlock state</string>
     <string name="settings_fake_lock_enabled">Spoofing enabled</string>

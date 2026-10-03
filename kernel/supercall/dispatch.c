@@ -8,9 +8,6 @@
 #ifdef CONFIG_KSU_SUSFS
 #include <linux/susfs_def.h>
 #include <linux/netisolate_def.h>
-#ifdef CONFIG_KSU_FUSEBPF_FIX
-extern void fuse_bpf_lookup_revalidate_set(bool enable);
-#endif
 #ifdef CONFIG_KSU_NETISOLATE
 /* netisolate: UID 级联网阻止 */
 extern void netisolate_set_enabled(bool enable);
@@ -1095,14 +1092,6 @@ int ksu_handle_susfs_cmd(unsigned int cmd, void __user **arg)
     case CMD_NETISOLATE_UID_LIST:
     case CMD_NETISOLATE_GET_STATE:
         return netisolate_handle_cmd(cmd, arg);
-    case CMD_FUSEBPF_SET: {
-        unsigned int val;
-
-        if (get_user(val, (unsigned int __user *)*arg))
-            return -EFAULT;
-        fuse_bpf_lookup_revalidate_set(val ? true : false);
-        return 0;
-    }
 #endif
     }
     return 0;

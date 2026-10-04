@@ -26,7 +26,6 @@ import com.tesla.resukisuultra.data.packageinfo.AppIconDataSource
 import com.tesla.resukisuultra.data.packageinfo.InstalledPackageRepository
 import com.tesla.resukisuultra.data.webui.WebUiRepository
 import com.tesla.resukisuultra.ui.theme.KernelSUTheme
-import com.tesla.resukisuultra.ui.viewmodel.ModuleViewModel
 import com.tesla.resukisuultra.ui.viewmodel.SuperUserViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -58,7 +57,6 @@ class WebUIActivity : ComponentActivity() {
 private fun MainContent(activity: ComponentActivity, onFinish: () -> Unit) {
     val moduleId = remember { activity.intent.getStringExtra("id") }
     val webUIState = remember { WebUIState() }
-    val moduleViewModel = koinViewModel<ModuleViewModel>()
     val superUserViewModel = koinViewModel<SuperUserViewModel>()
     val settingsRepository = koinInject<AppSettingsRepository>()
     val packageRepository = koinInject<InstalledPackageRepository>()
@@ -77,7 +75,6 @@ private fun MainContent(activity: ComponentActivity, onFinish: () -> Unit) {
             activity,
             moduleId,
             webUIState,
-            moduleViewModel,
             superUserViewModel,
             settingsRepository,
             packageRepository,

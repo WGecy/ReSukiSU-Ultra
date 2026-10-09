@@ -52,7 +52,9 @@ fun getSELinuxStatus(context: Context): String {
 
     return when {
         permissiveByCmd -> permissive
+
         enforcingByCmd -> enforcing
+
         else -> {
             // 3) SuFile 最后兜底
             runCatching {

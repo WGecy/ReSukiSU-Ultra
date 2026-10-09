@@ -308,14 +308,14 @@ private fun AppProfileInner(
         if (!isSpecial) {
             item {
                 Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = ContinuousCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceBright.copy(
-                    alpha = cardConfig.cardAlpha
-                ),
-                contentColor = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    shape = ContinuousCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceBright.copy(
+                        alpha = cardConfig.cardAlpha,
+                    ),
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                 )
                 {
                     SettingsSwitchWidget(
@@ -356,7 +356,7 @@ private fun AppProfileInner(
                                 .renderBackgroundBlur(MaterialTheme.colorScheme.surfaceBright),
                             shape = ContinuousCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.surfaceBright.copy(
-                                alpha = cardConfig.cardAlpha
+                                alpha = cardConfig.cardAlpha,
                             ),
                             contentColor = MaterialTheme.colorScheme.onSurface,
                         ) {
@@ -432,7 +432,7 @@ private fun AppProfileInner(
                                 .renderBackgroundBlur(MaterialTheme.colorScheme.surfaceBright),
                             shape = ContinuousCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.surfaceBright.copy(
-                                alpha = cardConfig.cardAlpha
+                                alpha = cardConfig.cardAlpha,
                             ),
                             contentColor = MaterialTheme.colorScheme.onSurface,
                         ) {
@@ -528,7 +528,7 @@ private fun ProfileBox(
             title = stringResource(R.string.profile),
             description = mode.text,
             isOnBackground = false,
-            containerColor = Color.Transparent
+            containerColor = Color.Transparent,
         )
 
         Row(

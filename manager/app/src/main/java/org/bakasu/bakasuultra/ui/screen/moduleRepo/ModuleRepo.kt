@@ -647,7 +647,7 @@ fun ChooseDialogContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
-            shape = ContinuousCornerShape(16.dp)
+            shape = ContinuousCornerShape(16.dp),
         ) {
             Column(
                 modifier = Modifier

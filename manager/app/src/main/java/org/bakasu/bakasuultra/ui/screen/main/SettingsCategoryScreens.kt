@@ -144,7 +144,7 @@ fun SettingsCoreScreen() {
     var showBottomsheet by remember { mutableStateOf(false) }
     val logSaved = stringResource(R.string.log_saved)
     val exportBugreportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/gzip")
+        ActivityResultContracts.CreateDocument("application/gzip"),
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch(Dispatchers.IO) {
@@ -169,19 +169,19 @@ fun SettingsCoreScreen() {
                     scrollBehavior = scrollBehavior,
                     navigationIcon = {
                         AppBackButton(
-                            onClick = { navigator.pop() }
+                            onClick = { navigator.pop() },
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors().copy(
                         containerColor = Color.Transparent,
-                        scrolledContainerColor = Color.Transparent
+                        scrolledContainerColor = Color.Transparent,
                     ),
                     windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
                 )
             }
         },
         containerColor = Color.Transparent,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -203,234 +203,230 @@ fun SettingsCoreScreen() {
                 )
 
                 SegmentedColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        content = {
-                            item {
-                                // 配置文件模板入口
-                                SettingsJumpPageWidget(
-                                    icon = Icons.TwoTone.GppGood,
-                                    title = stringResource(R.string.settings_profile_template),
-                                    description = stringResource(R.string.settings_profile_template_summary),
-                                    onClick = {
-                                        navigator.push(Route.AppProfileTemplate)
-                                    }
-                                )
-                            }
-
-                            item {
-                                val suSummary = when (uiState.suStatus) {
-                                    "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
-                                    "managed" -> stringResource(id = R.string.feature_status_managed_summary)
-                                    else -> stringResource(id = R.string.settings_sucompat_summary)
-                                }
-                                SettingsChooseWidget(
-                                    icon = Icons.TwoTone.RemoveModerator,
-                                    title = stringResource(id = R.string.settings_sucompat),
-                                    description = suSummary,
-                                    items = modeItems,
-                                    enabled = uiState.suStatus == "supported",
-                                    selectedIndex = uiState.suCompatMode,
-                                    onSelectedIndexChange = { index ->
-                                        settingsViewModel.dispatch(
-                                            SettingsUiAction.SetSuCompatMode(
-                                                index
-                                            )
-                                        )
-                                    },
-                                )
-                            }
-
-                            item(visible = uiState.nomountSupported) {
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.Inventory2,
-                                    title = stringResource(id = R.string.settings_nomount),
-                                    description = stringResource(id = R.string.settings_nomount_summary),
-                                    enabled = uiState.nomountSupported,
-                                    checked = uiState.isNomountEnabled,
-                                    onCheckedChange = { enabled ->
-                                        settingsViewModel.handleNomountChange(enabled)
-                                    },
-                                )
-                            }
-
-                            item {
-                                val umountSummary = when (uiState.kernelUmountStatus) {
-                                    "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
-                                    "managed" -> stringResource(id = R.string.feature_status_managed_summary)
-                                    else -> stringResource(id = R.string.settings_kernel_umount_summary)
-                                }
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.RemoveCircle,
-                                    title = stringResource(id = R.string.settings_kernel_umount),
-                                    description = umountSummary,
-                                    enabled = uiState.kernelUmountStatus == "supported",
-                                    checked = uiState.isKernelUmountEnabled,
-                                    onCheckedChange = { enabled ->
-                                        settingsViewModel.dispatch(
-                                            SettingsUiAction.SetKernelUmount(
-                                                enabled
-                                            )
-                                        )
-                                    },
-                                )
-                            }
-
-                            item(
-                                visible = homeState.systemStatus.isLateLoadMode
-                            ) {
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.ElectricalServices,
-                                    title = stringResource(id = R.string.settings_auto_jailbreak),
-                                    description = stringResource(id = R.string.settings_auto_jailbreak_summary),
-                                    checked = uiState.autoJailbreakEnabled,
-                                    onCheckedChange = { value ->
-                                        settingsViewModel.dispatch(
-                                            SettingsUiAction.SetAutoJailbreak(
-                                                value
-                                            )
-                                        )
-                                    }
-                                )
-                            }
-
-                            item(
-                                visible = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q
-                            ) {
-                                val adbRootSummary = when (uiState.adbRootStatus) {
-                                    "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
-                                    "managed" -> stringResource(id = R.string.feature_status_managed_summary)
-                                    else -> stringResource(id = R.string.settings_adb_root_summary)
-                                }
-
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.Adb,
-                                    title = stringResource(id = R.string.settings_adb_root),
-                                    description = adbRootSummary,
-                                    checked = uiState.isAdbRootEnabled,
-                                    enabled = uiState.adbRootStatus == "supported",
-                                    onCheckedChange = { enabled ->
-                                        settingsViewModel.dispatch(
-                                            SettingsUiAction.SetAdbRoot(
-                                                enabled
-                                            )
-                                        )
-                                    },
-                                )
-                            }
-
-
-                            item {
-                                val sulogSummary = when (uiState.sulogStatus) {
-                                    "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
-                                    "managed" -> stringResource(id = R.string.feature_status_managed_summary)
-                                    else -> stringResource(id = R.string.settings_sulog_summary)
-                                }
-                                SettingsSwitchWidget(
-                                    icon = Icons.AutoMirrored.TwoTone.Article,
-                                    title = stringResource(id = R.string.settings_sulog),
-                                    description = sulogSummary,
-                                    enabled = uiState.sulogStatus == "supported",
-                                    checked = uiState.isSuLogEnabled,
-                                    onCheckedChange = { enabled ->
-                                        settingsViewModel.dispatch(SettingsUiAction.SetSuLog(enabled))
-                                    },
-                                )
-                            }
-
-
-
-                            item {
-                                val selinuxHideSummary = when (uiState.selinuxHideStatus) {
-                                    "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
-                                    "managed" -> stringResource(id = R.string.feature_status_managed_summary)
-                                    else -> stringResource(id = R.string.settings_selinux_hide_summary)
-                                }
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.Policy,
-                                    title = stringResource(id = R.string.settings_selinux_hide),
-                                    description = selinuxHideSummary,
-                                    enabled = uiState.selinuxHideStatus == "supported",
-                                    checked = uiState.isSelinuxHideEnabled,
-                                    onCheckedChange = { checked ->
-                                        settingsViewModel.dispatch(
-                                            SettingsUiAction.SetSelinuxHide(
-                                                checked
-                                            )
-                                        )
-                                    },
-                                )
-                            }
-
-                            item(visible = uiState.isRootAvailable) {
-                                // 伪装 BL 锁状态开关
-                                var fakeLockEnabled by remember { mutableStateOf(false) }
-                                var fakeLockLoaded by remember { mutableStateOf(false) }
-                                val fakeLockRepo = remember {
-                                    FakeLockRepository(context, KsuCliRepository(context))
-                                }
-                                LaunchedEffect(Unit) {
-                                    fakeLockEnabled = fakeLockRepo.isEnabled()
-                                    fakeLockLoaded = true
-                                }
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.GppGood,
-                                    title = stringResource(id = R.string.settings_fake_lock),
-                                    description = stringResource(id = R.string.settings_fake_lock_summary),
-                                    checked = fakeLockEnabled,
-                                    onCheckedChange = { checked ->
-                                        fakeLockEnabled = checked
-                                        scope.launch { fakeLockRepo.setEnabled(checked) }
-                                    },
-                                )
-                            }
-
-                            item {
-                                // 卸载模块开关
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.FolderDelete,
-                                    title = stringResource(id = R.string.settings_umount_modules_default),
-                                    description = stringResource(id = R.string.settings_umount_modules_default_summary),
-                                    checked = uiState.defaultUmountModules,
-                                    onCheckedChange = { enabled ->
-                                        settingsViewModel.dispatch(
-                                            SettingsUiAction.SetDefaultUmountModules(
-                                                enabled
-                                            )
-                                        )
-                                    },
-                                )
-                            }
-
-                            item {
-                                // 软重启开关 (重启时优先软重启, 保留 jailbreak)
-                                var softReboot by remember { mutableStateOf(false) }
-                                var softRebootLoaded by remember { mutableStateOf(false) }
-                                val settingsRepo = koinInject<AppSettingsRepository>()
-                                LaunchedEffect(Unit) {
-                                    softReboot = settingsRepo.getBoolean(
-                                        KEY_USE_SOFT_REBOOT,
-                                        false
-                                    )
-                                    softRebootLoaded = true
-                                }
-                                SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.RestartAlt,
-                                    title = stringResource(id = R.string.settings_soft_reboot),
-                                    description = stringResource(id = R.string.settings_soft_reboot_summary),
-                                    checked = softRebootLoaded && softReboot,
-                                    onCheckedChange = { enabled ->
-                                        softReboot = enabled
-                                        settingsRepo.putBoolean(KEY_USE_SOFT_REBOOT, enabled)
-                                    },
-                                )
-                            }
+                    modifier = Modifier.fillMaxWidth(),
+                    content = {
+                        item {
+                            // 配置文件模板入口
+                            SettingsJumpPageWidget(
+                                icon = Icons.TwoTone.GppGood,
+                                title = stringResource(R.string.settings_profile_template),
+                                description = stringResource(R.string.settings_profile_template_summary),
+                                onClick = {
+                                    navigator.push(Route.AppProfileTemplate)
+                                },
+                            )
                         }
+
+                        item {
+                            val suSummary = when (uiState.suStatus) {
+                                "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
+                                "managed" -> stringResource(id = R.string.feature_status_managed_summary)
+                                else -> stringResource(id = R.string.settings_sucompat_summary)
+                            }
+                            SettingsChooseWidget(
+                                icon = Icons.TwoTone.RemoveModerator,
+                                title = stringResource(id = R.string.settings_sucompat),
+                                description = suSummary,
+                                items = modeItems,
+                                enabled = uiState.suStatus == "supported",
+                                selectedIndex = uiState.suCompatMode,
+                                onSelectedIndexChange = { index ->
+                                    settingsViewModel.dispatch(
+                                        SettingsUiAction.SetSuCompatMode(
+                                            index,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        item(visible = uiState.nomountSupported) {
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.Inventory2,
+                                title = stringResource(id = R.string.settings_nomount),
+                                description = stringResource(id = R.string.settings_nomount_summary),
+                                enabled = uiState.nomountSupported,
+                                checked = uiState.isNomountEnabled,
+                                onCheckedChange = { enabled ->
+                                    settingsViewModel.handleNomountChange(enabled)
+                                },
+                            )
+                        }
+
+                        item {
+                            val umountSummary = when (uiState.kernelUmountStatus) {
+                                "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
+                                "managed" -> stringResource(id = R.string.feature_status_managed_summary)
+                                else -> stringResource(id = R.string.settings_kernel_umount_summary)
+                            }
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.RemoveCircle,
+                                title = stringResource(id = R.string.settings_kernel_umount),
+                                description = umountSummary,
+                                enabled = uiState.kernelUmountStatus == "supported",
+                                checked = uiState.isKernelUmountEnabled,
+                                onCheckedChange = { enabled ->
+                                    settingsViewModel.dispatch(
+                                        SettingsUiAction.SetKernelUmount(
+                                            enabled,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        item(
+                            visible = homeState.systemStatus.isLateLoadMode,
+                        ) {
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.ElectricalServices,
+                                title = stringResource(id = R.string.settings_auto_jailbreak),
+                                description = stringResource(id = R.string.settings_auto_jailbreak_summary),
+                                checked = uiState.autoJailbreakEnabled,
+                                onCheckedChange = { value ->
+                                    settingsViewModel.dispatch(
+                                        SettingsUiAction.SetAutoJailbreak(
+                                            value,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        item(
+                            visible = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
+                        ) {
+                            val adbRootSummary = when (uiState.adbRootStatus) {
+                                "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
+                                "managed" -> stringResource(id = R.string.feature_status_managed_summary)
+                                else -> stringResource(id = R.string.settings_adb_root_summary)
+                            }
+
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.Adb,
+                                title = stringResource(id = R.string.settings_adb_root),
+                                description = adbRootSummary,
+                                checked = uiState.isAdbRootEnabled,
+                                enabled = uiState.adbRootStatus == "supported",
+                                onCheckedChange = { enabled ->
+                                    settingsViewModel.dispatch(
+                                        SettingsUiAction.SetAdbRoot(
+                                            enabled,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        item {
+                            val sulogSummary = when (uiState.sulogStatus) {
+                                "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
+                                "managed" -> stringResource(id = R.string.feature_status_managed_summary)
+                                else -> stringResource(id = R.string.settings_sulog_summary)
+                            }
+                            SettingsSwitchWidget(
+                                icon = Icons.AutoMirrored.TwoTone.Article,
+                                title = stringResource(id = R.string.settings_sulog),
+                                description = sulogSummary,
+                                enabled = uiState.sulogStatus == "supported",
+                                checked = uiState.isSuLogEnabled,
+                                onCheckedChange = { enabled ->
+                                    settingsViewModel.dispatch(SettingsUiAction.SetSuLog(enabled))
+                                },
+                            )
+                        }
+
+                        item {
+                            val selinuxHideSummary = when (uiState.selinuxHideStatus) {
+                                "unsupported" -> stringResource(id = R.string.feature_status_unsupported_summary)
+                                "managed" -> stringResource(id = R.string.feature_status_managed_summary)
+                                else -> stringResource(id = R.string.settings_selinux_hide_summary)
+                            }
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.Policy,
+                                title = stringResource(id = R.string.settings_selinux_hide),
+                                description = selinuxHideSummary,
+                                enabled = uiState.selinuxHideStatus == "supported",
+                                checked = uiState.isSelinuxHideEnabled,
+                                onCheckedChange = { checked ->
+                                    settingsViewModel.dispatch(
+                                        SettingsUiAction.SetSelinuxHide(
+                                            checked,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        item(visible = uiState.isRootAvailable) {
+                            // 伪装 BL 锁状态开关
+                            var fakeLockEnabled by remember { mutableStateOf(false) }
+                            var fakeLockLoaded by remember { mutableStateOf(false) }
+                            val fakeLockRepo = remember {
+                                FakeLockRepository(context, KsuCliRepository(context))
+                            }
+                            LaunchedEffect(Unit) {
+                                fakeLockEnabled = fakeLockRepo.isEnabled()
+                                fakeLockLoaded = true
+                            }
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.GppGood,
+                                title = stringResource(id = R.string.settings_fake_lock),
+                                description = stringResource(id = R.string.settings_fake_lock_summary),
+                                checked = fakeLockEnabled,
+                                onCheckedChange = { checked ->
+                                    fakeLockEnabled = checked
+                                    scope.launch { fakeLockRepo.setEnabled(checked) }
+                                },
+                            )
+                        }
+
+                        item {
+                            // 卸载模块开关
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.FolderDelete,
+                                title = stringResource(id = R.string.settings_umount_modules_default),
+                                description = stringResource(id = R.string.settings_umount_modules_default_summary),
+                                checked = uiState.defaultUmountModules,
+                                onCheckedChange = { enabled ->
+                                    settingsViewModel.dispatch(
+                                        SettingsUiAction.SetDefaultUmountModules(
+                                            enabled,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        item {
+                            // 软重启开关 (重启时优先软重启, 保留 jailbreak)
+                            var softReboot by remember { mutableStateOf(false) }
+                            var softRebootLoaded by remember { mutableStateOf(false) }
+                            val settingsRepo = koinInject<AppSettingsRepository>()
+                            LaunchedEffect(Unit) {
+                                softReboot = settingsRepo.getBoolean(
+                                    KEY_USE_SOFT_REBOOT,
+                                    false,
+                                )
+                                softRebootLoaded = true
+                            }
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.RestartAlt,
+                                title = stringResource(id = R.string.settings_soft_reboot),
+                                description = stringResource(id = R.string.settings_soft_reboot_summary),
+                                checked = softRebootLoaded && softReboot,
+                                onCheckedChange = { enabled ->
+                                    softReboot = enabled
+                                    settingsRepo.putBoolean(KEY_USE_SOFT_REBOOT, enabled)
+                                },
+                            )
+                        }
+                    },
                 )
             }
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -450,7 +446,7 @@ fun SettingsAppScreen() {
     var showBottomsheet by remember { mutableStateOf(false) }
     val logSaved = stringResource(R.string.log_saved)
     val exportBugreportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/gzip")
+        ActivityResultContracts.CreateDocument("application/gzip"),
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch(Dispatchers.IO) {
@@ -475,19 +471,19 @@ fun SettingsAppScreen() {
                     scrollBehavior = scrollBehavior,
                     navigationIcon = {
                         AppBackButton(
-                            onClick = { navigator.pop() }
+                            onClick = { navigator.pop() },
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors().copy(
                         containerColor = Color.Transparent,
-                        scrolledContainerColor = Color.Transparent
+                        scrolledContainerColor = Color.Transparent,
                     ),
                     windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
                 )
             }
         },
         containerColor = Color.Transparent,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -502,80 +498,79 @@ fun SettingsAppScreen() {
             ),
         ) {
             item {
-                    // 应用设置卡片
-                    SegmentedColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        content = {
-                            expandableItem(
-                                expanded = uiState.checkManagerUpdate,
-                                topContent = {
-                                    SettingsSwitchWidget(
-                                        icon = Icons.TwoTone.Update,
-                                        title = stringResource(R.string.settings_check_manager_update),
-                                        description = stringResource(R.string.settings_check_manager_update_summary),
-                                        checked = uiState.checkManagerUpdate,
-                                        onCheckedChange = { enabled ->
-                                            settingsViewModel.dispatch(
-                                                SettingsUiAction.SetManagerUpdateCheck(
-                                                    enabled
-                                                )
-                                            )
-                                        }
-                                    )
-                                }
-                            ) {
-                                item(
-                                    topPadding = 1.dp
-                                ) {
-                                    SettingsSwitchWidget(
-                                        title = stringResource(R.string.settings_check_beta_update),
-                                        description = stringResource(R.string.settings_check_beta_update_summary),
-                                        checked = uiState.checkBetaUpdate,
-                                        onCheckedChange = { enabled ->
-                                            settingsViewModel.dispatch(
-                                                SettingsUiAction.SetBetaUpdateCheck(
-                                                    enabled
-                                                )
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-
-                            item {
+                // 应用设置卡片
+                SegmentedColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    content = {
+                        expandableItem(
+                            expanded = uiState.checkManagerUpdate,
+                            topContent = {
                                 SettingsSwitchWidget(
-                                    icon = Icons.TwoTone.Extension,
-                                    title = stringResource(R.string.settings_check_module_update),
-                                    description = stringResource(R.string.settings_check_module_update_summary),
-                                    checked = uiState.checkModuleUpdate,
+                                    icon = Icons.TwoTone.Update,
+                                    title = stringResource(R.string.settings_check_manager_update),
+                                    description = stringResource(R.string.settings_check_manager_update_summary),
+                                    checked = uiState.checkManagerUpdate,
                                     onCheckedChange = { enabled ->
                                         settingsViewModel.dispatch(
-                                            SettingsUiAction.SetModuleUpdateCheck(
-                                                enabled
-                                            )
+                                            SettingsUiAction.SetManagerUpdateCheck(
+                                                enabled,
+                                            ),
                                         )
-                                    }
+                                    },
                                 )
-                            }
-
-                            item {
-                                // 更多设置
-                                SettingsJumpPageWidget(
-                                    icon = Icons.TwoTone.Settings,
-                                    title = stringResource(R.string.theme_settings),
-                                    description = stringResource(R.string.theme_settings),
-                                    onClick = {
-                                        navigator.push(Route.ThemeSettings)
-                                    }
+                            },
+                        ) {
+                            item(
+                                topPadding = 1.dp,
+                            ) {
+                                SettingsSwitchWidget(
+                                    title = stringResource(R.string.settings_check_beta_update),
+                                    description = stringResource(R.string.settings_check_beta_update_summary),
+                                    checked = uiState.checkBetaUpdate,
+                                    onCheckedChange = { enabled ->
+                                        settingsViewModel.dispatch(
+                                            SettingsUiAction.SetBetaUpdateCheck(
+                                                enabled,
+                                            ),
+                                        )
+                                    },
                                 )
                             }
                         }
+
+                        item {
+                            SettingsSwitchWidget(
+                                icon = Icons.TwoTone.Extension,
+                                title = stringResource(R.string.settings_check_module_update),
+                                description = stringResource(R.string.settings_check_module_update_summary),
+                                checked = uiState.checkModuleUpdate,
+                                onCheckedChange = { enabled ->
+                                    settingsViewModel.dispatch(
+                                        SettingsUiAction.SetModuleUpdateCheck(
+                                            enabled,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        item {
+                            // 更多设置
+                            SettingsJumpPageWidget(
+                                icon = Icons.TwoTone.Settings,
+                                title = stringResource(R.string.theme_settings),
+                                description = stringResource(R.string.theme_settings),
+                                onClick = {
+                                    navigator.push(Route.ThemeSettings)
+                                },
+                            )
+                        }
+                    },
                 )
             }
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -595,7 +590,7 @@ fun SettingsToolsScreen() {
     var showBottomsheet by remember { mutableStateOf(false) }
     val logSaved = stringResource(R.string.log_saved)
     val exportBugreportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/gzip")
+        ActivityResultContracts.CreateDocument("application/gzip"),
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch(Dispatchers.IO) {
@@ -620,19 +615,19 @@ fun SettingsToolsScreen() {
                     scrollBehavior = scrollBehavior,
                     navigationIcon = {
                         AppBackButton(
-                            onClick = { navigator.pop() }
+                            onClick = { navigator.pop() },
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors().copy(
                         containerColor = Color.Transparent,
-                        scrolledContainerColor = Color.Transparent
+                        scrolledContainerColor = Color.Transparent,
                     ),
                     windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
                 )
             }
         },
         containerColor = Color.Transparent,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -647,52 +642,52 @@ fun SettingsToolsScreen() {
             ),
         ) {
             item {
-                    // 工具卡片
-                    SegmentedColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        content = {
+                // 工具卡片
+                SegmentedColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    content = {
+                        item {
+                            SettingsBaseWidget(
+                                icon = Icons.TwoTone.BugReport,
+                                title = stringResource(R.string.send_log),
+                                onClick = {
+                                    exportBugreportLauncher.launch("bugreport.tar.gz")
+                                },
+                            ) {}
+                        }
+
+                        if (homeState.systemStatus.isFullFeatured) {
                             item {
-                                SettingsBaseWidget(
-                                    icon = Icons.TwoTone.BugReport,
-                                    title = stringResource(R.string.send_log),
+                                SettingsJumpPageWidget(
+                                    icon = Icons.TwoTone.Security,
+                                    title = stringResource(R.string.dynamic_manager_title),
+                                    description = stringResource(R.string.dynamic_manager_settings_summary),
                                     onClick = {
-                                        exportBugreportLauncher.launch("bugreport.tar.gz")
-                                    }
-                                ) {}
+                                        navigator.push(Route.DynamicManager)
+                                    },
+                                )
                             }
 
-                            if (homeState.systemStatus.isFullFeatured) {
-                                item {
-                                    SettingsJumpPageWidget(
-                                        icon = Icons.TwoTone.Security,
-                                        title = stringResource(R.string.dynamic_manager_title),
-                                        description = stringResource(R.string.dynamic_manager_settings_summary),
-                                        onClick = {
-                                            navigator.push(Route.DynamicManager)
-                                        }
-                                    )
-                                }
-
-                                item(visible = uiState.isKernelUmountEnabled) {
-                                    SettingsJumpPageWidget(
-                                        icon = Icons.TwoTone.FolderOff,
-                                        title = stringResource(R.string.umount_path_manager),
-                                        description = stringResource(R.string.umount_path_manager_summary),
-                                        onClick = {
-                                            navigator.push(Route.UmountManager)
-                                        }
-                                    )
-                                }
+                            item(visible = uiState.isKernelUmountEnabled) {
+                                SettingsJumpPageWidget(
+                                    icon = Icons.TwoTone.FolderOff,
+                                    title = stringResource(R.string.umount_path_manager),
+                                    description = stringResource(R.string.umount_path_manager_summary),
+                                    onClick = {
+                                        navigator.push(Route.UmountManager)
+                                    },
+                                )
                             }
+                        }
 
-                            if (homeState.systemStatus.lkmMode == true && !homeState.systemStatus.isLateLoadMode) {
-                                item {
-                                    UninstallItem {
-                                        loadingDialog.withLoading(it)
-                                    }
+                        if (homeState.systemStatus.lkmMode == true && !homeState.systemStatus.isLateLoadMode) {
+                            item {
+                                UninstallItem {
+                                    loadingDialog.withLoading(it)
                                 }
                             }
                         }
+                    },
                 )
             }
         }

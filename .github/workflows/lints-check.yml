@@ -28,15 +28,16 @@ jobs:
         with:
           components: rustfmt
 
-      - uses: LoliGothick/rustfmt-check@master
-        with:
-          token: ${{ github.token }}
-          working-directory: userspace/ksud
+      # LoliGothick/rustfmt-check crashes on the Node 24 runners
+      # ("TypeError: The \"fn\" argument must be of type function"), so call
+      # rustfmt through cargo directly.
+      - name: Rustfmt check (ksud)
+        working-directory: userspace/ksud
+        run: cargo +nightly fmt --all -- --check
 
-      - uses: LoliGothick/rustfmt-check@master
-        with:
-          token: ${{ github.token }}
-          working-directory: userspace/ksuinit
+      - name: Rustfmt check (ksuinit)
+        working-directory: userspace/ksuinit
+        run: cargo +nightly fmt --all -- --check
 
   clippy:
     name: Clippy check

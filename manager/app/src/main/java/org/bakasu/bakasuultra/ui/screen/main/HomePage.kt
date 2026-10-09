@@ -198,7 +198,7 @@ fun HomePage(
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
         contentWindowInsets = WindowInsets.safeDrawing.only(
-            WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+            WindowInsetsSides.Top + WindowInsetsSides.Horizontal,
         ),
         snackbarHost = {
             SwipeableSnackbarHost(
@@ -232,9 +232,9 @@ fun HomePage(
                     .padding(
                         top = innerPadding.calculateTopPadding() + 2.dp,
                         start = 16.dp,
-                        end = 16.dp
+                        end = 16.dp,
                     ),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 // 状态卡片
                 if (uiState.isCoreDataLoaded) {
@@ -244,32 +244,32 @@ fun HomePage(
                                 message = stringResource(
                                     id = R.string.require_manager_version,
                                     BuildConfig.VERSION_CODE,
-                                    uiState.systemStatus.ksuVersion ?: 0
+                                    uiState.systemStatus.ksuVersion ?: 0,
                                 ),
                                 icon = {
                                     Icon(
                                         imageVector = Icons.TwoTone.Error,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onErrorContainer,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(18.dp),
                                     )
-                                }
+                                },
                             )
                         } else {
                             WarningCard(
                                 message = stringResource(
                                     id = R.string.require_kernel_version,
                                     uiState.systemStatus.ksuVersion ?: 0,
-                                    BuildConfig.VERSION_CODE
+                                    BuildConfig.VERSION_CODE,
                                 ),
                                 icon = {
                                     Icon(
                                         imageVector = Icons.TwoTone.Error,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onErrorContainer,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(18.dp),
                                     )
-                                }
+                                },
                             )
                         }
                     }
@@ -318,16 +318,16 @@ fun HomePage(
                     if (BuildConfig.IS_PR_BUILD || uiState.systemStatus.isPrBuild) {
                         WarningCard(
                             message = stringResource(
-                                id = R.string.home_pr_build_warning
+                                id = R.string.home_pr_build_warning,
                             ),
                             icon = {
                                 Icon(
                                     imageVector = Icons.TwoTone.Error,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onErrorContainer,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(18.dp),
                                 )
-                            }
+                            },
                         )
                     }
 
@@ -341,9 +341,9 @@ fun HomePage(
                                     imageVector = Icons.TwoTone.Error,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onErrorContainer,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(18.dp),
                                 )
-                            }
+                            },
                         )
                     }
 
@@ -355,9 +355,9 @@ fun HomePage(
                                     imageVector = Icons.TwoTone.Error,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onErrorContainer,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(18.dp),
                                 )
-                            }
+                            },
                         )
                     }
 
@@ -376,7 +376,7 @@ fun HomePage(
                         summaryText = stringResource(
                             R.string.home_short_info,
                             uiState.systemInfo.superuserCount,
-                            uiState.systemInfo.moduleCount
+                            uiState.systemInfo.moduleCount,
                         ),
                         versionText = uiState.systemStatus.ksuFullVersion,
                         isPermissiveJailbreak = uiState.systemStatus.isSELinuxPermissive &&
@@ -392,11 +392,11 @@ fun HomePage(
                                     Toast.makeText(
                                         context,
                                         R.string.jailbreak_timeout,
-                                        Toast.LENGTH_LONG
+                                        Toast.LENGTH_LONG,
                                     ).show()
                                 }
                             }
-                        }
+                        },
                     )
                 }
 
@@ -426,7 +426,6 @@ fun HomePage(
                         isHideMetaModuleImplement = uiState.isHideMetaModuleImplement,
                         showHomeCardIcons = uiState.showHomeCardIcons,
                     )
-
                 }
 
                 // 链接卡片
@@ -596,7 +595,7 @@ private fun TopBar(
                 }) {
                     Icon(
                         imageVector = Icons.TwoTone.Handyman,
-                        contentDescription = stringResource(R.string.toolbox_title)
+                        contentDescription = stringResource(R.string.toolbox_title),
                     )
                 }
 
@@ -620,7 +619,7 @@ private fun TopBar(
                     }) {
                         Icon(
                             imageVector = Icons.TwoTone.PowerSettingsNew,
-                            contentDescription = stringResource(id = R.string.reboot)
+                            contentDescription = stringResource(id = R.string.reboot),
                         )
 
                         DropdownMenuPopup(expanded = showDropdown, onDismissRequest = {
@@ -628,9 +627,9 @@ private fun TopBar(
                         }) {
                             DropdownMenuGroup(
                                 shapes = androidx.compose.material3.MenuGroupShapes(
-                org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
-                org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
-            )
+                                    org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
+                                    org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
+                                ),
                             ) {
                                 val pm =
                                     LocalContext.current.getSystemService(Context.POWER_SERVICE) as PowerManager?
@@ -640,7 +639,7 @@ private fun TopBar(
                                     R.string.reboot_recovery to "recovery",
                                     R.string.reboot_bootloader to "bootloader",
                                     R.string.reboot_download to "download",
-                                    R.string.reboot_edl to "edl"
+                                    R.string.reboot_edl to "edl",
                                 )
 
                                 @Suppress("DEPRECATION")
@@ -691,20 +690,20 @@ private fun StatusCard(
                 shape = ContinuousCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(
-                        alpha = cardConfig.cardAlpha
+                        alpha = cardConfig.cardAlpha,
                     ),
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                ),
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
                             imageVector = Icons.Filled.CheckCircle,
@@ -740,7 +739,7 @@ private fun StatusCard(
                                 text = stringResource(
                                     R.string.home_short_info,
                                     uiState.systemInfo.superuserCount,
-                                    uiState.systemInfo.moduleCount
+                                    uiState.systemInfo.moduleCount,
                                 ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
@@ -800,7 +799,7 @@ private fun StatusBadge(
 ) {
     Surface(
         shape = ContinuousCornerShape(50),
-        color = containerColor
+        color = containerColor,
     ) {
         Text(
             text = text,
@@ -826,25 +825,25 @@ fun LearnMoreCard() {
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceBright.copy(
-                alpha = cardConfig.cardAlpha
+                alpha = cardConfig.cardAlpha,
             ),
-        )
+        ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column {
                 Text(
                     text = stringResource(R.string.home_learn_kernelsu),
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.titleSmall,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(R.string.home_click_to_learn_kernelsu),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
@@ -863,25 +862,25 @@ fun DonateCard() {
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceBright.copy(
-                alpha = cardConfig.cardAlpha
+                alpha = cardConfig.cardAlpha,
             ),
-        )
+        ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column {
                 Text(
                     text = stringResource(R.string.home_support_title),
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.titleSmall,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(R.string.home_support_content),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
@@ -909,7 +908,7 @@ private fun InfoCard(
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceBright.copy(
-                alpha = cardConfig.cardAlpha
+                alpha = cardConfig.cardAlpha,
             ),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -917,29 +916,29 @@ private fun InfoCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Info,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.home_info_title),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                 )
             }
 
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
             )
 
             InfoCardItem(
@@ -997,11 +996,11 @@ private fun InfoCard(
                     -1 -> stringResource(R.string.seccomp_status_not_supported)
                     0 -> stringResource(R.string.seccomp_status_disabled)
                     1 -> stringResource(R.string.seccomp_status_strict)
-                2 -> stringResource(R.string.seccomp_status_filter)
-                else -> stringResource(R.string.seccomp_status_unknown)
-            },
-            showIcon = showHomeCardIcons,
-        )
+                    2 -> stringResource(R.string.seccomp_status_filter)
+                    else -> stringResource(R.string.seccomp_status_unknown)
+                },
+                showIcon = showHomeCardIcons,
+            )
             if (!isSimpleMode && managersList != null) {
                 val signatureMap =
                     managersList.managers.orEmpty().groupBy { it.signatureIndex }
@@ -1012,14 +1011,20 @@ private fun InfoCard(
                         append(
                             when (signatureIndex) {
                                 0 -> "(${stringResource(R.string.app_name)})"
+
                                 255 -> "(${stringResource(R.string.dynamic_managerature)})"
-                                else -> if (signatureIndex >= 1) "(${
-                                    stringResource(
-                                        R.string.signature_index,
-                                        signatureIndex
-                                    )
-                                })" else "(${stringResource(R.string.unknown_signature)})"
-                            }
+
+                                else -> if (signatureIndex >= 1) {
+                                    "(${
+                                        stringResource(
+                                            R.string.signature_index,
+                                            signatureIndex,
+                                        )
+                                    })"
+                                } else {
+                                    "(${stringResource(R.string.unknown_signature)})"
+                                }
+                            },
                         )
                         append(" | ")
                     }
@@ -1071,7 +1076,7 @@ private fun InfoCardItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.Top,
     ) {
         if (showIcon) {
             Icon(
@@ -1080,7 +1085,7 @@ private fun InfoCardItem(
                 modifier = Modifier
                     .size(18.dp)
                     .padding(top = 2.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.width(12.dp))
         }
@@ -1088,21 +1093,17 @@ private fun InfoCardItem(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
 }
-
-
-
-
 
 @Composable
 private fun InfoSectionCard(content: @Composable ColumnScope.() -> Unit) {
@@ -1111,7 +1112,7 @@ private fun InfoSectionCard(content: @Composable ColumnScope.() -> Unit) {
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
-        )
+        ),
     ) {
         Column(
             modifier = Modifier
@@ -1142,4 +1143,3 @@ private fun InfoCardItem(
         }
     }
 }
-

@@ -273,7 +273,7 @@ fun SegmentedColumn(
                                 .graphicsLayer {
                                     // 去掉矩形 progress clip — 与 item 圆角 shape 叠加是锯齿源
                                     alpha = (progresses[index].value * 1.5f).coerceIn(0f, 1f)
-                                }
+                                },
                         ) {
                             CompositionLocalProvider(LocalSegmentedItemShape provides shape) {
                                 Column(

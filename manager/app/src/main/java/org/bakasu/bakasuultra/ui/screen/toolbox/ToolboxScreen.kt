@@ -101,26 +101,30 @@ fun ToolboxScreen() {
 
     val subpages = buildList {
         if (netisolateSupported) {
-            add(ToolboxSubpage(
-                title = stringResource(R.string.netisolate_title),
-            ) { innerPadding, nestedScrollConnection ->
-                NetIsolateTab(
-                    innerPadding = innerPadding,
-                    nestedScrollConnection = nestedScrollConnection,
-                    onAddClick = { addPicker = true },
-                )
-            })
+            add(
+                ToolboxSubpage(
+                    title = stringResource(R.string.netisolate_title),
+                ) { innerPadding, nestedScrollConnection ->
+                    NetIsolateTab(
+                        innerPadding = innerPadding,
+                        nestedScrollConnection = nestedScrollConnection,
+                        onAddClick = { addPicker = true },
+                    )
+                },
+            )
         }
         // IO 调度器切换 (SUSFS/网络隔离风格; 无 root 隐藏)
         if (rootAvailable) {
-            add(ToolboxSubpage(
-                title = stringResource(R.string.iosched_title),
-            ) { innerPadding, nestedScrollConnection ->
-                IoSchedulerTab(
-                    innerPadding = innerPadding,
-                    nestedScrollConnection = nestedScrollConnection,
-                )
-            })
+            add(
+                ToolboxSubpage(
+                    title = stringResource(R.string.iosched_title),
+                ) { innerPadding, nestedScrollConnection ->
+                    IoSchedulerTab(
+                        innerPadding = innerPadding,
+                        nestedScrollConnection = nestedScrollConnection,
+                    )
+                },
+            )
         }
     }
 
@@ -137,64 +141,67 @@ fun ToolboxScreen() {
                     scrollBehavior = scrollBehavior,
                     navigationIcon = {
                         AppBackButton(
-                            onClick = { navigator.pop() }
+                            onClick = { navigator.pop() },
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors().copy(
                         containerColor =
-                            if (themeConfig.isEnableBlur)
+                            if (themeConfig.isEnableBlur) {
                                 Color.Transparent
-                            else
-                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
-                        scrolledContainerColor =
-                            if (themeConfig.isEnableBlur)
-                                Color.Transparent
-                            else
+                            } else {
                                 MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                            },
+                        scrolledContainerColor =
+                            if (themeConfig.isEnableBlur) {
+                                Color.Transparent
+                            } else {
+                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                            },
                     ),
                     windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
                 )
 
                 // 注意: subpages 为空 (支持检测中) 时不渲染 TabRow — 空 tabs 会 IndexOutOfBounds 崩溃
                 if (subpages.isNotEmpty()) {
-                PrimaryScrollableTabRow(
-                    selectedTabIndex = pagerState.currentPage,
-                    containerColor =
-                        if (themeConfig.isEnableBlur)
-                            Color.Transparent
-                        else
-                            MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
-                    edgePadding = 0.dp,
-                    minTabWidth = 0.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    subpages.forEachIndexed { index, subpage ->
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
-                            exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
-                        ) {
-                            Tab(
-                                selected = pagerState.currentPage == index,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(index)
-                                    }
-                                },
-                                modifier = Modifier.widthIn(
-                                    min = TabRowDefaults.ScrollableTabRowMinTabWidth
-                                ),
-                                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                text = { Text(subpage.title) }
-                            )
+                    PrimaryScrollableTabRow(
+                        selectedTabIndex = pagerState.currentPage,
+                        containerColor =
+                            if (themeConfig.isEnableBlur) {
+                                Color.Transparent
+                            } else {
+                                MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                            },
+                        edgePadding = 0.dp,
+                        minTabWidth = 0.dp,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        subpages.forEachIndexed { index, subpage ->
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
+                                exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
+                            ) {
+                                Tab(
+                                    selected = pagerState.currentPage == index,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(index)
+                                        }
+                                    },
+                                    modifier = Modifier.widthIn(
+                                        min = TabRowDefaults.ScrollableTabRowMinTabWidth,
+                                    ),
+                                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    text = { Text(subpage.title) },
+                                )
+                            }
                         }
                     }
-                }
                 }
             }
         },
         containerColor = Color.Transparent,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         if (subpages.isEmpty()) {
             // 支持检测中 — 占位 (不渲染空 Pager, 防空 pageCount 崩溃)

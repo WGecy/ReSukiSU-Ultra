@@ -35,6 +35,7 @@ class ContinuousCornerShape(
 
     @Volatile
     private var cacheKey: String? = null
+
     @Volatile
     private var cacheOutline: Outline? = null
 
@@ -115,9 +116,8 @@ class ContinuousCornerShape(
         return Outline.Generic(path)
     }
 
-    override fun toString(): String =
-        "ContinuousCornerShape(topStart=$topStart, topEnd=$topEnd, " +
-            "bottomEnd=$bottomEnd, bottomStart=$bottomStart, smoothness=$smoothness)"
+    override fun toString(): String = "ContinuousCornerShape(topStart=$topStart, topEnd=$topEnd, " +
+        "bottomEnd=$bottomEnd, bottomStart=$bottomStart, smoothness=$smoothness)"
 }
 
 /** 全圆胶囊 + 连续曲率 (底栏等) */
@@ -127,6 +127,7 @@ class ContinuousCapsule(
 ) : Shape {
     @Volatile
     private var cacheKey: String? = null
+
     @Volatile
     private var cacheOutline: Outline? = null
 
@@ -147,11 +148,10 @@ class ContinuousCapsule(
 }
 
 /** 菜单项圆角: 统一 18dp 四角 (与 28dp 菜单组留白, 无直角/无首尾扁平) */
-fun menuItemShapes(index: Int, count: Int): androidx.compose.material3.MenuItemShapes =
-    androidx.compose.material3.MenuItemShapes(
-        ContinuousCornerShape(28.dp),
-        ContinuousCornerShape(28.dp),
-    )
+fun menuItemShapes(index: Int, count: Int): androidx.compose.material3.MenuItemShapes = androidx.compose.material3.MenuItemShapes(
+    ContinuousCornerShape(28.dp),
+    ContinuousCornerShape(28.dp),
+)
 
 // ===== racra SmoothCorner 数学 (G2 曲率连续: 贝塞尔+圆弧匹配) =====
 
@@ -168,11 +168,17 @@ internal class SmoothCorner(
         (radius - maximumCurveStartDistanceFromVertex / 2) / (maximumCurveStartDistanceFromVertex / 2)
 
     private val angleAlpha =
-        if (shouldCurveInterpolate) Math.toRadians(45.0 * smoothness).toFloat()
-        else Math.toRadians(45.0 * smoothness * (1 - interpolationMultiplier)).toFloat()
+        if (shouldCurveInterpolate) {
+            Math.toRadians(45.0 * smoothness).toFloat()
+        } else {
+            Math.toRadians(45.0 * smoothness * (1 - interpolationMultiplier)).toFloat()
+        }
     private val angleBeta =
-        if (shouldCurveInterpolate) Math.toRadians(90.0 * (1.0 - smoothness)).toFloat()
-        else Math.toRadians(90.0 * (1 - smoothness * (1 - interpolationMultiplier))).toFloat()
+        if (shouldCurveInterpolate) {
+            Math.toRadians(90.0 * (1.0 - smoothness)).toFloat()
+        } else {
+            Math.toRadians(90.0 * (1 - smoothness * (1 - interpolationMultiplier))).toFloat()
+        }
     private val angleTheta = ((Math.toRadians(90.0) - angleBeta) / 2.0).toFloat()
 
     private val distanceE = radius * tan(angleTheta / 2)

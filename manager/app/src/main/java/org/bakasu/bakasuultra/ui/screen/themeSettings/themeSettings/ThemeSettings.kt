@@ -136,7 +136,6 @@ import org.bakasu.bakasuultra.ui.viewmodel.dpiFriendlyNameRes
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
-
 @SuppressLint(
     "LocalContextConfigurationRead",
     "LocalContextResourcesRead",
@@ -741,7 +740,6 @@ private fun CustomizationSettings(
             )
         }
 
-
         item {
             // 简洁模式开关
             SettingsSwitchWidget(
@@ -774,7 +772,7 @@ private fun SegmentedColumnScope.hideOptionsSettings(
             checked = homeUiState.isHideSusfsStatus,
             onCheckedChange = { enabled ->
                 homeViewModel.dispatch(HomeUiAction.SetHideSusfsStatus(enabled))
-            }
+            },
         )
     }
 
@@ -787,7 +785,7 @@ private fun SegmentedColumnScope.hideOptionsSettings(
             checked = homeUiState.isHideZygiskImplement,
             onCheckedChange = { enabled ->
                 homeViewModel.dispatch(HomeUiAction.SetHideZygiskImplement(enabled))
-            }
+            },
         )
     }
 
@@ -800,7 +798,7 @@ private fun SegmentedColumnScope.hideOptionsSettings(
             checked = homeUiState.isHideMetaModuleImplement,
             onCheckedChange = { enabled ->
                 homeViewModel.dispatch(HomeUiAction.SetHideMetaModuleImplement(enabled))
-            }
+            },
         )
     }
 
@@ -813,7 +811,7 @@ private fun SegmentedColumnScope.hideOptionsSettings(
             checked = homeUiState.isHideLinkCard,
             onCheckedChange = { enabled ->
                 homeViewModel.dispatch(HomeUiAction.SetHideLinkCard(enabled))
-            }
+            },
         )
     }
 
@@ -826,32 +824,32 @@ private fun SegmentedColumnScope.hideOptionsSettings(
             checked = moduleUiState.isHideTagRow,
             onCheckedChange = { enabled ->
                 moduleViewModel.dispatch(ModuleUiAction.SetHideTagRow(enabled))
-            }
+            },
         )
     }
-        item {
-            SettingsSwitchWidget(
-                icon = Icons.TwoTone.Pin,
-                title = stringResource(R.string.navigation_bar_badge),
-                description = stringResource(R.string.navigation_bar_badge_summary),
-                checked = homeUiState.showNavigationBarBadge,
-                onCheckedChange = { enabled ->
-                    homeViewModel.dispatch(HomeUiAction.SetNavigationBarBadge(enabled))
-                },
-            )
-        }
+    item {
+        SettingsSwitchWidget(
+            icon = Icons.TwoTone.Pin,
+            title = stringResource(R.string.navigation_bar_badge),
+            description = stringResource(R.string.navigation_bar_badge_summary),
+            checked = homeUiState.showNavigationBarBadge,
+            onCheckedChange = { enabled ->
+                homeViewModel.dispatch(HomeUiAction.SetNavigationBarBadge(enabled))
+            },
+        )
+    }
 
-        item {
-            SettingsSwitchWidget(
-                icon = Icons.TwoTone.Badge,
-                title = stringResource(R.string.home_card_icons),
-                description = stringResource(R.string.home_card_icons_summary),
-                checked = homeUiState.showHomeCardIcons,
-                onCheckedChange = { enabled ->
-                    homeViewModel.dispatch(HomeUiAction.SetHomeCardIcons(enabled))
-                },
-            )
-        }
+    item {
+        SettingsSwitchWidget(
+            icon = Icons.TwoTone.Badge,
+            title = stringResource(R.string.home_card_icons),
+            description = stringResource(R.string.home_card_icons_summary),
+            checked = homeUiState.showHomeCardIcons,
+            onCheckedChange = { enabled ->
+                homeViewModel.dispatch(HomeUiAction.SetHomeCardIcons(enabled))
+            },
+        )
+    }
 }
 
 @Composable

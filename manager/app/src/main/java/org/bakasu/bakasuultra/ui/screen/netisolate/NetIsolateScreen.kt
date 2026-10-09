@@ -95,7 +95,6 @@ import org.bakasu.bakasuultra.data.netisolate.NetIsolateRepository
 import org.bakasu.bakasuultra.data.shell.KsuCliRepository
 import org.bakasu.bakasuultra.ui.component.PackageIcon
 import org.bakasu.bakasuultra.ui.component.settings.AppBackButton
-import org.bakasu.bakasuultra.ui.component.settings.AppBackButton
 import org.bakasu.bakasuultra.ui.component.settings.SegmentedColumn
 import org.bakasu.bakasuultra.ui.component.settings.SettingsBaseWidget
 import org.bakasu.bakasuultra.ui.component.settings.SettingsJumpPageWidget
@@ -327,11 +326,14 @@ internal fun AppPickerSheet(
         allApps
             .filter { showSystem || !it.isSystemApp }
             .let { apps ->
-                if (searchQuery.isBlank()) apps
-                else apps.filter {
-                    it.packageName.contains(searchQuery, true) ||
-                        it.label.contains(searchQuery, true) ||
-                        it.uid.toString().contains(searchQuery, true)
+                if (searchQuery.isBlank()) {
+                    apps
+                } else {
+                    apps.filter {
+                        it.packageName.contains(searchQuery, true) ||
+                            it.label.contains(searchQuery, true) ||
+                            it.uid.toString().contains(searchQuery, true)
+                    }
                 }
             }
     }
@@ -457,7 +459,7 @@ internal fun AppPickerSheet(
 private fun AppIcon(
     packageInfo: PackageInfo?,
     context: Context,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val icon = remember(packageInfo) {
         packageInfo?.applicationInfo?.let {
@@ -468,7 +470,7 @@ private fun AppIcon(
         Image(
             bitmap = icon.toBitmap().asImageBitmap(),
             contentDescription = null,
-            modifier = modifier
+            modifier = modifier,
         )
     } else {
         Spacer(modifier = modifier)
@@ -583,8 +585,11 @@ internal fun NetIsolateUidListSubpage(
                 ) {
                     Text(
                         text = stringResource(
-                            if (uiState.loaded) R.string.netisolate_no_uids
-                            else R.string.netisolate_no_data
+                            if (uiState.loaded) {
+                                R.string.netisolate_no_uids
+                            } else {
+                                R.string.netisolate_no_data
+                            },
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

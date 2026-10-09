@@ -223,9 +223,8 @@ class SettingsPlatformRepository(
         Result.failure(error)
     }
 
-    fun isSoftRebootPreferred(): Boolean =
-        Natives.isFullFeatured() &&
-            (Natives.isLateLoadMode || settings.getBoolean("soft_reboot", false))
+    fun isSoftRebootPreferred(): Boolean = Natives.isFullFeatured() &&
+        (Natives.isLateLoadMode || settings.getBoolean("soft_reboot", false))
 
     suspend fun getFeatureStatus(): PlatformFeatureStatus = withContext(Dispatchers.IO) {
         PlatformFeatureStatus(

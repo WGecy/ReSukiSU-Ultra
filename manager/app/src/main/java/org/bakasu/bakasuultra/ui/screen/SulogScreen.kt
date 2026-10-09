@@ -199,9 +199,9 @@ private fun SulogScreenContent(
                         ) {
                             DropdownMenuGroup(
                                 shapes = androidx.compose.material3.MenuGroupShapes(
-                org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
-                org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
-            )
+                                    org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
+                                    org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
+                                ),
                             ) {
                                 Spacer(modifier = Modifier.height(2.dp))
 

@@ -44,7 +44,6 @@ import org.bakasu.bakasuultra.ui.theme.ThemeConfig
 import org.bakasu.bakasuultra.ui.theme.isInDarkTheme
 import org.koin.compose.koinInject
 
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun GithubMarkdown(

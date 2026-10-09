@@ -639,9 +639,11 @@ private fun Modifier.renderBackgroundFallback(
     val dimColor = backgroundColor.copy(alpha = themeConfig.backgroundDim)
     // 与模糊路径的 blendColor 保持一致: 自定义背景时按卡片透明度,
     // 否则 0.8f 雾面, 保证关闭/不支持模糊时顶栏仍可调节不透明度
-    val blurTintAlpha = if (cardConfig.isCustomBackgroundEnabled)
+    val blurTintAlpha = if (cardConfig.isCustomBackgroundEnabled) {
         cardConfig.cardAlpha
-    else 0.8f
+    } else {
+        0.8f
+    }
     val blendColor = backgroundColor.copy(alpha = blurTintAlpha)
     val backgroundBitmap = renderState.imageBitmap
     val backgroundAnchor = LocalBackgroundBlurAnchor.current

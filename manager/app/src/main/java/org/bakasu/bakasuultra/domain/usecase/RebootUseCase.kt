@@ -5,9 +5,8 @@ import org.bakasu.bakasuultra.data.AppSettingsRepository
 import org.bakasu.bakasuultra.data.application.ApplicationControlRepository
 
 /** 软重启偏好: 晚加载(jailbreak)模式或设置里开启软重启 */
-fun isSoftRebootPreferred(settings: AppSettingsRepository): Boolean =
-    runCatching { Natives.isLateLoadMode }.getOrDefault(false) ||
-        settings.getBoolean(KEY_USE_SOFT_REBOOT, false)
+fun isSoftRebootPreferred(settings: AppSettingsRepository): Boolean = runCatching { Natives.isLateLoadMode }.getOrDefault(false) ||
+    settings.getBoolean(KEY_USE_SOFT_REBOOT, false)
 
 const val KEY_USE_SOFT_REBOOT = "soft_reboot"
 

@@ -103,7 +103,7 @@ class KsuCliRepository(context: Context) {
     fun createRootShell(globalMnt: Boolean = false): Shell {
         Shell.enableVerboseLogging = BuildConfig.DEBUG
         val builder = Shell.Builder.create()
-            .setTimeout(15)  // 命令超时 15s, 防止 su 会话卡死导致 exec 永久阻塞
+            .setTimeout(15) // 命令超时 15s, 防止 su 会话卡死导致 exec 永久阻塞
         return try {
             if (globalMnt) {
                 builder.build(getKsuDaemonPath(), "debug", "su", "-g")
@@ -177,14 +177,13 @@ class KsuCliRepository(context: Context) {
         return result
     }
 
-    suspend fun isOfficialSignature(packageResourcePath: String): Boolean =
-        withContext(Dispatchers.IO) {
-            val shell = getRootShell()
-            val out = shell.newJob()
-                .add("${getKsuDaemonPath()} debug get-sign ${shellQuote(packageResourcePath)}")
-                .to(ArrayList<String>(), null).exec().out
-            out.firstOrNull()?.trim().orEmpty() in OFFICIAL_MANAGER_SIGNATURES
-        }
+    suspend fun isOfficialSignature(packageResourcePath: String): Boolean = withContext(Dispatchers.IO) {
+        val shell = getRootShell()
+        val out = shell.newJob()
+            .add("${getKsuDaemonPath()} debug get-sign ${shellQuote(packageResourcePath)}")
+            .to(ArrayList<String>(), null).exec().out
+        out.firstOrNull()?.trim().orEmpty() in OFFICIAL_MANAGER_SIGNATURES
+    }
 
     suspend fun getFeatureStatus(feature: String): String = withContext(Dispatchers.IO) {
         val shell = getRootShell()
@@ -611,18 +610,14 @@ class KsuCliRepository(context: Context) {
         .joinToString("\n")
 
     /** 执行 root 命令, 返回输出 (无输出返回 null) — 复用常驻 shell, 失败重建重试一次 */
-    fun exec(cmd: String): String? {
-        return execWithShell(getRootShell(), cmd) ?: run {
-            invalidateCachedShell()
-            execWithShell(getRootShell(), cmd)
-        }
+    fun exec(cmd: String): String? = execWithShell(getRootShell(), cmd) ?: run {
+        invalidateCachedShell()
+        execWithShell(getRootShell(), cmd)
     }
 
-    private fun execWithShell(shell: Shell, cmd: String): String? {
-        return runCatching {
-            runCmd(shell, cmd)
-        }.getOrNull()?.takeIf { it.isNotBlank() }
-    }
+    private fun execWithShell(shell: Shell, cmd: String): String? = runCatching {
+        runCmd(shell, cmd)
+    }.getOrNull()?.takeIf { it.isNotBlank() }
 
     fun forceStopApp(packageName: String) {
         val shell = getRootShell()
@@ -645,17 +640,16 @@ class KsuCliRepository(context: Context) {
     }
 
     /** NoMount 内置检测: 内核支持 && 内置挂载已启用 (enabled 标志) — 实时检测不缓存 */
-    fun isNoMountBuiltIn(): Boolean {
-        return runCatching {
-            val supported = exec("${getKsuDaemonPath()} nomount status")
-                ?.contains("supported: true") == true
-            val enabled = exec("${getKsuDaemonPath()} nomount is-enabled")
-                ?.trim() == "true"
-            supported && enabled
-        }.getOrDefault(false)
-    }
+    fun isNoMountBuiltIn(): Boolean = runCatching {
+        val supported = exec("${getKsuDaemonPath()} nomount status")
+            ?.contains("supported: true") == true
+        val enabled = exec("${getKsuDaemonPath()} nomount is-enabled")
+            ?.trim() == "true"
+        supported && enabled
+    }.getOrDefault(false)
 
-    fun getMetaModuleImplement(): String {        try {
+    fun getMetaModuleImplement(): String {
+        try {
             // NoMount 内置 (ksud 注入) 时, 元模块功能由内核内置替代 → 显示 nomount
             if (isNoMountBuiltIn()) {
                 return "nomount"

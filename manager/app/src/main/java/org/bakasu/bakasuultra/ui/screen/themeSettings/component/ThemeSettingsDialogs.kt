@@ -46,7 +46,6 @@ import org.bakasu.bakasuultra.ui.viewmodel.SettingsUiState
 import org.bakasu.bakasuultra.ui.viewmodel.SettingsViewModel
 import org.koin.compose.koinInject
 
-
 @Composable
 fun ThemeSettingsDialogs(
     state: SettingsUiState,

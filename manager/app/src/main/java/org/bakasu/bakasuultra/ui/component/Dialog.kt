@@ -409,7 +409,8 @@ private fun LoadingDialog() {
         properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false),
     ) {
         Surface(
-            modifier = Modifier.size(100.dp), shape = ContinuousCornerShape(8.dp)
+            modifier = Modifier.size(100.dp),
+            shape = ContinuousCornerShape(8.dp),
         ) {
             Box(
                 contentAlignment = Alignment.Center,

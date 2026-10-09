@@ -186,16 +186,13 @@ class ModuleRepository(
         }
     }
 
-
-    private fun isNoMountBuiltIn(): Boolean {
-        return runCatching {
-            val supported = ksuCliRepository.exec("${ksuCliRepository.getKsuDaemonPath()} nomount status")
-                ?.contains("supported: true") == true
-            val enabled = ksuCliRepository.exec("${ksuCliRepository.getKsuDaemonPath()} nomount is-enabled")
-                ?.trim() == "true"
-            supported && enabled
-        }.getOrDefault(false)
-    }
+    private fun isNoMountBuiltIn(): Boolean = runCatching {
+        val supported = ksuCliRepository.exec("${ksuCliRepository.getKsuDaemonPath()} nomount status")
+            ?.contains("supported: true") == true
+        val enabled = ksuCliRepository.exec("${ksuCliRepository.getKsuDaemonPath()} nomount is-enabled")
+            ?.trim() == "true"
+        supported && enabled
+    }.getOrDefault(false)
 
     private fun getMetaModuleStatus(): MetaModuleStatus {
         // NoMount 内置 (内核集成 + ksud 注入) → 元模块功能由 ksud 替代, 无需 metamodule

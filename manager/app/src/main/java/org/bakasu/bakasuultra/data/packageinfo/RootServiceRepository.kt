@@ -9,7 +9,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-
 class RootServiceRepository(
     private val application: Application,
 ) {
@@ -37,6 +36,7 @@ class RootServiceRepository(
     // 进程内缓存 30 分钟 (packageReceiver 在包变化时失效)
     @Volatile
     private var cachedPackages: List<PackageInfo>? = null
+
     @Volatile
     private var cacheTimestamp: Long = 0
 
@@ -56,20 +56,19 @@ class RootServiceRepository(
         result
     }
 
-    private suspend fun loadFromPackageManager(): List<PackageInfo> =
-        withContext(Dispatchers.IO) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    application.packageManager.getInstalledPackages(
-                        android.content.pm.PackageManager.PackageInfoFlags.of(0)
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    application.packageManager.getInstalledPackages(0)
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "PackageManager 获取应用列表失败", e)
-                emptyList()
+    private suspend fun loadFromPackageManager(): List<PackageInfo> = withContext(Dispatchers.IO) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                application.packageManager.getInstalledPackages(
+                    android.content.pm.PackageManager.PackageInfoFlags.of(0),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                application.packageManager.getInstalledPackages(0)
             }
+        } catch (e: Exception) {
+            Log.w(TAG, "PackageManager 获取应用列表失败", e)
+            emptyList()
         }
+    }
 }

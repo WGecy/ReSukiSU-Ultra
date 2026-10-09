@@ -103,8 +103,11 @@ fun IoSchedulerTab(
                         icon = Icons.TwoTone.Speed,
                         title = stringResource(R.string.iosched_current),
                         description = if (pageLoaded && uiState.loaded) {
-                            if (uiState.current.isNotBlank()) uiState.current
-                            else stringResource(R.string.iosched_none)
+                            if (uiState.current.isNotBlank()) {
+                                uiState.current
+                            } else {
+                                stringResource(R.string.iosched_none)
+                            }
                         } else {
                             stringResource(R.string.iosched_no_data)
                         },

@@ -392,7 +392,7 @@ class SettingsViewModel(
     fun handleNomountChange(checked: Boolean) {
         viewModelScope.launch {
             val out = ksuCliRepository.exec(
-                "${ksuCliRepository.getKsuDaemonPath()} nomount set-enabled ${if (checked) 1 else 0}"
+                "${ksuCliRepository.getKsuDaemonPath()} nomount set-enabled ${if (checked) 1 else 0}",
             )
             if (out != null) {
                 mutableState.update { it.copy(isNomountEnabled = checked) }

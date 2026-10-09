@@ -575,7 +575,7 @@ private fun MetaModuleWarningCard(
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) + expandVertically(spring(stiffness = Spring.StiffnessMediumLow)),
-        exit = fadeOut(spring(stiffness = Spring.StiffnessMediumLow)) + shrinkVertically(spring(stiffness = Spring.StiffnessMediumLow))
+        exit = fadeOut(spring(stiffness = Spring.StiffnessMediumLow)) + shrinkVertically(spring(stiffness = Spring.StiffnessMediumLow)),
     ) {
         WarningCard(
             shape = CardDefaults.elevatedShape,
@@ -703,11 +703,9 @@ private fun ModuleList(
         showShortcutDialog.value = true
     }
 
-    fun hasModuleShortcut(context: Context, moduleId: String, type: ShortcutType): Boolean {
-        return when (type) {
-            ShortcutType.Action -> shortcut.hasModuleActionShortcut(context, moduleId)
-            ShortcutType.WebUI -> shortcut.hasModuleWebUiShortcut(context, moduleId)
-        }
+    fun hasModuleShortcut(context: Context, moduleId: String, type: ShortcutType): Boolean = when (type) {
+        ShortcutType.Action -> shortcut.hasModuleActionShortcut(context, moduleId)
+        ShortcutType.WebUI -> shortcut.hasModuleWebUiShortcut(context, moduleId)
     }
 
     fun deleteModuleShortcut(context: Context, moduleId: String, type: ShortcutType) {
@@ -923,7 +921,7 @@ private fun ModuleList(
                     start = 0.dp,
                     top = 0.dp,
                     end = 0.dp,
-                    bottom = 72.dp + 5.dp + 5.dp // FAB + bottom padding of FAB
+                    bottom = 72.dp + 5.dp + 5.dp, // FAB + bottom padding of FAB
                 )
             },
         ) {
@@ -1237,7 +1235,7 @@ fun ModuleItem(
                 MaterialTheme.colorScheme.surfaceBright.copy(cardConfig.cardAlpha)
             },
         // 组内形状: 首/尾大圆角, 中间相接处小圆角 (SUSFS 拼接组)
-        shape = segmentedShape
+        shape = segmentedShape,
     ) {
         val textDecoration = if (!module.remove) null else TextDecoration.LineThrough
         val interactionSource = remember { MutableInteractionSource() }
@@ -1253,7 +1251,7 @@ fun ModuleItem(
                 .combinedClickable(
                     onClick = { expanded = !expanded },
                 )
-                .padding(22.dp, 18.dp, 22.dp, 12.dp)
+                .padding(22.dp, 18.dp, 22.dp, 12.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1394,7 +1392,7 @@ fun ModuleItem(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     LabelText(
                         label = module.dirId,
@@ -1420,13 +1418,13 @@ fun ModuleItem(
                     animationSpec = spring(
                         dampingRatio = 0.8f,
                         stiffness = Spring.StiffnessMediumLow,
-                    )
+                    ),
                 ),
                 exit = shrinkVertically(
                     animationSpec = spring(
                         dampingRatio = 0.8f,
                         stiffness = Spring.StiffnessMediumLow,
-                    )
+                    ),
                 ) + fadeOut(spring(stiffness = Spring.StiffnessMediumLow)),
             ) {
                 Column {
@@ -1435,173 +1433,173 @@ fun ModuleItem(
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                if (module.hasActionScript) {
-                    Surface(
-                        modifier = Modifier
-                            .padding(vertical = 5.dp)
-                            .defaultMinSize(minWidth = 52.dp, minHeight = 32.dp)
-                            .clip(ButtonDefaults.filledTonalShape)
-                            .combinedClickable(
+                        if (module.hasActionScript) {
+                            Surface(
+                                modifier = Modifier
+                                    .padding(vertical = 5.dp)
+                                    .defaultMinSize(minWidth = 52.dp, minHeight = 32.dp)
+                                    .clip(ButtonDefaults.filledTonalShape)
+                                    .combinedClickable(
+                                        onClick = {
+                                            navigator.push(Route.ExecuteModuleAction(module.dirId, false))
+                                            viewModel.dispatch(ModuleUiAction.MarkNeedRefresh)
+                                        },
+                                        onLongClick = {
+                                            onModuleAddShortcut(module, ShortcutType.Action)
+                                        },
+                                    ),
+                                color =
+                                    if (!module.remove && isEnabled) {
+                                        ButtonDefaults.filledTonalButtonColors().containerColor
+                                    } else {
+                                        ButtonDefaults.filledTonalButtonColors().disabledContainerColor
+                                    },
+                                contentColor = if (!module.remove && isEnabled) {
+                                    ButtonDefaults.filledTonalButtonColors().contentColor
+                                } else {
+                                    ButtonDefaults.filledTonalButtonColors().disabledContentColor
+                                },
+
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .padding(12.dp, 7.dp, 12.dp, 7.dp),
+                                    imageVector = Icons.TwoTone.PlayArrow,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
+
+                        if (module.hasWebUi) {
+                            Surface(
+                                modifier = Modifier
+                                    .padding(vertical = 5.dp)
+                                    .defaultMinSize(minWidth = 52.dp, minHeight = 32.dp)
+                                    .clip(ButtonDefaults.filledTonalShape)
+                                    .combinedClickable(
+                                        onClick = { onClick(module) },
+                                        onLongClick = {
+                                            onModuleAddShortcut(module, ShortcutType.WebUI)
+                                        },
+                                    ),
+                                color =
+                                    if (!module.remove && isEnabled) {
+                                        ButtonDefaults.filledTonalButtonColors().containerColor
+                                    } else {
+                                        ButtonDefaults.filledTonalButtonColors().disabledContainerColor
+                                    },
+                                contentColor = if (!module.remove && isEnabled) {
+                                    ButtonDefaults.filledTonalButtonColors().contentColor
+                                } else {
+                                    ButtonDefaults.filledTonalButtonColors().disabledContentColor
+                                },
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .padding(12.dp, 7.dp, 12.dp, 7.dp),
+                                    imageVector = Icons.AutoMirrored.TwoTone.Wysiwyg,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
+
+                        // 快捷方式 (仿 FolkPatch: 创建桌面快捷方式)
+                        if (module.hasWebUi || module.hasActionScript) {
+                            FilledTonalButton(
+                                modifier = Modifier.defaultMinSize(minWidth = 52.dp, minHeight = 32.dp),
+                                enabled = !module.remove && isEnabled,
                                 onClick = {
-                                    navigator.push(Route.ExecuteModuleAction(module.dirId, false))
-                                    viewModel.dispatch(ModuleUiAction.MarkNeedRefresh)
+                                    onModuleAddShortcut(
+                                        module,
+                                        if (module.hasActionScript) ShortcutType.Action else ShortcutType.WebUI,
+                                    )
                                 },
-                                onLongClick = {
-                                    onModuleAddShortcut(module, ShortcutType.Action)
-                                },
-                            ),
-                        color =
-                            if (!module.remove && isEnabled) {
-                                ButtonDefaults.filledTonalButtonColors().containerColor
-                            } else {
-                                ButtonDefaults.filledTonalButtonColors().disabledContainerColor
-                            },
-                        contentColor = if (!module.remove && isEnabled) {
-                            ButtonDefaults.filledTonalButtonColors().contentColor
-                        } else {
-                            ButtonDefaults.filledTonalButtonColors().disabledContentColor
-                        },
+                                contentPadding = ButtonDefaults.TextButtonContentPadding,
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(20.dp),
+                                    imageVector = Icons.TwoTone.AddLink,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
 
-                    ) {
-                        Icon(
+                        Spacer(modifier = Modifier.weight(1f, true))
+
+                        if (updateUrl.isNotEmpty()) {
+                            Surface(
+                                modifier = Modifier
+                                    .padding(vertical = 5.dp)
+                                    .defaultMinSize(minWidth = 52.dp, minHeight = 32.dp)
+                                    .clip(ButtonDefaults.filledTonalShape)
+                                    .clickable {
+                                        onUpdate(module)
+                                    },
+                                color =
+                                    if (!module.remove) {
+                                        ButtonDefaults.filledTonalButtonColors().containerColor
+                                    } else {
+                                        ButtonDefaults.filledTonalButtonColors().disabledContainerColor
+                                    },
+                                contentColor = if (!module.remove) {
+                                    ButtonDefaults.filledTonalButtonColors().contentColor
+                                } else {
+                                    ButtonDefaults.filledTonalButtonColors().disabledContentColor
+                                },
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .padding(12.dp, 7.dp, 12.dp, 7.dp),
+                                    imageVector = Icons.TwoTone.Download,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
+
+                        Surface(
                             modifier = Modifier
-                                .size(20.dp)
-                                .padding(12.dp, 7.dp, 12.dp, 7.dp),
-                            imageVector = Icons.TwoTone.PlayArrow,
-                            contentDescription = null,
-                        )
-                    }
-                }
-
-                if (module.hasWebUi) {
-                    Surface(
-                        modifier = Modifier
-                            .padding(vertical = 5.dp)
-                            .defaultMinSize(minWidth = 52.dp, minHeight = 32.dp)
-                            .clip(ButtonDefaults.filledTonalShape)
-                            .combinedClickable(
-                                onClick = { onClick(module) },
-                                onLongClick = {
-                                    onModuleAddShortcut(module, ShortcutType.WebUI)
+                                .padding(vertical = 5.dp)
+                                .defaultMinSize(minWidth = 52.dp, minHeight = 32.dp)
+                                .clip(ButtonDefaults.filledTonalShape)
+                                .clickable {
+                                    onUninstallClicked(module)
                                 },
-                            ),
-                        color =
-                            if (!module.remove && isEnabled) {
-                                ButtonDefaults.filledTonalButtonColors().containerColor
+                            color =
+                                if (!module.remove) {
+                                    ButtonDefaults.filledTonalButtonColors().containerColor
+                                } else {
+                                    ButtonDefaults.filledTonalButtonColors().disabledContainerColor
+                                },
+                            contentColor = if (!module.remove) {
+                                ButtonDefaults.filledTonalButtonColors().contentColor
                             } else {
-                                ButtonDefaults.filledTonalButtonColors().disabledContainerColor
+                                ButtonDefaults.filledTonalButtonColors().disabledContentColor
                             },
-                        contentColor = if (!module.remove && isEnabled) {
-                            ButtonDefaults.filledTonalButtonColors().contentColor
-                        } else {
-                            ButtonDefaults.filledTonalButtonColors().disabledContentColor
-                        },
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .padding(12.dp, 7.dp, 12.dp, 7.dp),
-                            imageVector = Icons.AutoMirrored.TwoTone.Wysiwyg,
-                            contentDescription = null,
-                        )
-                    }
-                }
-
-                // 快捷方式 (仿 FolkPatch: 创建桌面快捷方式)
-                if (module.hasWebUi || module.hasActionScript) {
-                    FilledTonalButton(
-                        modifier = Modifier.defaultMinSize(minWidth = 52.dp, minHeight = 32.dp),
-                        enabled = !module.remove && isEnabled,
-                        onClick = {
-                            onModuleAddShortcut(
-                                module,
-                                if (module.hasActionScript) ShortcutType.Action else ShortcutType.WebUI,
-                            )
-                        },
-                        contentPadding = ButtonDefaults.TextButtonContentPadding,
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(20.dp),
-                            imageVector = Icons.TwoTone.AddLink,
-                            contentDescription = null,
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.weight(1f, true))
-
-                if (updateUrl.isNotEmpty()) {
-                    Surface(
-                        modifier = Modifier
-                            .padding(vertical = 5.dp)
-                            .defaultMinSize(minWidth = 52.dp, minHeight = 32.dp)
-                            .clip(ButtonDefaults.filledTonalShape)
-                            .clickable {
-                                onUpdate(module)
-                            },
-                        color =
+                        ) {
                             if (!module.remove) {
-                                ButtonDefaults.filledTonalButtonColors().containerColor
+                                Icon(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .padding(12.dp, 7.dp, 12.dp, 7.dp),
+                                    imageVector = Icons.TwoTone.Delete,
+                                    contentDescription = null,
+                                )
                             } else {
-                                ButtonDefaults.filledTonalButtonColors().disabledContainerColor
-                            },
-                        contentColor = if (!module.remove) {
-                            ButtonDefaults.filledTonalButtonColors().contentColor
-                        } else {
-                            ButtonDefaults.filledTonalButtonColors().disabledContentColor
-                        },
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .padding(12.dp, 7.dp, 12.dp, 7.dp),
-                            imageVector = Icons.TwoTone.Download,
-                            contentDescription = null,
-                        )
-                    }
-                }
-
-                Surface(
-                    modifier = Modifier
-                        .padding(vertical = 5.dp)
-                        .defaultMinSize(minWidth = 52.dp, minHeight = 32.dp)
-                        .clip(ButtonDefaults.filledTonalShape)
-                        .clickable {
-                            onUninstallClicked(module)
-                        },
-                    color =
-                        if (!module.remove) {
-                            ButtonDefaults.filledTonalButtonColors().containerColor
-                        } else {
-                            ButtonDefaults.filledTonalButtonColors().disabledContainerColor
-                        },
-                    contentColor = if (!module.remove) {
-                        ButtonDefaults.filledTonalButtonColors().contentColor
-                    } else {
-                        ButtonDefaults.filledTonalButtonColors().disabledContentColor
-                    },
-                ) {
-                    if (!module.remove) {
-                        Icon(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .padding(12.dp, 7.dp, 12.dp, 7.dp),
-                            imageVector = Icons.TwoTone.Delete,
-                            contentDescription = null,
-                        )
-                    } else {
-                        Icon(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .rotate(180f)
-                                .padding(12.dp, 7.dp, 12.dp, 7.dp),
-                            imageVector = Icons.TwoTone.Refresh,
-                            contentDescription = null,
-                        )
-                    }
-                }
+                                Icon(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .rotate(180f)
+                                        .padding(12.dp, 7.dp, 12.dp, 7.dp),
+                                    imageVector = Icons.TwoTone.Refresh,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -1642,6 +1640,6 @@ private fun ModuleItemPreview() {
         {},
         { _, _ -> },
         false,
-        false
+        false,
     )
 }

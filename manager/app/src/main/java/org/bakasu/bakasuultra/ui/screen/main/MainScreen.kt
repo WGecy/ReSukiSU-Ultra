@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -132,7 +133,7 @@ fun MainScreen(
         LocalSelectedPage provides uiSelectedPage,
     ) {
         BoxWithConstraints(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             val isPortrait = maxWidth < maxHeight || (maxHeight / maxWidth > 1.4f)
             val content = @Composable { paddingBottom: Dp ->
@@ -185,7 +186,9 @@ fun MainScreen(
                 val scrollOffset = remember { mutableStateOf(0f) }
                 val previousScrollOffset = remember { mutableStateOf(0f) }
                 val scrollConnection = rememberScrollConnection(
-                    isScrollingDown, scrollOffset, previousScrollOffset
+                    isScrollingDown,
+                    scrollOffset,
+                    previousScrollOffset,
                 )
                 val barOffsetY = remember { Animatable(0f) }
                 LaunchedEffect(isScrollingDown.value) {
@@ -204,7 +207,7 @@ fun MainScreen(
                         Box(
                             modifier = Modifier.graphicsLayer {
                                 translationY = barOffsetY.value * 120.dp.toPx()
-                            }
+                            },
                         ) {
                             NavigationBar(
                                 destinations = pages,
@@ -217,7 +220,7 @@ fun MainScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .nestedScroll(scrollConnection)
+                            .nestedScroll(scrollConnection),
                     ) {
                         content(innerPadding.calculateBottomPadding())
                     }

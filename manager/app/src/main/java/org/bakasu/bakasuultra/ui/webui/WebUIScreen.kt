@@ -232,7 +232,7 @@ private fun HandleWebUIEvent(webUIState: WebUIState) {
                     text = {
                         Surface(
                             modifier = Modifier.clip(ContinuousCornerShape(16.dp)),
-                            color = MaterialTheme.colorScheme.surfaceBright
+                            color = MaterialTheme.colorScheme.surfaceBright,
                         ) {
                             SettingsTextFieldWidget(
                                 state = state,

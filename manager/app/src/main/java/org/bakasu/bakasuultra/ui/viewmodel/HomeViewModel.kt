@@ -93,7 +93,7 @@ class HomeViewModel(
                     .getOrDefault("None"),
                 metaModuleImplement = runCatching { ksuCliRepository.getMetaModuleImplement() }
                     .getOrDefault("None"),
-            )
+            ),
         )
     }.flowOn(Dispatchers.IO).stateIn(
         scope = viewModelScope,
@@ -197,22 +197,16 @@ class HomeViewModel(
     }
     fun handleSimpleModeChange(enabled: Boolean) = updatePreference(PREF_SIMPLE_MODE, enabled) { it.copy(isSimpleMode = enabled) }
 
-    fun handleHideSusfsStatusChange(enabled: Boolean) =
-        updatePreference(PREF_HIDE_SUSFS, enabled) { it.copy(isHideSusfsStatus = enabled) }
-    fun handleHideZygiskImplementChange(enabled: Boolean) =
-        updatePreference(PREF_HIDE_ZYGISK, enabled) { it.copy(isHideZygiskImplement = enabled) }
-    fun handleHideMetaModuleImplementChange(enabled: Boolean) =
-        updatePreference(PREF_HIDE_META, enabled) { it.copy(isHideMetaModuleImplement = enabled) }
-    fun handleHideLinkCardChange(enabled: Boolean) =
-        updatePreference(PREF_HIDE_LINK, enabled) { it.copy(isHideLinkCard = enabled) }
-    fun handleNavigationBarBadgeChange(enabled: Boolean) =
-        updatePreference(PREF_SHOW_NAVIGATION_BAR_BADGE, enabled) {
-            it.copy(showNavigationBarBadge = enabled)
-        }
-    fun handleHomeCardIconsChange(enabled: Boolean) =
-        updatePreference(PREF_SHOW_HOME_CARD_ICONS, enabled) {
-            it.copy(showHomeCardIcons = enabled)
-        }
+    fun handleHideSusfsStatusChange(enabled: Boolean) = updatePreference(PREF_HIDE_SUSFS, enabled) { it.copy(isHideSusfsStatus = enabled) }
+    fun handleHideZygiskImplementChange(enabled: Boolean) = updatePreference(PREF_HIDE_ZYGISK, enabled) { it.copy(isHideZygiskImplement = enabled) }
+    fun handleHideMetaModuleImplementChange(enabled: Boolean) = updatePreference(PREF_HIDE_META, enabled) { it.copy(isHideMetaModuleImplement = enabled) }
+    fun handleHideLinkCardChange(enabled: Boolean) = updatePreference(PREF_HIDE_LINK, enabled) { it.copy(isHideLinkCard = enabled) }
+    fun handleNavigationBarBadgeChange(enabled: Boolean) = updatePreference(PREF_SHOW_NAVIGATION_BAR_BADGE, enabled) {
+        it.copy(showNavigationBarBadge = enabled)
+    }
+    fun handleHomeCardIconsChange(enabled: Boolean) = updatePreference(PREF_SHOW_HOME_CARD_ICONS, enabled) {
+        it.copy(showHomeCardIcons = enabled)
+    }
 
     fun dispatch(action: HomeUiAction) {
         when (action) {
@@ -221,10 +215,15 @@ class HomeViewModel(
             is HomeUiAction.Refresh -> refreshData(action.showIndicator)
 
             is HomeUiAction.SetSimpleMode -> handleSimpleModeChange(action.enabled)
+
             is HomeUiAction.SetHideSusfsStatus -> handleHideSusfsStatusChange(action.enabled)
+
             is HomeUiAction.SetHideZygiskImplement -> handleHideZygiskImplementChange(action.enabled)
+
             is HomeUiAction.SetHideMetaModuleImplement -> handleHideMetaModuleImplementChange(action.enabled)
+
             is HomeUiAction.SetHideLinkCard -> handleHideLinkCardChange(action.enabled)
+
             is HomeUiAction.SetNavigationBarBadge -> handleNavigationBarBadgeChange(action.enabled)
 
             is HomeUiAction.SetHomeCardIcons -> handleHomeCardIconsChange(action.enabled)

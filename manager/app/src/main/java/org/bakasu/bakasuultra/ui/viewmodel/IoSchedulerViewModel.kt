@@ -129,8 +129,11 @@ class IoSchedulerViewModel(
                 .map { it.trim('[', ']') }
                 .filter { it.isNotBlank() && it != "none" }
             val current = sched.substringAfter('[', "").substringBefore(']').trim()
-            if (available.isEmpty()) null
-            else IoBlockDevice(name = name, current = current, available = available)
+            if (available.isEmpty()) {
+                null
+            } else {
+                IoBlockDevice(name = name, current = current, available = available)
+            }
         }
     }
 }

@@ -31,7 +31,6 @@ import org.bakasu.bakasuultra.data.webui.WebUiRepository
 import org.bakasu.bakasuultra.ui.viewmodel.SuperUserUiAction
 import org.bakasu.bakasuultra.ui.viewmodel.SuperUserViewModel
 
-
 @SuppressLint("SetJavaScriptEnabled")
 internal suspend fun prepareWebView(
     activity: Activity,

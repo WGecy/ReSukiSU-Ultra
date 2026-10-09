@@ -134,7 +134,6 @@ sealed interface Route :
     @Serializable
     data object SuSFSConfig : Route
 
-
     @Parcelize
     @Serializable
     data object SettingsCore : Route
@@ -150,7 +149,6 @@ sealed interface Route :
     @Parcelize
     @Serializable
     data object Toolbox : Route
-
 
     @Parcelize
     @Serializable

@@ -402,9 +402,9 @@ private fun TopBar(
                 }) {
                     DropdownMenuGroup(
                         shapes = androidx.compose.material3.MenuGroupShapes(
-                org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
-                org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
-            )
+                            org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
+                            org.bakasu.bakasuultra.ui.theme.ContinuousCornerShape(28.dp),
+                        ),
                     ) {
                         DropdownMenuItem(
                             shape = MenuDefaults.itemShape(0, 2).shape,
@@ -443,7 +443,7 @@ fun LabelText(
 ) {
     Surface(
         shape = ContinuousCornerShape(4.dp),
-        color = containerColor
+        color = containerColor,
     ) {
         Text(
             text = label,

@@ -53,7 +53,6 @@ extra["managerName"] = project.findProperty("KSU_NAME")?.toString() ?: extra["de
 
 val isSpoofedBuild = project.findProperty("IS_SPOOFED_BUILD")?.toString()?.toBoolean() ?: false
 
-
 fun getGitCommitCount(): Int {
     // 用 origin/main (与内核构建 fetch 后的 commit 数一致, 保证版本对齐)
     return providers.exec {

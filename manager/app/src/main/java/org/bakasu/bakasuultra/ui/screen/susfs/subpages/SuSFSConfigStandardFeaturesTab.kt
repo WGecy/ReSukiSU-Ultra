@@ -379,104 +379,104 @@ fun StandardFeaturesTab(
                         // tab 内容即时切换 (无 AnimatedContent 动画 → 无"缓缓拉出"卡顿感)
                         when (unameDialogTab) {
                             UnameDialogTab.Manual -> {
-                                    SegmentedColumn(contentPadding = PaddingValues(top = 8.dp)) {
-                                        item {
-                                            SettingsTextFieldWidget(
-                                                state = unameReleaseInput,
-                                                title = stringResource(R.string.susfs_standard_uname_release),
-                                                useLabelAsPlaceholder = true,
-                                                lineLimits = TextFieldLineLimits.SingleLine,
-                                                renderBackgroundBlur = false,
-                                            )
-                                        }
-                                        item {
-                                            SettingsTextFieldWidget(
-                                                state = unameVersionInput,
-                                                title = stringResource(R.string.susfs_standard_uname_version),
-                                                useLabelAsPlaceholder = true,
-                                                lineLimits = TextFieldLineLimits.SingleLine,
-                                                renderBackgroundBlur = false,
-                                            )
-                                        }
+                                SegmentedColumn(contentPadding = PaddingValues(top = 8.dp)) {
+                                    item {
+                                        SettingsTextFieldWidget(
+                                            state = unameReleaseInput,
+                                            title = stringResource(R.string.susfs_standard_uname_release),
+                                            useLabelAsPlaceholder = true,
+                                            lineLimits = TextFieldLineLimits.SingleLine,
+                                            renderBackgroundBlur = false,
+                                        )
+                                    }
+                                    item {
+                                        SettingsTextFieldWidget(
+                                            state = unameVersionInput,
+                                            title = stringResource(R.string.susfs_standard_uname_version),
+                                            useLabelAsPlaceholder = true,
+                                            lineLimits = TextFieldLineLimits.SingleLine,
+                                            renderBackgroundBlur = false,
+                                        )
                                     }
                                 }
+                            }
 
-                                UnameDialogTab.SlotInfo -> {
-                                    when {
-                                        isSlotInfoLoading ||
-                                            (slotInfos == null && !slotInfoLoadFailed) -> {
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .heightIn(min = 160.dp),
-                                                contentAlignment = Alignment.Center,
+                            UnameDialogTab.SlotInfo -> {
+                                when {
+                                    isSlotInfoLoading ||
+                                        (slotInfos == null && !slotInfoLoadFailed) -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .heightIn(min = 160.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            LoadingIndicator()
+                                        }
+                                    }
+
+                                    slotInfoLoadFailed || slotInfos.isNullOrEmpty() -> {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .heightIn(min = 160.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center,
+                                        ) {
+                                            Text(
+                                                text = stringResource(
+                                                    if (slotInfoLoadFailed) {
+                                                        R.string.susfs_standard_uname_slot_info_load_failed
+                                                    } else {
+                                                        R.string.susfs_standard_uname_slot_info_empty
+                                                    },
+                                                ),
+                                            )
+                                            TextButton(
+                                                onClick = {
+                                                    slotInfos = null
+                                                    slotInfoLoadFailed = false
+                                                    slotInfoReloadKey++
+                                                },
                                             ) {
-                                                LoadingIndicator()
+                                                Text(stringResource(R.string.network_retry))
                                             }
                                         }
+                                    }
 
-                                        slotInfoLoadFailed || slotInfos.isNullOrEmpty() -> {
-                                            Column(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .heightIn(min = 160.dp),
-                                                horizontalAlignment = Alignment.CenterHorizontally,
-                                                verticalArrangement = Arrangement.Center,
-                                            ) {
-                                                Text(
-                                                    text = stringResource(
-                                                        if (slotInfoLoadFailed) {
-                                                            R.string.susfs_standard_uname_slot_info_load_failed
-                                                        } else {
-                                                            R.string.susfs_standard_uname_slot_info_empty
-                                                        },
-                                                    ),
-                                                )
-                                                TextButton(
+                                    else -> {
+                                        LazyColumn(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .heightIn(max = 320.dp),
+                                            contentPadding = PaddingValues(vertical = 8.dp),
+                                        ) {
+                                            lazySegmentColumn(
+                                                items = checkNotNull(slotInfos),
+                                                noHorizontalPadding = true,
+                                                key = { index, slot ->
+                                                    "$index:${slot.slotName}"
+                                                },
+                                            ) { _, slot ->
+                                                val selected =
+                                                    selectedSlotName == slot.slotName
+                                                SettingsBaseWidget(
+                                                    iconPlaceholder = false,
+                                                    title = slot.slotName,
+                                                    description = "${slot.uname}\n${slot.buildTime}",
+                                                    selected = selected,
+                                                    isOnBackground = false,
                                                     onClick = {
-                                                        slotInfos = null
-                                                        slotInfoLoadFailed = false
-                                                        slotInfoReloadKey++
+                                                        selectedSlotName = slot.slotName
                                                     },
-                                                ) {
-                                                    Text(stringResource(R.string.network_retry))
-                                                }
+                                                    leadingContent = {
+                                                        RadioButton(
+                                                            selected = selected,
+                                                            onClick = null,
+                                                        )
+                                                    },
+                                                )
                                             }
-                                        }
-
-                                        else -> {
-                                            LazyColumn(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .heightIn(max = 320.dp),
-                                                contentPadding = PaddingValues(vertical = 8.dp),
-                                            ) {
-                                                lazySegmentColumn(
-                                                    items = checkNotNull(slotInfos),
-                                                    noHorizontalPadding = true,
-                                                    key = { index, slot ->
-                                                        "$index:${slot.slotName}"
-                                                    },
-                                                ) { _, slot ->
-                                                    val selected =
-                                                        selectedSlotName == slot.slotName
-                                                    SettingsBaseWidget(
-                                                        iconPlaceholder = false,
-                                                        title = slot.slotName,
-                                                        description = "${slot.uname}\n${slot.buildTime}",
-                                                        selected = selected,
-                                                        isOnBackground = false,
-                                                        onClick = {
-                                                            selectedSlotName = slot.slotName
-                                                        },
-                                                        leadingContent = {
-                                                            RadioButton(
-                                                                selected = selected,
-                                                                onClick = null,
-                                                            )
-                                                        },
-                                                    )
-                                                }
                                         }
                                     }
                                 }

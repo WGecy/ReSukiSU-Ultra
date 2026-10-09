@@ -153,9 +153,9 @@ fun HeroStatusCard(
             targetValue = 1f,
             animationSpec = infiniteRepeatable(
                 animation = tween(2400, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
+                repeatMode = RepeatMode.Reverse,
             ),
-            label = "breathAlpha"
+            label = "breathAlpha",
         ).value
     } else {
         1f
@@ -168,7 +168,7 @@ fun HeroStatusCard(
             else -> MaterialTheme.colorScheme.errorContainer
         },
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "containerColor"
+        label = "containerColor",
     )
 
     val contentColor by animateColorAsState(
@@ -178,7 +178,7 @@ fun HeroStatusCard(
             MaterialTheme.colorScheme.onErrorContainer
         },
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "contentColor"
+        label = "contentColor",
     )
 
     // 静态渐变 (颜色由 animateColorAsState 驱动), 呼吸 alpha 走 GPU
@@ -187,8 +187,8 @@ fun HeroStatusCard(
     val gradientBrush = Brush.linearGradient(
         colors = listOf(
             containerColor,
-            containerColor.copy(alpha = 0.8f)
-        )
+            containerColor.copy(alpha = 0.8f),
+        ),
     )
 
     Card(
@@ -297,25 +297,25 @@ fun DeviceStatusCard(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             StatusCircle(
                 value = "${deviceStatus.batteryTemp}°C",
                 label = "电池温度",
                 progress = (deviceStatus.batteryTemp / 50f).coerceIn(0f, 1f),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
             StatusCircle(
                 value = "${deviceStatus.cpuUsage}%",
                 label = "CPU 使用率",
                 progress = (deviceStatus.cpuUsage / 100f).coerceIn(0f, 1f),
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.secondary,
             )
             StatusCircle(
                 value = "${deviceStatus.batteryLevel}%",
                 label = "电量",
                 progress = (deviceStatus.batteryLevel / 100f).coerceIn(0f, 1f),
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.tertiary,
             )
         }
     }
@@ -326,15 +326,15 @@ private fun StatusCircle(
     value: String,
     label: String,
     progress: Float,
-    color: Color
+    color: Color,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(80.dp)
+            modifier = Modifier.size(80.dp),
         ) {
             CircularProgressIndicator(
                 progress = { 1f },
@@ -351,13 +351,13 @@ private fun StatusCircle(
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -384,7 +384,7 @@ fun StorageInfoCard(modifier: Modifier = Modifier) {
             label = "内部存储",
             used = storageStatus.storageUsed,
             total = storageStatus.storageTotal,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
         Spacer(Modifier.height(12.dp))
     }
@@ -395,7 +395,7 @@ private fun StorageProgressBar(
     label: String,
     used: Long,
     total: Long,
-    color: Color
+    color: Color,
 ) {
     val progress = if (total > 0) (used.toFloat() / total).coerceIn(0f, 1f) else 0f
     val usedText = formatBytes(used)
@@ -405,13 +405,13 @@ private fun StorageProgressBar(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = label, style = MaterialTheme.typography.bodyMedium)
             Text(
                 text = "$usedText / $totalText",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Spacer(Modifier.height(8.dp))
@@ -433,7 +433,7 @@ private fun formatBytes(bytes: Long): String {
         value /= 1024
         unit++
     }
-    return if (unit == 0) "${bytes} B" else String.format("%.1f %s", value, units[unit])
+    return if (unit == 0) "$bytes B" else String.format("%.1f %s", value, units[unit])
 }
 
 // ===== TonalLikeCard (标题 + 图标 + 分割线 + 内容) =====
@@ -454,7 +454,7 @@ fun TonalLikeCard(
         shape = ContinuousCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(
-                alpha = cardConfig.cardAlpha
+                alpha = cardConfig.cardAlpha,
             ),
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -462,29 +462,29 @@ fun TonalLikeCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                 )
             }
 
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
             )
 
             content()

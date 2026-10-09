@@ -18,8 +18,10 @@ class NetIsolateRepository(
         const val NETISOLATE_DIR = "/data/adb/ksu/netisolate/"
         const val ENABLE_FILE = "/data/adb/ksu/netisolate/enabled"
         const val UIDS_FILE = "/data/adb/ksu/netisolate/uids"
+
         @Volatile
         private var cachedEnabled: Boolean? = null
+
         @Volatile
         private var cachedUids: Set<Int>? = null
     }

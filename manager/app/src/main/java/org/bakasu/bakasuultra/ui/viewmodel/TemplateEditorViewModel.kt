@@ -32,8 +32,7 @@ data class TemplateEditorUiState(
 
 sealed interface TemplateEditorUiAction {
     data object Load : TemplateEditorUiAction
-    data class Update(val template: ProfileTemplate, val autoSave: Boolean = false) :
-        TemplateEditorUiAction
+    data class Update(val template: ProfileTemplate, val autoSave: Boolean = false) : TemplateEditorUiAction
 
     data object Save : TemplateEditorUiAction
     data object Delete : TemplateEditorUiAction
@@ -54,7 +53,7 @@ class TemplateEditorViewModel(
     private val deleteTemplate: DeleteProfileTemplateUseCase,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(
-        TemplateEditorUiState(readOnly = readOnly, isCreation = isCreation)
+        TemplateEditorUiState(readOnly = readOnly, isCreation = isCreation),
     )
     private val mutableEvents = MutableSharedFlow<TemplateEditorUiEvent>(extraBufferCapacity = 1)
 
@@ -70,6 +69,7 @@ class TemplateEditorViewModel(
     fun dispatch(action: TemplateEditorUiAction) {
         when (action) {
             TemplateEditorUiAction.Load -> load()
+
             is TemplateEditorUiAction.Update -> {
                 mutableState.update { it.copy(template = action.template) }
                 if (action.autoSave && !readOnly) scheduleAutoSave()
@@ -96,7 +96,7 @@ class TemplateEditorViewModel(
                 it.copy(
                     template = ProfileTemplate(id = templateId),
                     loading = false,
-                    loadFailure = null
+                    loadFailure = null,
                 )
             }
             return
@@ -143,9 +143,8 @@ class TemplateEditorViewModel(
         }
     }
 
-    private fun Throwable.toFailure(): ProfileTemplateFailure =
-        (this as? ProfileTemplateException)?.reason
-            ?: ProfileTemplateFailure.Command(message.orEmpty())
+    private fun Throwable.toFailure(): ProfileTemplateFailure = (this as? ProfileTemplateException)?.reason
+        ?: ProfileTemplateFailure.Command(message.orEmpty())
 
     private companion object {
         const val AUTO_SAVE_DEBOUNCE_MILLIS = 300L

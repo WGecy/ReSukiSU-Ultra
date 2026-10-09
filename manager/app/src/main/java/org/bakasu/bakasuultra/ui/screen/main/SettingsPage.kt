@@ -153,7 +153,7 @@ fun SettingsPage(bottomPadding: Dp) {
         snackbarHost = {
             SwipeableSnackbarHost(
                 modifier = Modifier.padding(bottom = bottomPadding),
-                hostState = snackBarHost
+                hostState = snackBarHost,
             )
         },
         containerColor = Color.Transparent,
@@ -166,7 +166,7 @@ fun SettingsPage(bottomPadding: Dp) {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
         val exportBugreportLauncher = rememberLauncherForActivityResult(
-            ActivityResultContracts.CreateDocument("application/gzip")
+            ActivityResultContracts.CreateDocument("application/gzip"),
         ) { uri: Uri? ->
             if (uri == null) return@rememberLauncherForActivityResult
             scope.launch(Dispatchers.IO) {
@@ -250,7 +250,7 @@ fun SettingsPage(bottomPadding: Dp) {
 private fun LogBottomSheet(
     onDismiss: () -> Unit,
     onSaveLog: () -> Unit,
-    onShareLog: () -> Unit
+    onShareLog: () -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -260,18 +260,18 @@ private fun LogBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(SPACING_LARGE),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             LogActionButton(
                 icon = Icons.TwoTone.Save,
                 text = stringResource(R.string.save_log),
-                onClick = onSaveLog
+                onClick = onSaveLog,
             )
 
             LogActionButton(
                 icon = Icons.TwoTone.Share,
                 text = stringResource(R.string.send_log),
-                onClick = onShareLog
+                onClick = onShareLog,
             )
         }
         Spacer(modifier = Modifier.height(SPACING_LARGE))
@@ -282,32 +282,32 @@ private fun LogBottomSheet(
 fun LogActionButton(
     icon: ImageVector,
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .clickable(onClick = onClick)
-            .padding(SPACING_MEDIUM)
+            .padding(SPACING_MEDIUM),
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(56.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.primaryContainer),
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = text,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
             )
         }
         Spacer(modifier = Modifier.height(SPACING_MEDIUM))
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }
@@ -315,7 +315,7 @@ fun LogActionButton(
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun UninstallItem(
-    withLoading: suspend (suspend () -> Unit) -> Unit
+    withLoading: suspend (suspend () -> Unit) -> Unit,
 ) {
     val navigator = LocalNavigator.current
     val context = LocalContext.current
@@ -356,19 +356,19 @@ enum class UninstallType(val title: Int, val message: Int, val icon: ImageVector
     TEMPORARY(
         R.string.settings_uninstall_temporary,
         R.string.settings_uninstall_temporary_message,
-        Icons.TwoTone.Delete
+        Icons.TwoTone.Delete,
     ),
     PERMANENT(
         R.string.settings_uninstall_permanent,
         R.string.settings_uninstall_permanent_message,
-        Icons.TwoTone.DeleteForever
+        Icons.TwoTone.DeleteForever,
     ),
     RESTORE_STOCK_IMAGE(
         R.string.settings_restore_stock_image,
         R.string.settings_restore_stock_image_message,
-        Icons.AutoMirrored.TwoTone.Undo
+        Icons.AutoMirrored.TwoTone.Undo,
     ),
-    NONE(0, 0, Icons.TwoTone.Delete)
+    NONE(0, 0, Icons.TwoTone.Delete),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -508,16 +508,19 @@ private fun TopBar(
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor =
-                if (themeConfig.isEnableBlur)
+                if (themeConfig.isEnableBlur) {
                     Color.Transparent
-                else
-                    MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
-            scrolledContainerColor =
-                if (themeConfig.isEnableBlur)
-                    Color.Transparent
-                else
+                } else {
                     MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                },
+            scrolledContainerColor =
+                if (themeConfig.isEnableBlur) {
+                    Color.Transparent
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                },
         ),
         windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
+
     )
 }

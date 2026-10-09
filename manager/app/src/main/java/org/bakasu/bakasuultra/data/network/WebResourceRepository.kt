@@ -18,7 +18,7 @@ class WebResourceRepository(
                 .url(url)
                 .method(method, null)
                 .headers(requestHeaders.toHeaders())
-                .build()
+                .build(),
         ).execute()
         val contentTypes = response.header("content-type", "text/plain; charset=utf-8")
             ?.split(";\\s*".toRegex())

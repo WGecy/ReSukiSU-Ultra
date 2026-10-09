@@ -57,7 +57,7 @@ class HorizonKernelState {
                 progress = 0f,
                 currentStep = "",
                 logs = emptyList(),
-                error = ""
+                error = "",
             )
         }
     }
@@ -67,7 +67,7 @@ class HorizonKernelState {
             it.copy(
                 isFlashing = false,
                 isCompleted = true,
-                progress = 1f
+                progress = 1f,
             )
         }
     }
@@ -108,7 +108,7 @@ class HorizonKernelWorker(
                 zipFile = zipFile,
                 slot = slot,
                 onStdout = ::handleOutput,
-                onStderr = ::handleConsoleOutput
+                onStderr = ::handleConsoleOutput,
             )
             if (!succeeded) {
                 state.setError(context.getString(R.string.flash_failed_message))
@@ -124,7 +124,7 @@ class HorizonKernelWorker(
             state.completeFlashing()
         } catch (error: Exception) {
             state.setError(
-                error.message ?: context.getString(R.string.horizon_unknown_error)
+                error.message ?: context.getString(R.string.horizon_unknown_error),
             )
         } finally {
             if (zipFile.exists()) {

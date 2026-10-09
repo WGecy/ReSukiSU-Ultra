@@ -185,12 +185,12 @@ fun SusPathTab(
                     enabled = !isLoading,
                     lineLimits = TextFieldLineLimits.MultiLine(
                         minHeightInLines = 4,
-                        maxHeightInLines = 8
+                        maxHeightInLines = 8,
                     ),
-                    renderBackgroundBlur = false
+                    renderBackgroundBlur = false,
                 )
             }
-        }
+        },
     )
 
     detailItem?.let { item ->
@@ -199,7 +199,7 @@ fun SusPathTab(
             title = detailTitle,
             fields = listOf(
                 pathLabel to item.path,
-                isLoopLabel to if (item.is_loop) isLoopLabel else isNotLoopLabel
+                isLoopLabel to if (item.is_loop) isLoopLabel else isNotLoopLabel,
             ),
             onDismiss = { detailItem = null },
             onDelete = {

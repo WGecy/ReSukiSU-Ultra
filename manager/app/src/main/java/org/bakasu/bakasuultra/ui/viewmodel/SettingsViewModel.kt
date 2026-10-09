@@ -35,7 +35,8 @@ enum class PredictiveBackAnimation(val value: String) {
     AOSP("aosp"),
     MIUIX("miuix"),
     Scale("scale"),
-    KernelSUClassic("ksu_classic");
+    KernelSUClassic("ksu_classic"),
+    ;
 
     companion object {
         fun fromValueOrDefault(value: String) = entries.find { it.value == value } ?: Scale
@@ -45,11 +46,11 @@ enum class PredictiveBackAnimation(val value: String) {
 enum class PredictiveBackExitDirection(val value: String) {
     FOLLOW_GESTURE("follow_gesture"),
     ALWAYS_RIGHT("always_right"),
-    ALWAYS_LEFT("always_left");
+    ALWAYS_LEFT("always_left"),
+    ;
 
     companion object {
-        fun fromValueOrDefault(value: String) =
-            entries.find { it.value == value } ?: FOLLOW_GESTURE
+        fun fromValueOrDefault(value: String) = entries.find { it.value == value } ?: FOLLOW_GESTURE
     }
 }
 
@@ -190,7 +191,7 @@ class SettingsViewModel(
         dispatch(SettingsUiAction.Initialize)
     }
 
-fun initialize() {
+    fun initialize() {
         applySnapshot(loadSettings(), resetTempDpi = true)
         loadFeatureSettings()
     }
@@ -204,7 +205,13 @@ fun initialize() {
             val features = getKernelFeatureSettings()
             val platform = getPlatformFeatureStatus()
             val suCompatMode = platform.suCompatPersistValue?.let { value ->
-                if (value == 0L) 2 else if (!features.suEnabled) 1 else 0
+                if (value == 0L) {
+                    2
+                } else if (!features.suEnabled) {
+                    1
+                } else {
+                    0
+                }
             } ?: if (!features.suEnabled) 1 else 0
             mutableState.update {
                 it.copy(
@@ -235,11 +242,9 @@ fun initialize() {
         updatePlatformAsync(PlatformSetting.PredictiveBackExitDirection(direction.value))
     }
 
-    fun setThemeColorDialogVisible(visible: Boolean) =
-        mutableState.update { it.copy(showThemeColorDialog = visible) }
+    fun setThemeColorDialogVisible(visible: Boolean) = mutableState.update { it.copy(showThemeColorDialog = visible) }
 
-    fun setLanguageDialogVisible(visible: Boolean) =
-        mutableState.update { it.copy(showLanguageDialog = visible) }
+    fun setLanguageDialogVisible(visible: Boolean) = mutableState.update { it.copy(showLanguageDialog = visible) }
     fun handleLanguageChange(localeTag: String) {
         updatePlatformAsync(PlatformSetting.Locale(localeTag))
     }
@@ -253,8 +258,7 @@ fun initialize() {
         updateAppearanceAsync(AppearanceSetting.ThemeMode(index))
     }
 
-    fun handleThemeColorChange(seedColor: Int) =
-        updateAppearanceAsync(AppearanceSetting.SeedColor(seedColor))
+    fun handleThemeColorChange(seedColor: Int) = updateAppearanceAsync(AppearanceSetting.SeedColor(seedColor))
 
     fun handleDynamicColorChange(enabled: Boolean) {
         mutableState.update { it.copy(useDynamicColor = enabled) }
@@ -287,7 +291,7 @@ fun initialize() {
                 .onSuccess {
                     applySnapshot(it, resetTempDpi = true)
                     mutableEvents.tryEmit(
-                        SettingsUiEvent.Message(R.string.dpi_applied_success, current.tempDpi)
+                        SettingsUiEvent.Message(R.string.dpi_applied_success, current.tempDpi),
                     )
                 }
                 .onFailure(::emitError)
@@ -418,12 +422,13 @@ fun initialize() {
             mutableState.update { it.copy(isSelinuxHideEnabled = checked) }
             when (status) {
                 0 -> Unit
+
                 -11 -> mutableEvents.emit(
-                    SettingsUiEvent.Message(R.string.settings_selinux_hide_reboot_required)
+                    SettingsUiEvent.Message(R.string.settings_selinux_hide_reboot_required),
                 )
 
                 else -> mutableEvents.emit(
-                    SettingsUiEvent.Message(R.string.settings_selinux_hide_failed, status)
+                    SettingsUiEvent.Message(R.string.settings_selinux_hide_failed, status),
                 )
             }
         }
@@ -442,13 +447,18 @@ fun initialize() {
         updatePlatformAsync(PlatformSetting.UseSoftReboot(enabled))
     }
 
-fun dispatch(action: SettingsUiAction) {
+    fun dispatch(action: SettingsUiAction) {
         when (action) {
             SettingsUiAction.Initialize -> initialize()
+
             SettingsUiAction.InitializeFirstRun -> initializeFirstRunSettings()
+
             SettingsUiAction.LoadFeatureSettings -> loadFeatureSettings()
+
             is SettingsUiAction.SetThemeMode -> handleThemeModeChange(action.index)
+
             is SettingsUiAction.SetThemeColor -> handleThemeColorChange(action.color)
+
             is SettingsUiAction.SetThemeColorDialogVisible ->
                 setThemeColorDialogVisible(action.visible)
 
@@ -459,34 +469,59 @@ fun dispatch(action: SettingsUiAction) {
                 setPredictiveBackExitDirection(action.direction)
 
             is SettingsUiAction.SetDynamicColor -> handleDynamicColorChange(action.enabled)
+
             is SettingsUiAction.SetDynamicColorSpec -> handleDynamicColorSpecChange(action.spec)
+
             is SettingsUiAction.SetDynamicPaletteStyle -> handleDynamicPaletteStyleChange(action.style)
+
             is SettingsUiAction.SetCustomBackground -> handleCustomBackground(action.uri)
+
             SettingsUiAction.RemoveCustomBackground -> handleRemoveCustomBackground()
+
             is SettingsUiAction.SetCardAlpha -> handleCardAlphaChange(action.value)
+
             is SettingsUiAction.SetBackgroundDim -> handleBackgroundDimChange(action.value)
+
             SettingsUiAction.SaveCardConfig -> saveCardConfig()
+
             is SettingsUiAction.SetLanguageDialogVisible -> setLanguageDialogVisible(action.visible)
+
             is SettingsUiAction.SetLanguage -> handleLanguageChange(action.localeTag)
+
             SettingsUiAction.RestartActivity -> restartActivityForLanguage()
+
             SettingsUiAction.ApplyDpi -> handleDpiApply()
+
             is SettingsUiAction.SetTempDpi -> updateTempDpi(action.dpi)
+
             is SettingsUiAction.SetAlternateIcon -> handleIconChange(action.enabled)
+
             is SettingsUiAction.SetManagerUpdateCheck -> handleCheckManagerUpdateChange(action.enabled)
+
             is SettingsUiAction.SetBetaUpdateCheck -> handleCheckBetaUpdateChange(action.enabled)
+
             is SettingsUiAction.SetModuleUpdateCheck -> handleCheckModuleUpdateChange(action.enabled)
+
             is SettingsUiAction.SetSuCompatMode -> handleSuCompatModeChange(action.index)
+
             is SettingsUiAction.SetKernelUmount -> handleKernelUmountChange(action.enabled)
+
             is SettingsUiAction.SetAutoJailbreak -> handleAutoJailbreakChange(action.enabled)
+
             is SettingsUiAction.SetSelinuxHide -> handleSelinuxHideChange(action.enabled)
+
             is SettingsUiAction.SetAdbRoot -> handleAdbRootChange(action.enabled)
+
             is SettingsUiAction.SetSuLog -> handleSuLogChange(action.enabled)
+
             is SettingsUiAction.SetDefaultUmountModules ->
                 handleDefaultUmountModulesChange(action.enabled)
 
             is SettingsUiAction.SetUseSoftReboot ->
                 handleUseSoftRebootChange(action.enabled)
+
             is SettingsUiAction.SetSwipeDismiss -> handleSwipeDismissChange(action.enabled)
+
             is SettingsUiAction.SetPagerInterceptionMode ->
                 handlePagerInterceptionModeChange(action.index)
         }

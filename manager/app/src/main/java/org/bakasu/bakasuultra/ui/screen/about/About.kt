@@ -67,7 +67,6 @@ import org.bakasu.bakasuultra.ui.theme.renderBackgroundBlur
 import org.bakasu.bakasuultra.ui.util.adaptiveScaffoldWindowInsets
 import org.koin.compose.koinInject
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AboutScreen() {
@@ -77,16 +76,15 @@ fun AboutScreen() {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState(
             initialHeightOffset = -154f,
-            initialHeightOffsetLimit = -154f // from debugger
-        )
+            initialHeightOffsetLimit = -154f, // from debugger
+        ),
     )
 
     Scaffold(
         contentWindowInsets = adaptiveScaffoldWindowInsets(),
         topBar = {
             LargeFlexibleTopAppBar(
-                modifier = Modifier.blurEffect(
-                ),
+                modifier = Modifier.blurEffect(),
                 windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
                 title = { Text(text = stringResource(id = R.string.about)) },
                 scrollBehavior = scrollBehavior,
@@ -94,20 +92,22 @@ fun AboutScreen() {
                     AppBackButton(
                         onClick = {
                             navigator.pop()
-                        }
+                        },
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor =
-                        if (themeConfig.isEnableBlur)
+                        if (themeConfig.isEnableBlur) {
                             Color.Transparent
-                        else
-                            MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                        },
                     scrolledContainerColor =
-                        if (themeConfig.isEnableBlur)
+                        if (themeConfig.isEnableBlur) {
                             Color.Transparent
-                        else
-                            MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                        },
                 ),
             )
         },
@@ -130,7 +130,7 @@ fun AboutScreen() {
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .padding(top = 8.dp, bottom = 12.dp)
+                        .padding(top = 8.dp, bottom = 12.dp),
                 ) {
                     StatusCard()
                 }
@@ -141,41 +141,39 @@ fun AboutScreen() {
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(top = 8.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(
-                        alpha = cardConfig.cardAlpha
+                    color = MaterialTheme.colorScheme.secondaryContainer.copy(
+                        alpha = cardConfig.cardAlpha,
                     ),
                     message = AnnotatedString.fromHtml(
                         htmlString = stringResource(
-                            id = R.string.about_anime_character_sticker,
-                            "<b>怡子曰曰</b>",
-                            "<b>明风 OuO</b>",
-                            "<b><a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.txt\">CC BY-NC-SA 4.0</a></b>"
+                            id = R.string.about_app_icon,
+                            "<b><a href=\"https://github.com/OukaroMF\">OukaroMF</a></b>",
                         ),
                         linkStyles = TextLinkStyles(
                             style = SpanStyle(
                                 color = MaterialTheme.colorScheme.primary,
-                                textDecoration = TextDecoration.Underline
+                                textDecoration = TextDecoration.Underline,
                             ),
                             pressedStyle = SpanStyle(
                                 color = MaterialTheme.colorScheme.primary,
                                 background = MaterialTheme.colorScheme.secondaryContainer,
-                                textDecoration = TextDecoration.Underline
-                            )
-                        )
+                                textDecoration = TextDecoration.Underline,
+                            ),
+                        ),
                     ),
                     icon = {
                         Icon(
                             imageVector = Icons.TwoTone.Info,
                             contentDescription = null,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(18.dp),
                         )
-                    }
+                    },
                 )
             }
 
             item {
                 SegmentedColumn(
-                    title = stringResource(R.string.about)
+                    title = stringResource(R.string.about),
                 ) {
                     item {
                         SettingsJumpPageWidget(
@@ -190,7 +188,7 @@ fun AboutScreen() {
                             icon = Icons.TwoTone.Group,
                             title = stringResource(R.string.join_telegram_group),
                             description = stringResource(R.string.join_telegram_group_detail),
-                            onClick = { uriHandler.openUri("https://t.me/BakaSU") }
+                            onClick = { uriHandler.openUri("https://t.me/BakaSU") },
                         )
                     }
                     item {
@@ -200,7 +198,7 @@ fun AboutScreen() {
                             description = stringResource(R.string.open_source_license_settings_description),
                             onClick = {
                                 navigator.push(Route.OpenSourceLicense)
-                            }
+                            },
                         )
                     }
                 }
@@ -215,12 +213,12 @@ fun AboutScreen() {
 
 @Preview
 @Composable
-fun AboutScreenPreview() {
+private fun AboutScreenPreview() {
     CompositionLocalProvider(
-        LocalNavigator provides Navigator(Route.About)
+        LocalNavigator provides Navigator(Route.About),
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surfaceContainer
+            color = MaterialTheme.colorScheme.surfaceContainer,
         ) {
             AboutScreen()
         }
@@ -236,17 +234,18 @@ private fun StatusCard() {
             .clip(ContinuousCornerShape(16.dp))
             .renderBackgroundBlur(),
         color =
-            if (themeConfig.isEnableBlurExp)
+            if (themeConfig.isEnableBlurExp) {
                 Color.Transparent
-            else
-                MaterialTheme.colorScheme.primaryContainer.copy(cardConfig.cardAlpha),
-        shape = ContinuousCornerShape(16.dp)
+            } else {
+                MaterialTheme.colorScheme.primaryContainer.copy(cardConfig.cardAlpha)
+            },
+        shape = ContinuousCornerShape(16.dp),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                 Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -257,10 +256,10 @@ private fun StatusCard() {
                         painter = rememberDrawablePainter(
                             drawable = ContextCompat.getDrawable(
                                 LocalContext.current,
-                                R.mipmap.ic_launcher
-                            )
+                                R.mipmap.ic_launcher,
+                            ),
                         ),
-                        contentDescription = stringResource(id = R.string.app_name)
+                        contentDescription = stringResource(id = R.string.app_name),
                     )
                 }
             }
@@ -277,7 +276,7 @@ private fun StatusCard() {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
                         text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",

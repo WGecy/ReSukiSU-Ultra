@@ -57,12 +57,12 @@ class UmountRepository(
             runCatching {
                 check(
                     ksuCliRepository.addUmountConfigUmountPath(path, flags) &&
-                            ksuCliRepository.addKernelUmountPath(path, flags)
+                        ksuCliRepository.addKernelUmountPath(path, flags),
                 )
                 mutableState.update { current ->
                     current.copy(
                         paths = current.paths.filterNot { it.path == path } +
-                                UmountPath(path = path, flags = flags, persistent = true)
+                            UmountPath(path = path, flags = flags, persistent = true),
                     )
                 }
             }
@@ -73,9 +73,11 @@ class UmountRepository(
         withContext(Dispatchers.IO) {
             runCatching {
                 check(
-                    (!entry.persistent ||
-                            ksuCliRepository.removeUmountConfigUmountPath(entry.path)) &&
-                            ksuCliRepository.removeKernelUmountPath(entry.path)
+                    (
+                        !entry.persistent ||
+                            ksuCliRepository.removeUmountConfigUmountPath(entry.path)
+                        ) &&
+                        ksuCliRepository.removeKernelUmountPath(entry.path),
                 )
                 mutableState.update { current ->
                     current.copy(paths = current.paths.filterNot { it.path == entry.path })

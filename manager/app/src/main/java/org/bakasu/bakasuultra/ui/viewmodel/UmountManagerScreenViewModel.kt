@@ -58,6 +58,7 @@ class UmountManagerScreenViewModel(
     fun dispatch(action: UmountManagerUiAction) {
         when (action) {
             is UmountManagerUiAction.Refresh -> viewModelScope.launch { refreshPaths() }
+
             is UmountManagerUiAction.Remove -> submit(
                 command = { removePath(action.entry) },
                 successMessage = R.string.umount_path_removed,

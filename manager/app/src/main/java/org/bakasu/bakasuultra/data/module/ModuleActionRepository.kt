@@ -37,7 +37,7 @@ class ModuleActionRepository(
             val date = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date())
             val file = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "KernelSU_module_action_log_${date}.log",
+                "KernelSU_module_action_log_$date.log",
             )
             file.writeText(content)
             file.absolutePath

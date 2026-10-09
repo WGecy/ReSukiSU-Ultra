@@ -565,7 +565,6 @@
     <string name="iosched_pinned_desc">Diterapkan otomatis saat boot: %1$s</string>
     <string name="iosched_unpinned_desc">Perubahan hanya berlaku untuk sesi ini (kembali ke default setelah reboot)</string>
     <string name="iosched_about">Tentang</string>
-    <string name="about_anime_character_sticker"><![CDATA[Lisensi icon berada dalam pengaturan khusus: digambar oleh 怡子曰曰, hak cipta dimiliki oleh 明风 OuO, dan vector icon disediakan oleh projek ini.]]></string>
     <string name="settings_soft_reboot">Soft restart daripada reboot</string>
     <string name="settings_soft_reboot_summary">Gunakan soft restart dibandingkan reboot penuh untuk menginstal, memperbarui, atau (non)aktikan modul.</string>
     <string name="advanced_options">Opsi Lanjutan</string>

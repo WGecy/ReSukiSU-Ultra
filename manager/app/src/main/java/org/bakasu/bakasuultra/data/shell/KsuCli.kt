@@ -97,10 +97,8 @@ class KsuCliRepository(context: Context) {
 
     inline fun <T> withNewRootShell(
         globalMnt: Boolean = false,
-        block: Shell.() -> T
-    ): T {
-        return createRootShell(globalMnt).use(block)
-    }
+        block: Shell.() -> T,
+    ): T = createRootShell(globalMnt).use(block)
 
     fun createRootShell(globalMnt: Boolean = false): Shell {
         Shell.enableVerboseLogging = BuildConfig.DEBUG
@@ -127,27 +125,21 @@ class KsuCliRepository(context: Context) {
         }
     }
 
-    fun execKsud(args: String, newShell: Boolean = false, globalMnt: Boolean = false): Boolean {
-        return if (newShell) {
-            withNewRootShell(globalMnt = globalMnt) {
-                ShellUtils.fastCmdResult(this, "${getKsuDaemonPath()} $args")
-            }
-        } else {
-            ShellUtils.fastCmdResult(getRootShell(globalMnt), "${getKsuDaemonPath()} $args")
+    fun execKsud(args: String, newShell: Boolean = false, globalMnt: Boolean = false): Boolean = if (newShell) {
+        withNewRootShell(globalMnt = globalMnt) {
+            ShellUtils.fastCmdResult(this, "${getKsuDaemonPath()} $args")
         }
+    } else {
+        ShellUtils.fastCmdResult(getRootShell(globalMnt), "${getKsuDaemonPath()} $args")
     }
 
-    private fun shellQuote(value: String): String {
-        return "'${value.replace("'", "'\"'\"'")}'"
-    }
+    private fun shellQuote(value: String): String = "'${value.replace("'", "'\"'\"'")}'"
 
     data class DynamicManagerCliConfig(
         val size: Int = 0,
-        val hash: String = ""
+        val hash: String = "",
     ) {
-        fun isValid(): Boolean {
-            return size > 0 && hash.length == 64
-        }
+        fun isValid(): Boolean = size > 0 && hash.length == 64
     }
 
     suspend fun getDynamicManagerConfig(): DynamicManagerCliConfig? = withContext(Dispatchers.IO) {
@@ -162,7 +154,7 @@ class KsuCliRepository(context: Context) {
             val obj = JSONObject(result.out.joinToString("\n"))
             DynamicManagerCliConfig(
                 size = obj.optInt("size", 0),
-                hash = obj.optString("hash", "")
+                hash = obj.optString("hash", ""),
             )
         }.getOrNull()
     }
@@ -236,9 +228,7 @@ class KsuCliRepository(context: Context) {
         }.getOrElse { return 0 }
     }
 
-    fun getSuperuserCount(): Int {
-        return Natives.getSuperuserCount()
-    }
+    fun getSuperuserCount(): Int = Natives.getSuperuserCount()
 
     fun toggleModule(id: String, enable: Boolean): Boolean {
         val cmd = if (enable) {
@@ -268,9 +258,8 @@ class KsuCliRepository(context: Context) {
     private fun flashWithIO(
         cmd: String,
         onStdout: (String) -> Unit,
-        onStderr: (String) -> Unit
+        onStderr: (String) -> Unit,
     ): Shell.Result {
-
         val stdoutCallback: CallbackList<String?> = object : CallbackList<String?>() {
             override fun onAddElement(s: String?) {
                 onStdout(s ?: "")
@@ -293,7 +282,7 @@ class KsuCliRepository(context: Context) {
         uri: Uri,
         onFinish: (Boolean, Int) -> Unit,
         onStdout: (String) -> Unit,
-        onStderr: (String) -> Unit
+        onStderr: (String) -> Unit,
     ): Boolean {
         val resolver = context.contentResolver
         with(resolver.openInputStream(uri)) {
@@ -316,7 +305,7 @@ class KsuCliRepository(context: Context) {
         zipFile: File,
         slot: String?,
         onStdout: (String) -> Unit,
-        onStderr: (String) -> Unit
+        onStderr: (String) -> Unit,
     ): Boolean {
         val command = buildString {
             append("${getKsuDaemonPath()} anykernel3 ${shellQuote(zipFile.absolutePath)}")
@@ -330,7 +319,9 @@ class KsuCliRepository(context: Context) {
     }
 
     fun runModuleAction(
-        moduleId: String, onStdout: (String) -> Unit, onStderr: (String) -> Unit
+        moduleId: String,
+        onStdout: (String) -> Unit,
+        onStderr: (String) -> Unit,
     ): Boolean {
         val stdoutCallback: CallbackList<String?> = object : CallbackList<String?>() {
             override fun onAddElement(s: String?) {
@@ -355,25 +346,29 @@ class KsuCliRepository(context: Context) {
     }
 
     fun restoreBoot(
-        onFinish: (Boolean, Int) -> Unit, onStdout: (String) -> Unit, onStderr: (String) -> Unit
+        onFinish: (Boolean, Int) -> Unit,
+        onStdout: (String) -> Unit,
+        onStderr: (String) -> Unit,
     ): Boolean {
         val result = flashWithIO(
             "${getKsuDaemonPath()} boot-restore -f",
             onStdout,
-            onStderr
+            onStderr,
         )
         onFinish(result.isSuccess, result.code)
         return result.isSuccess
     }
 
     fun uninstallPermanently(
-        onFinish: (Boolean, Int) -> Unit, onStdout: (String) -> Unit, onStderr: (String) -> Unit
+        onFinish: (Boolean, Int) -> Unit,
+        onStdout: (String) -> Unit,
+        onStderr: (String) -> Unit,
     ): Boolean {
         val result =
             flashWithIO(
                 "${getKsuDaemonPath()} uninstall --package-name ${BuildConfig.APPLICATION_ID}",
                 onStdout,
-                onStderr
+                onStderr,
             )
         onFinish(result.isSuccess, result.code)
         return result.isSuccess
@@ -490,7 +485,7 @@ class KsuCliRepository(context: Context) {
         }
         ShellUtils.fastCmd(
             shell,
-            "/system/bin/svc power reboot $reason || /system/bin/reboot $reason"
+            "/system/bin/svc power reboot $reason || /system/bin/reboot $reason",
         )
     }
 
@@ -498,7 +493,6 @@ class KsuCliRepository(context: Context) {
         val shell = getRootShell()
         return shell.isRoot
     }
-
 
     suspend fun getCurrentKmi(): String = withContext(Dispatchers.IO) {
         val shell = getRootShell()
@@ -592,7 +586,7 @@ class KsuCliRepository(context: Context) {
 
     fun getAppProfileTemplate(id: String): String {
         val shell = getRootShell()
-        return shell.newJob().add("${getKsuDaemonPath()} profile get-template '${id}'")
+        return shell.newJob().add("${getKsuDaemonPath()} profile get-template '$id'")
             .to(ArrayList(), null).exec().out.joinToString("\n")
     }
 
@@ -606,17 +600,15 @@ class KsuCliRepository(context: Context) {
 
     fun deleteAppProfileTemplate(id: String): Boolean {
         val shell = getRootShell()
-        return shell.newJob().add("${getKsuDaemonPath()} profile delete-template '${id}'")
+        return shell.newJob().add("${getKsuDaemonPath()} profile delete-template '$id'")
             .to(ArrayList(), null).exec().isSuccess
     }
 
-    fun runCmd(shell: Shell, cmd: String): String {
-        return shell.newJob()
-            .add(cmd)
-            .to(mutableListOf<String>(), null)
-            .exec().out
-            .joinToString("\n")
-    }
+    fun runCmd(shell: Shell, cmd: String): String = shell.newJob()
+        .add(cmd)
+        .to(mutableListOf<String>(), null)
+        .exec().out
+        .joinToString("\n")
 
     /** 执行 root 命令, 返回输出 (无输出返回 null) — 复用常驻 shell, 失败重建重试一次 */
     fun exec(cmd: String): String? {
@@ -639,7 +631,6 @@ class KsuCliRepository(context: Context) {
     }
 
     fun launchApp(packageName: String) {
-
         val shell = getRootShell()
         val result =
             shell.newJob()
@@ -690,7 +681,7 @@ class KsuCliRepository(context: Context) {
     fun getZygiskImplement(): String {
         val zygiskModuleIds = listOf(
             "zygisksu",
-            "rezygisk"
+            "rezygisk",
         )
 
         for (moduleId in zygiskModuleIds) {
@@ -766,5 +757,4 @@ class KsuCliRepository(context: Context) {
             ""
         }
     }
-
 }

@@ -32,7 +32,8 @@ enum class SortType(val displayNameRes: Int, val persistKey: String) {
     INSTALL_TIME(R.string.sort_install_time, "INSTALL_TIME"),
     UPDATE_TIME(R.string.sort_update_time, "UPDATE_TIME"),
     SIZE(R.string.sort_size, "SIZE"),
-    USAGE_FREQ(R.string.sort_usage_freq, "USAGE_FREQ");
+    USAGE_FREQ(R.string.sort_usage_freq, "USAGE_FREQ"),
+    ;
 
     companion object {
         fun fromPersistKey(key: String): SortType = entries.find { it.persistKey == key } ?: NAME
@@ -50,6 +51,7 @@ data class SuperUserUiState(
 )
 
 sealed interface SuperUserUiAction {
+    data object LoadInitialData : SuperUserUiAction
     data object Refresh : SuperUserUiAction
     data class BackupAllowlist(val uri: String) : SuperUserUiAction
     data class RestoreAllowlist(val uri: String) : SuperUserUiAction
@@ -93,10 +95,10 @@ class SuperUserViewModel(
             showSystemApps = getBooleanPreference(KEY_SHOW_SYSTEM_APPS, false),
             sortType = SortType.fromPersistKey(
                 getStringPreference(KEY_CURRENT_SORT_TYPE, SortType.NAME.persistKey)
-                    ?: SortType.NAME.persistKey
+                    ?: SortType.NAME.persistKey,
             ),
             reverseOrder = getBooleanPreference(KEY_REVERSE_ORDER, false),
-        )
+        ),
     )
     private val mutableEvents = MutableSharedFlow<SuperUserUiEvent>(extraBufferCapacity = 1)
     private var refreshJob: Job? = null
@@ -112,7 +114,9 @@ class SuperUserViewModel(
     }
 
     val state: StateFlow<SuperUserUiState> = combine(
-        sourceState, controls, managerUids,
+        sourceState,
+        controls,
+        managerUids,
     ) { source, local, uids ->
         SuperUserUiState(
             appGroupList = buildAppGroupList(
@@ -135,13 +139,16 @@ class SuperUserViewModel(
 
     fun dispatch(action: SuperUserUiAction) {
         when (action) {
+            SuperUserUiAction.LoadInitialData -> if (refreshJob == null) refresh()
+
             SuperUserUiAction.Refresh -> refresh()
+
             is SuperUserUiAction.BackupAllowlist -> viewModelScope.launch {
                 mutableEvents.emit(
                     SuperUserUiEvent.AllowlistOperationFinished(
                         result = backupAllowlistUseCase(action.uri),
                         restore = false,
-                    )
+                    ),
                 )
             }
 
@@ -154,12 +161,13 @@ class SuperUserViewModel(
                     SuperUserUiEvent.AllowlistOperationFinished(
                         result = result,
                         restore = true,
-                    )
+                    ),
                 )
             }
 
-            is SuperUserUiAction.Search -> controls.value =
-                controls.value.copy(search = action.query)
+            is SuperUserUiAction.Search ->
+                controls.value =
+                    controls.value.copy(search = action.query)
 
             is SuperUserUiAction.SetShowSystemApps -> {
                 setBooleanPreference(KEY_SHOW_SYSTEM_APPS, action.enabled)
@@ -208,8 +216,8 @@ class SuperUserViewModel(
         .filter { group ->
             group.apps.any { app ->
                 app.label.contains(search, true) ||
-                        app.displayIdentifier.contains(search, true) ||
-                        transliterateText(app.label).contains(search, true)
+                    app.displayIdentifier.contains(search, true) ||
+                    transliterateText(app.label).contains(search, true)
             }
         }
         .filter { group ->

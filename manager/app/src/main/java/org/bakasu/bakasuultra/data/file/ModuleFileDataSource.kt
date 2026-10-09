@@ -40,7 +40,7 @@ class ModuleUtils {
             if (!name.isNullOrBlank()) {
                 return name.replace(
                     Regex("[^a-zA-Z0-9\\s\\-_.@()\\u4e00-\\u9fa5]"),
-                    ""
+                    "",
                 ).trim()
             }
         } catch (e: Exception) {
@@ -52,7 +52,7 @@ class ModuleUtils {
             ?.removeSuffix(".zip")
             ?.replace(
                 Regex("[^a-zA-Z0-9\\s\\-_.@()\\u4e00-\\u9fa5]"),
-                ""
+                "",
             )
             ?.trim()
             ?: context.getString(R.string.unknown_module)

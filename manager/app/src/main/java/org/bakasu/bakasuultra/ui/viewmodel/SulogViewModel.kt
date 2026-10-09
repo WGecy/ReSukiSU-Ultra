@@ -82,7 +82,7 @@ class SulogViewModel(
         getStringSetPreference(PREF_SULOG_FILTERS)
             .mapNotNull { raw -> SulogEventFilter.entries.firstOrNull { it.name == raw } }
             .toSet()
-            .ifEmpty(::defaultSulogEventFilters)
+            .ifEmpty(::defaultSulogEventFilters),
     )
     private var refreshJob: Job? = null
     private val mutableEvents = MutableSharedFlow<SulogUiEvent>(extraBufferCapacity = 1)
@@ -116,7 +116,9 @@ class SulogViewModel(
     fun dispatch(action: SulogUiAction) {
         when (action) {
             SulogUiAction.Refresh -> refresh(state.value.selectedFilePath)
+
             SulogUiAction.RefreshLatest -> refresh(null)
+
             SulogUiAction.Enable -> viewModelScope.launch {
                 val result = setSulogEnabled(true)
                 result.exceptionOrNull()?.let {
@@ -134,6 +136,7 @@ class SulogViewModel(
             }
 
             is SulogUiAction.Search -> search.value = action.query
+
             is SulogUiAction.ToggleFilter -> {
                 filters.value = filters.value.toMutableSet().apply {
                     if (!add(action.filter)) remove(action.filter)

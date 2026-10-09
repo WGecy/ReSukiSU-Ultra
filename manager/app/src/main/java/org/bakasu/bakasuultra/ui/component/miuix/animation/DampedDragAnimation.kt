@@ -83,7 +83,7 @@ class DampedDragAnimation(
             onDragCancel = {
                 onDragCancelled()
                 release()
-            }
+            },
         ) { change, dragAmount ->
             val position = change.position
             val previousPosition = change.previousPosition

@@ -59,8 +59,7 @@ sealed interface SuSFSUiAction {
         val reply: SuSFSCommandReply? = null,
     ) : SuSFSUiAction
 
-    data class RemoveSusKstat(val path: String, val reply: SuSFSCommandReply? = null) :
-        SuSFSUiAction
+    data class RemoveSusKstat(val path: String, val reply: SuSFSCommandReply? = null) : SuSFSUiAction
 
     data class SetUname(
         val release: String,
@@ -70,8 +69,7 @@ sealed interface SuSFSUiAction {
 
     data class LoadSlotInfo(val reply: SuSFSCommandReply? = null) : SuSFSUiAction
     data class EnableLog(val enabled: Boolean, val reply: SuSFSCommandReply? = null) : SuSFSUiAction
-    data class HideSusMnts(val enabled: Boolean, val reply: SuSFSCommandReply? = null) :
-        SuSFSUiAction
+    data class HideSusMnts(val enabled: Boolean, val reply: SuSFSCommandReply? = null) : SuSFSUiAction
 
     data class EnableAvcLogSpoofing(
         val enabled: Boolean,
@@ -131,7 +129,9 @@ class SuSFSViewModel(
     fun dispatch(action: SuSFSUiAction) {
         when (action) {
             is SuSFSUiAction.Load -> runOperation(refresh = false, action.reply)
+
             is SuSFSUiAction.Refresh -> runOperation(refresh = true, action.reply)
+
             is SuSFSUiAction.SetEnabled -> viewModelScope.launch {
                 executeBoolean(action.reply) { configUseCase.setConfigEnabled(action.enabled) }
                     ?.takeIf { it }
@@ -152,8 +152,11 @@ class SuSFSViewModel(
 
             is SuSFSUiAction.AddSusPath -> viewModelScope.launch {
                 executeBoolean(action.reply) {
-                    if (action.loop) configUseCase.addSusPathLoop(action.path)
-                    else configUseCase.addSusPath(action.path)
+                    if (action.loop) {
+                        configUseCase.addSusPathLoop(action.path)
+                    } else {
+                        configUseCase.addSusPath(action.path)
+                    }
                 }
             }
 
@@ -165,7 +168,9 @@ class SuSFSViewModel(
                 executeBoolean(action.reply) {
                     when (action.type) {
                         SusKstatOperation.Normal -> configUseCase.addSusKstat(action.path)
+
                         SusKstatOperation.FullClone -> configUseCase.addSusKstatFullClone(action.path)
+
                         SusKstatOperation.Statically -> configUseCase.addSusKstatStatically(
                             action.path,
                             action.values ?: SusKstatStatically(
@@ -185,7 +190,7 @@ class SuSFSViewModel(
                 executeBoolean(action.reply) {
                     configUseCase.setUname(
                         action.release,
-                        action.version
+                        action.version,
                     )
                 }
             }
@@ -328,12 +333,16 @@ internal suspend fun awaitSuSFSConfig(
 internal suspend fun awaitSuSFSStatusInfo(
     viewModel: SuSFSViewModel,
     forceRefresh: Boolean,
-): SuSFSStatusInfo? = (awaitSuSFSCommand(viewModel) { reply ->
-    SuSFSUiAction.LoadStatusInfo(forceRefresh, reply)
-} as? SuSFSCommandResult.StatusInfoValue)?.value
+): SuSFSStatusInfo? = (
+    awaitSuSFSCommand(viewModel) { reply ->
+        SuSFSUiAction.LoadStatusInfo(forceRefresh, reply)
+    } as? SuSFSCommandResult.StatusInfoValue
+    )?.value
 
 internal suspend fun awaitSuSFSSlotInfo(
     viewModel: SuSFSViewModel,
-): List<SuSFSSlotInfo>? = (awaitSuSFSCommand(viewModel) { reply ->
-    SuSFSUiAction.LoadSlotInfo(reply)
-} as? SuSFSCommandResult.SlotInfoValue)?.value
+): List<SuSFSSlotInfo>? = (
+    awaitSuSFSCommand(viewModel) { reply ->
+        SuSFSUiAction.LoadSlotInfo(reply)
+    } as? SuSFSCommandResult.SlotInfoValue
+    )?.value

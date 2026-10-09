@@ -1,6 +1,5 @@
 package org.bakasu.bakasuultra.ui.theme
 
-import android.R
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -30,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MotionScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
@@ -42,11 +40,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -66,7 +62,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -79,17 +74,17 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.kieronquinn.monetcompat.core.MonetCompat
-import com.kieronquinn.monetcompat.interfaces.MonetColorsChangedListener
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
 import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.quantize.QuantizerCelebi
 import com.materialkolor.score.Score
-import dev.kdrag0n.monet.theme.ColorScheme as MonetCompatColorScheme
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.abs
@@ -100,6 +95,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bakasu.bakasuultra.data.AppSettingsRepository
+import org.bakasu.bakasuultra.data.theme.MonetCompatColorSource
 import org.bakasu.bakasuultra.data.theme.ThemeRepository
 import org.bakasu.bakasuultra.ui.overscroll.StretchOverscrollCompensationState
 import org.bakasu.bakasuultra.ui.util.LocalBackgroundBlurAnchor
@@ -134,26 +130,14 @@ class ThemeConfig(
     // 背景状态
     var backgroundImageLoaded by mutableStateOf(false)
     var isThemeChanging by mutableStateOf(false)
-    var preventBackgroundRefresh by mutableStateOf(false)
     var isHighContrastMode by mutableStateOf(false)
     var isEnableBlur by mutableStateOf(false)
     var isEnableBlurExp by mutableStateOf(false)
     var isUseBackgroundSeedColor by mutableStateOf(false)
     var bottomBarStyle by mutableStateOf(BottomBarStyle.MATERIAL3_EXPRESSIVE)
 
-    // 主题变化检测
-    private var lastDarkModeState: Boolean? = null
-
-    fun detectThemeChange(currentDarkMode: Boolean): Boolean {
-        val hasChanged = lastDarkModeState != null && lastDarkModeState != currentDarkMode
-        lastDarkModeState = currentDarkMode
-        return hasChanged
-    }
-
     fun resetBackgroundState() {
-        if (!preventBackgroundRefresh) {
-            backgroundImageLoaded = false
-        }
+        backgroundImageLoaded = false
         isThemeChanging = true
     }
 
@@ -167,17 +151,15 @@ class ThemeConfig(
         dynamicPaletteStyle = PaletteStyle.TonalSpot
         backgroundImageLoaded = false
         isThemeChanging = false
-        preventBackgroundRefresh = false
-        lastDarkModeState = null
     }
 }
 
 private val BuiltinspaceFontFamily = FontFamily(
-    Font(org.bakasu.bakasuultra.R.font.jetbrains_mono)
+    Font(org.bakasu.bakasuultra.R.font.jetbrains_mono),
 )
 
 @Composable
-fun MonospaceFontFamily(): FontFamily {
+fun monospaceFontFamily(): FontFamily {
     val themeConfig = koinInject<ThemeConfig>()
     return if (themeConfig.useBuiltinMonoFont) {
         BuiltinspaceFontFamily
@@ -239,7 +221,7 @@ class BackgroundManager(
 
     suspend fun saveAndApplyCustomBackground(
         context: Context,
-        uri: Uri
+        uri: Uri,
     ): Boolean {
         val appContext = context.applicationContext
         return try {
@@ -253,7 +235,7 @@ class BackgroundManager(
             withContext(Dispatchers.IO) {
                 clearBackgroundBlurCache(appContext)
             }
-            resetBackgroundState()
+            config.backgroundImageLoaded = false
 
             true
         } catch (e: CancellationException) {
@@ -269,7 +251,7 @@ class BackgroundManager(
         config.customBackgroundUri = null
         cardConfig.updateBackground(false)
         clearBackgroundBlurCache(context)
-        resetBackgroundState()
+        config.backgroundImageLoaded = false
     }
 
     fun loadCustomBackground() {
@@ -277,9 +259,6 @@ class BackgroundManager(
         val uriString = prefs.getString("custom_background", null)
 
         val newUri = uriString?.toUri()
-        val preventRefresh = prefs.getBoolean("prevent_background_refresh", false)
-
-        config.preventBackgroundRefresh = preventRefresh
 
         if (config.customBackgroundUri?.toString() != newUri?.toString()) {
             Log.d(tag, "加载自定义背景: $uriString")
@@ -296,13 +275,6 @@ class BackgroundManager(
 
     private fun saveBackgroundUri(uri: Uri?) {
         settings.putString("custom_background", uri?.toString())
-        settings.putBoolean("prevent_background_refresh", false)
-    }
-
-    private fun resetBackgroundState() {
-        config.backgroundImageLoaded = false
-        config.preventBackgroundRefresh = false
-        settings.putBoolean("prevent_background_refresh", false)
     }
 
     fun clearBackgroundBlurCache(context: Context) {
@@ -344,7 +316,7 @@ fun KernelSUTheme(
     dpi: Int = 0,
     darkTheme: Boolean? = null,
     dynamicColor: Boolean? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val themeConfig = koinInject<ThemeConfig>()
     val themeRepository = koinInject<ThemeRepository>()
@@ -397,7 +369,7 @@ fun KernelSUTheme(
         MaterialExpressiveTheme(
             colorScheme = colorScheme,
             motionScheme = MotionScheme.expressive(),
-            typography = generateTypography(themeConfig)
+            typography = generateTypography(themeConfig),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 BackgroundLayer(themeConfig, settings, backgroundRenderState)
@@ -417,19 +389,9 @@ private fun ThemeInitializer(
     cardConfig: CardConfig,
     settings: AppSettingsRepository,
 ) {
-    val themeChanged = themeConfig.detectThemeChange(systemIsDark)
-    val scope = rememberCoroutineScope()
-
     // 处理系统主题变化
-    LaunchedEffect(systemIsDark, themeChanged) {
-        if (themeConfig.forceDarkMode == null && themeChanged) {
-            Log.d("ThemeSystem", "系统主题变化: $systemIsDark")
-            themeConfig.resetBackgroundState()
-
-            if (!themeConfig.preventBackgroundRefresh) {
-                backgroundManager.loadCustomBackground()
-            }
-
+    LaunchedEffect(systemIsDark) {
+        if (themeConfig.forceDarkMode == null) {
             cardConfig.apply {
                 load()
                 setThemeDefaults(systemIsDark)
@@ -440,69 +402,44 @@ private fun ThemeInitializer(
 
     // 初始加载配置
     LaunchedEffect(Unit) {
-        scope.launch {
-            themeConfig.forceDarkMode = themeRepository.loadThemeMode()
-            themeConfig.seedColor = themeRepository.loadSeedColor()
-            themeConfig.useDynamicColor = themeRepository.loadDynamicColorState()
-            themeConfig.dynamicColorSpec = themeRepository.loadDynamicColorSpec()
-            themeConfig.dynamicPaletteStyle = themeRepository.loadDynamicPaletteStyle(
-                themeConfig.dynamicColorSpec,
-            )
-            themeConfig.isEnableBlur = settings.getBoolean("enable_blur", false)
-            themeConfig.bottomBarStyle = BottomBarStyle.fromOrdinal(settings.getInt("bottom_bar_style", 0))
-            cardConfig.load()
-
-            if (!themeConfig.backgroundImageLoaded && !themeConfig.preventBackgroundRefresh) {
-                backgroundManager.loadCustomBackground()
-            }
-        }
+        // Composition can start before application startup has finished preloading
+        // DataStore. Read it here first so the persisted background URI is never
+        // mistaken for an unset value during process recreation.
+        settings.preload()
+        themeConfig.forceDarkMode = themeRepository.loadThemeMode()
+        themeConfig.seedColor = themeRepository.loadSeedColor()
+        themeConfig.useDynamicColor = themeRepository.loadDynamicColorState()
+        themeConfig.dynamicColorSpec = themeRepository.loadDynamicColorSpec()
+        themeConfig.dynamicPaletteStyle = themeRepository.loadDynamicPaletteStyle(
+            themeConfig.dynamicColorSpec,
+        )
+        themeConfig.isEnableBlur = settings.getBoolean("enable_blur", false)
+        themeConfig.bottomBarStyle = BottomBarStyle.fromOrdinal(settings.getInt("bottom_bar_style", 0))
+        cardConfig.load()
+        backgroundManager.loadCustomBackground()
     }
 
-    MonetCompatInitializer(context, themeConfig)
+    MonetCompatInitializer(themeConfig, themeRepository)
 }
 
 @Composable
-private fun MonetCompatInitializer(context: Context, themeConfig: ThemeConfig) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return
+private fun MonetCompatInitializer(themeConfig: ThemeConfig, themeRepository: ThemeRepository) {
+    val source = koinInject<MonetCompatColorSource>()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    val scope = rememberCoroutineScope()
-
-    DisposableEffect(context) {
-        val monet = MonetCompat.setup(context)
-        monet.defaultPrimaryColor = themeConfig.seedColor
-        monet.defaultSecondaryColor = themeConfig.seedColor
-        monet.defaultAccentColor = themeConfig.seedColor
-
-        val listener = object : MonetColorsChangedListener {
-            override fun onMonetColorsChanged(
-                monet: MonetCompat,
-                monetColors: MonetCompatColorScheme,
-                isInitialChange: Boolean
-            ) {
-                scope.launch {
-                    themeConfig.monetCompatSeedColor =
-                        monet.getSelectedWallpaperColor() ?: themeConfig.seedColor
-                }
-            }
-        }
-
-        monet.addMonetColorsChangedListener(listener, notifySelf = true)
-        onDispose {
-            monet.removeMonetColorsChangedListener(listener)
+    LaunchedEffect(source, themeConfig) {
+        source.colors.collect { color ->
+            themeConfig.monetCompatSeedColor = color
+            themeConfig.seedColor = themeRepository.loadSeedColor()
         }
     }
-
-    LaunchedEffect(themeConfig.useDynamicColor, themeConfig.seedColor) {
-        if (!themeConfig.useDynamicColor) return@LaunchedEffect
-
-        val monet = MonetCompat.setup(context)
-        monet.defaultPrimaryColor = themeConfig.seedColor
-        monet.defaultSecondaryColor = themeConfig.seedColor
-        monet.defaultAccentColor = themeConfig.seedColor
-        monet.updateConfiguration(context)
-        themeConfig.monetCompatSeedColor =
-            monet.getSelectedWallpaperColor() ?: themeConfig.seedColor
-        monet.updateMonetColors()
+    LaunchedEffect(source, lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            // Allow the cached theme to draw before starting wallpaper IPC and palette work.
+            withFrameNanos { }
+            withFrameNanos { }
+            source.refresh()
+        }
     }
 }
 
@@ -512,12 +449,13 @@ private fun BackgroundLayer(
     settings: AppSettingsRepository,
     renderState: BackgroundRenderState,
 ) {
-    val backgroundUri = rememberSaveable { mutableStateOf(themeConfig.customBackgroundUri) }
+    val backgroundUri = remember(themeConfig.customBackgroundUri) {
+        themeConfig.customBackgroundUri
+    }
 
     LaunchedEffect(themeConfig.customBackgroundUri) {
-        backgroundUri.value = themeConfig.customBackgroundUri
-        renderState.imageBitmap = null
-        if (backgroundUri.value == null) {
+        if (themeConfig.customBackgroundUri == null) {
+            renderState.imageBitmap = null
             renderState.imagePainter = null
             renderState.blurImageBitmap = null
             renderState.seedColor = 0
@@ -528,10 +466,10 @@ private fun BackgroundLayer(
     val hasBackgroundBitmap = renderState.imageBitmap != null
     val hasBlurBitmap = renderState.blurImageBitmap != null
     val needsFallbackFrames = hasBackgroundBitmap &&
-            (!themeConfig.isEnableBlur || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+        (!themeConfig.isEnableBlur || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
     val needsBlurFrames =
         (themeConfig.isEnableBlurExp && hasBlurBitmap) ||
-                (themeConfig.isEnableBlur && hasBackgroundBitmap)
+            (themeConfig.isEnableBlur && hasBackgroundBitmap)
 
     LaunchedEffect(needsFallbackFrames, needsBlurFrames) {
         if (!needsFallbackFrames && !needsBlurFrames) return@LaunchedEffect
@@ -562,12 +500,12 @@ private fun BackgroundLayer(
                 }
             }
             .background(
-                MaterialTheme.colorScheme.surfaceContainer
-            )
+                MaterialTheme.colorScheme.surfaceContainer,
+            ),
     )
 
     // 自定义背景
-    backgroundUri.value?.let { uri ->
+    backgroundUri?.let { uri ->
         BackgroundInitializer(
             uri = uri,
             themeConfig = themeConfig,
@@ -628,9 +566,11 @@ fun Modifier.blurEffect(
 
     return LocalBlurState.current?.let { backdrop ->
         // 0.8f like haze, for material design without custom background enable
-        val blurTintAlpha = if (cardConfig.isCustomBackgroundEnabled)
+        val blurTintAlpha = if (cardConfig.isCustomBackgroundEnabled) {
             cardConfig.cardAlpha
-        else 0.8f
+        } else {
+            0.8f
+        }
 
         val blendColor =
             MaterialTheme.colorScheme.surfaceContainer.copy(alpha = blurTintAlpha)
@@ -650,8 +590,8 @@ fun Modifier.blurEffect(
                             blurRadiusX = 25f,
                             colors = BlurColors(
                                 blendColors = listOf(
-                                    BlendColorEntry(color = blendColor)
-                                )
+                                    BlendColorEntry(color = blendColor),
+                                ),
                             ),
                         )
 
@@ -673,7 +613,7 @@ fun Modifier.blurEffect(
                             )
                         }
                     },
-                )
+                ),
         )
     } ?: renderBackgroundFallback(
         compensateHorizontalOverscroll = compensateHorizontalOverscroll,
@@ -682,11 +622,12 @@ fun Modifier.blurEffect(
     )
 }
 
+@Composable
 private fun Modifier.renderBackgroundFallback(
     compensateHorizontalOverscroll: Boolean,
     compensateVerticalOverscroll: Boolean,
     useFixedSurfaceBoundsForOverscroll: Boolean,
-): Modifier = composed {
+): Modifier {
     val themeConfig = koinInject<ThemeConfig>()
     val cardConfig = koinInject<CardConfig>()
     val renderState = LocalBackgroundRenderState.current
@@ -716,7 +657,7 @@ private fun Modifier.renderBackgroundFallback(
         }
     }
 
-    this
+    return this
         .onGloballyPositioned { newCoordinates ->
             coordinates = newCoordinates.takeIf { it.isAttached }
         }
@@ -724,6 +665,7 @@ private fun Modifier.renderBackgroundFallback(
             renderState.blurFrameTick
 
             val boundsInBackground = coordinates?.boundsInBackgroundNow(backgroundAnchor)
+                ?: coordinates?.localBoundsInWindowNow()
             val viewportSize = backgroundAnchor
                 ?.takeIf { it.isAttached && it.size.width > 0 && it.size.height > 0 }
                 ?.size
@@ -744,11 +686,7 @@ private fun Modifier.renderBackgroundFallback(
                     bounds
                 }
             }
-            val bitmapBounds = if (
-                themeConfig.backgroundImageLoaded &&
-                backgroundBitmap != null &&
-                offsetBoundsInBackground != null
-            ) {
+            val bitmapBounds = if (backgroundBitmap != null && offsetBoundsInBackground != null) {
                 offsetBoundsInBackground.mapToBitmapBounds(
                     bitmap = backgroundBitmap,
                     viewportSize = viewportSize,
@@ -837,21 +775,21 @@ private fun Rect.mapToBitmapBounds(
     )
 }
 
-
+@Composable
 fun Modifier.renderBackgroundBlur(
-    tintColor: Color? = null
-): Modifier = composed {
+    tintColor: Color? = null,
+): Modifier {
     val themeConfig = koinInject<ThemeConfig>()
     val cardConfig = koinInject<CardConfig>()
     val renderState = LocalBackgroundRenderState.current
-    if (!themeConfig.isEnableBlurExp) return@composed this
+    if (!themeConfig.isEnableBlurExp) return this
 
     var coordinates by remember {
         mutableStateOf<LayoutCoordinates?>(null)
     }
 
     val tintColor = (tintColor ?: MaterialTheme.colorScheme.surfaceBright).copy(
-        alpha = cardConfig.cardAlpha
+        alpha = cardConfig.cardAlpha,
     )
     val backgroundBlurAnchor = LocalBackgroundBlurAnchor.current
     val stretchOverscrollState = LocalStretchOverscrollCompensationState.current
@@ -863,7 +801,7 @@ fun Modifier.renderBackgroundBlur(
         }
     }
 
-    this
+    return this
         .onGloballyPositioned { newCoordinates ->
             coordinates = newCoordinates.takeIf { it.isAttached }
         }
@@ -1122,9 +1060,7 @@ private fun buildBitmapDrawSegments(
         return emptyList()
     }
 
-    fun mapToDestination(value: Float): Float {
-        return (value - sourceStart) / sourceSpan * destinationSize
-    }
+    fun mapToDestination(value: Float): Float = (value - sourceStart) / sourceSpan * destinationSize
 
     val segments = mutableListOf<BitmapDrawSegment>()
 
@@ -1428,29 +1364,29 @@ private fun reverseStretchPosition(
     if (amount > 0f) {
         val numerator =
             (-normalizedInput * amount * amount) -
-                    (2f * normalizedInput * amount) -
-                    normalizedInput
+                (2f * normalizedInput * amount) -
+                normalizedInput
         val denominator =
             1f +
-                    (0.3f * amount) +
-                    (0.7f * normalizedInput * amount * amount) +
-                    (0.7f * normalizedInput * amount)
+                (0.3f * amount) +
+                (0.7f * normalizedInput * amount * amount) +
+                (0.7f * normalizedInput * amount)
         val output = -(numerator / denominator)
         return if (output <= 1f) output else output - distanceDifference
     }
 
     val numerator =
         (0.3f * amount * amount) -
-                (0.3f * normalizedInput * amount * amount) +
-                (1.3f * normalizedInput * amount) -
-                amount -
-                normalizedInput
+            (0.3f * normalizedInput * amount * amount) +
+            (1.3f * normalizedInput * amount) -
+            amount -
+            normalizedInput
     val denominator =
         (0.7f * normalizedInput * amount * amount) -
-                (0.7f * normalizedInput * amount) -
-                (0.7f * amount * amount) +
-                amount -
-                1f
+            (0.7f * normalizedInput * amount) -
+            (0.7f * amount * amount) +
+            amount -
+            1f
     val output = numerator / denominator
     return if (output >= 0f) output else output + distanceDifference
 }
@@ -1554,13 +1490,11 @@ private fun ContentDrawScope.drawStretchCompensatedBitmap(
     }
 }
 
-private fun Offset.isUsable(): Boolean {
-    return x.isFinite() && y.isFinite()
-}
+private fun Offset.isUsable(): Boolean = x.isFinite() && y.isFinite()
 
 private suspend fun Bitmap.extractSeedColor(
     maxColors: Int = 128,
-    fallbackColorArgb: Int = -12417548
+    fallbackColorArgb: Int = -12417548,
 ): Int = withContext(Dispatchers.IO) {
     val scaledBitmap = this@extractSeedColor.scale(128, 128)
 
@@ -1595,8 +1529,12 @@ private fun Bitmap.softwareFastBlur(radius: Int): Bitmap {
     val r = IntArray(wh)
     val g = IntArray(wh)
     val b = IntArray(wh)
-    var rsum: Int; var gsum: Int; var bsum: Int
-    var p: Int; var yp: Int; var yi: Int
+    var rsum: Int
+    var gsum: Int
+    var bsum: Int
+    var p: Int
+    var yp: Int
+    var yi: Int
     val vmin = IntArray(w.coerceAtLeast(h))
 
     var divsum = (div + 1) shr 1
@@ -1615,13 +1553,23 @@ private fun Bitmap.softwareFastBlur(radius: Int): Bitmap {
     var sir: IntArray
     var rbs: Int
     val r1 = radius + 1
-    var routsum: Int; var goutsum: Int; var boutsum: Int
-    var rinsum: Int; var ginsum: Int; var binsum: Int
+    var routsum: Int
+    var goutsum: Int
+    var boutsum: Int
+    var rinsum: Int
+    var ginsum: Int
+    var binsum: Int
 
     for (y in 0 until h) {
-        bsum = 0; gsum = 0; rsum = 0
-        boutsum = 0; goutsum = 0; routsum = 0
-        binsum = 0; ginsum = 0; rinsum = 0
+        bsum = 0
+        gsum = 0
+        rsum = 0
+        boutsum = 0
+        goutsum = 0
+        routsum = 0
+        binsum = 0
+        ginsum = 0
+        rinsum = 0
         for (i in -radius..radius) {
             p = pix[yi + wm.coerceAtMost(i.coerceAtLeast(0))]
             sir = stack[i + radius]
@@ -1692,9 +1640,15 @@ private fun Bitmap.softwareFastBlur(radius: Int): Bitmap {
     }
 
     for (x in 0 until w) {
-        bsum = 0; gsum = 0; rsum = 0
-        boutsum = 0; goutsum = 0; routsum = 0
-        binsum = 0; ginsum = 0; rinsum = 0
+        bsum = 0
+        gsum = 0
+        rsum = 0
+        boutsum = 0
+        goutsum = 0
+        routsum = 0
+        binsum = 0
+        ginsum = 0
+        rinsum = 0
         yp = -radius * w
         for (i in -radius..radius) {
             yi = (yp.coerceAtLeast(0)) + x
@@ -1769,8 +1723,8 @@ private fun Bitmap.blurBitmap(blurRadius: Float): Bitmap {
                 RenderEffect.createBlurEffect(
                     blurRadius,
                     blurRadius,
-                    Shader.TileMode.CLAMP
-                )
+                    Shader.TileMode.CLAMP,
+                ),
             )
         }
 
@@ -1786,7 +1740,6 @@ private fun Bitmap.blurBitmap(blurRadius: Float): Bitmap {
 
     return outputBitmap
 }
-
 
 @RequiresApi(Build.VERSION_CODES.S)
 private suspend fun Bitmap.createBackgroundBlurImage(
@@ -1852,11 +1805,9 @@ private fun Bitmap.createBackgroundBlurSource(viewportSize: IntSize): Bitmap {
     }
 }
 
-private fun backgroundBlurCacheFile(context: Context): File =
-    File(context.filesDir, "blured_custom_background.jpg")
+private fun backgroundBlurCacheFile(context: Context): File = File(context.filesDir, "blured_custom_background.jpg")
 
-private fun legacyBackgroundBlurCacheDir(context: Context): File =
-    File(context.filesDir, "background_blur_cache")
+private fun legacyBackgroundBlurCacheDir(context: Context): File = File(context.filesDir, "background_blur_cache")
 
 private fun saveBackgroundBlurCache(cacheFile: File, bitmap: Bitmap) {
     runCatching {
@@ -1884,10 +1835,7 @@ private fun BackgroundInitializer(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val dynamicColorFromSystem =
-        if (Build.VERSION.SDK_INT >= 31)
-            colorResource(id = R.color.system_accent1_500).toArgb()
-        else -12417548
+    val dynamicColorFromSystem = themeConfig.monetCompatSeedColor
 
     val calcedCachedSeedColor =
         settings.getInt("cached_seed_color", dynamicColorFromSystem)
@@ -1952,12 +1900,12 @@ private fun BackgroundInitializer(
             renderState.seedColor = calcedCachedSeedColor
             coroutineScope.launch {
                 renderState.seedColor = bitmap.extractSeedColor(
-                    fallbackColorArgb = calcedCachedSeedColor
+                    fallbackColorArgb = calcedCachedSeedColor,
                 )
 
                 settings.putInt("cached_seed_color", renderState.seedColor)
             }
-        }
+        },
     )
 }
 
@@ -1969,10 +1917,10 @@ private fun generateTypography(themeConfig: ThemeConfig): androidx.compose.mater
         if (!themeConfig.isHighContrastMode) return originalShadow
         val shadow = originalShadow ?: Shadow(
             offset = Offset(1.5f, 1.5f),
-            blurRadius = 0f
+            blurRadius = 0f,
         )
         return shadow.copy(
-            color = if (darkMode) Color.Black.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.7f)
+            color = if (darkMode) Color.Black.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.7f),
         )
     }
 
@@ -2026,10 +1974,6 @@ private fun createColorScheme(
                 renderState.seedColor
             }
 
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                colorResource(id = R.color.system_accent1_500).toArgb()
-            }
-
             dynamicColor -> {
                 themeConfig.monetCompatSeedColor
             }
@@ -2063,19 +2007,21 @@ private fun SystemBarController(darkMode: Boolean) {
             } else {
                 SystemBarStyle.light(
                     Color.Transparent.toArgb(),
-                    Color.Transparent.toArgb()
+                    Color.Transparent.toArgb(),
                 )
-            }
+            },
         )
     }
 }
 
 @Composable
 @ReadOnlyComposable
-fun isInDarkTheme(themeMode: Boolean?): Boolean {
-    return when (themeMode) {
-        true -> true // 强制深色
-        false -> false // 强制浅色
-        null -> isSystemInDarkTheme() // 跟随系统
-    }
+fun isInDarkTheme(themeMode: Boolean?): Boolean = when (themeMode) {
+    // 强制深色
+    true -> true
+
+    // 强制浅色
+    false -> false
+
+    null -> isSystemInDarkTheme() // 跟随系统
 }

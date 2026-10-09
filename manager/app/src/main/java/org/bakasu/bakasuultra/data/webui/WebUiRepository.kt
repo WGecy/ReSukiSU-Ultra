@@ -25,20 +25,18 @@ class WebUiRepository(
         )
     }
 
-    fun spawn(command: String, globalMnt: Boolean = true): WebUiProcess =
-        ShellWebUiProcess(ksuCliRepository.createRootShell(globalMnt), command)
+    fun spawn(command: String, globalMnt: Boolean = true): WebUiProcess = ShellWebUiProcess(ksuCliRepository.createRootShell(globalMnt), command)
 
     fun listModules(): String = ksuCliRepository.listModules()
 
-    fun getModuleInfo(moduleId: String): WebUiModuleInfo? =
-        ksuCliRepository.withNewRootShell(globalMnt = true) {
-            val rootShell = this
-            readWebUiModuleInfo(
-                moduleId = moduleId,
-                resolveFile = { path -> SuFile(path).apply { shell = rootShell } },
-                openFile = { file -> SuFileInputStream.open(file) },
-            )
-        }
+    fun getModuleInfo(moduleId: String): WebUiModuleInfo? = ksuCliRepository.withNewRootShell(globalMnt = true) {
+        val rootShell = this
+        readWebUiModuleInfo(
+            moduleId = moduleId,
+            resolveFile = { path -> SuFile(path).apply { shell = rootShell } },
+            openFile = { file -> SuFileInputStream.open(file) },
+        )
+    }
 
     fun openFile(path: String) = runCatching {
         val file = SuFile(path).apply { shell = ksuCliRepository.createRootShell(true) }
@@ -69,7 +67,7 @@ class WebUiRepository(
                                 code = result.code,
                                 stdout = result.out.joinToString("\n"),
                                 stderr = result.err.joinToString("\n"),
-                            )
+                            ),
                         )
                     }
                     .whenComplete { _, _ -> close() }

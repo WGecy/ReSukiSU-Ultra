@@ -41,7 +41,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun TemplateConfig(
     profile: AppProfile,
     onViewTemplate: (id: String) -> Unit = {},
-    onProfileChange: (AppProfile) -> Unit
+    onProfileChange: (AppProfile) -> Unit,
 ) {
     val viewModel = koinViewModel<TemplateViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -91,9 +91,9 @@ fun TemplateConfig(
                     .clickable {
                         onViewTemplate(profileTemplates[index])
                     }
-                    .padding(5.dp)
+                    .padding(5.dp),
             )
-        }
+        },
     ) { index ->
         if (index == 0) {
             template = ""
@@ -116,7 +116,7 @@ fun TemplateConfig(
                 context = templateInfo.context,
                 rules = templateInfo.rules.joinToString("\n"),
                 namespace = templateInfo.namespace,
-            )
+            ),
         )
     }
 }

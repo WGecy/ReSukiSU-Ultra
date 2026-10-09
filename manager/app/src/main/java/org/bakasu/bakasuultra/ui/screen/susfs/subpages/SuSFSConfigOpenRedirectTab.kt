@@ -93,9 +93,7 @@ fun OpenRedirectTab(
     val operationFailedMsg = stringResource(R.string.susfs_operation_failed)
     val selectedUidLabel = uidSchemeOptions.first { it.first == manualUidScheme }.second
 
-    fun UidScheme.localizedLabel(): String {
-        return uidSchemeOptions.first { it.first == this }.second
-    }
+    fun UidScheme.localizedLabel(): String = uidSchemeOptions.first { it.first == this }.second
 
     LazyColumn(
         modifier = Modifier

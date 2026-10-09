@@ -3,6 +3,7 @@ package org.bakasu.bakasuultra.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -93,10 +95,10 @@ class HomeViewModel(
                     .getOrDefault("None"),
             )
         )
-    }.stateIn(
+    }.flowOn(Dispatchers.IO).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = HomeUiState()
+        initialValue = HomeUiState(),
     )
 
     private val mutableEvents = MutableSharedFlow<HomeUiEvent>(extraBufferCapacity = 1)
@@ -193,8 +195,7 @@ class HomeViewModel(
             }
         }.also { refreshJob = it }
     }
-    fun handleSimpleModeChange(enabled: Boolean) =
-        updatePreference(PREF_SIMPLE_MODE, enabled) { it.copy(isSimpleMode = enabled) }
+    fun handleSimpleModeChange(enabled: Boolean) = updatePreference(PREF_SIMPLE_MODE, enabled) { it.copy(isSimpleMode = enabled) }
 
     fun handleHideSusfsStatusChange(enabled: Boolean) =
         updatePreference(PREF_HIDE_SUSFS, enabled) { it.copy(isHideSusfsStatus = enabled) }
@@ -216,14 +217,18 @@ class HomeViewModel(
     fun dispatch(action: HomeUiAction) {
         when (action) {
             HomeUiAction.AwaitInitialData -> viewModelScope.launch { awaitInitialData() }
+
             is HomeUiAction.Refresh -> refreshData(action.showIndicator)
+
             is HomeUiAction.SetSimpleMode -> handleSimpleModeChange(action.enabled)
             is HomeUiAction.SetHideSusfsStatus -> handleHideSusfsStatusChange(action.enabled)
             is HomeUiAction.SetHideZygiskImplement -> handleHideZygiskImplementChange(action.enabled)
             is HomeUiAction.SetHideMetaModuleImplement -> handleHideMetaModuleImplementChange(action.enabled)
             is HomeUiAction.SetHideLinkCard -> handleHideLinkCardChange(action.enabled)
             is HomeUiAction.SetNavigationBarBadge -> handleNavigationBarBadgeChange(action.enabled)
+
             is HomeUiAction.SetHomeCardIcons -> handleHomeCardIconsChange(action.enabled)
+
             is HomeUiAction.Reboot -> viewModelScope.launch {
                 reboot(action.reason).onFailure {
                     mutableEvents.tryEmit(HomeUiEvent.Error(it.message.orEmpty()))
@@ -249,18 +254,22 @@ class HomeViewModel(
         if (!force && updateJob?.isActive == true) return
         updateJob?.cancel()
         updateJob = viewModelScope.launch {
-            if (stableEnabled) launch {
-                val update =
-                    runCatching { checkManagerUpdate(ManagerUpdateChannel.STABLE) }.getOrNull()
-                homeStateRepository.update { it.copy(stableManagerUpdate = update) }
+            if (stableEnabled) {
+                launch {
+                    val update =
+                        runCatching { checkManagerUpdate(ManagerUpdateChannel.STABLE) }.getOrNull()
+                    homeStateRepository.update { it.copy(stableManagerUpdate = update) }
+                }
             }
-            if (betaEnabled) launch {
-                val result = runCatching { checkManagerUpdate(ManagerUpdateChannel.BETA) }
-                homeStateRepository.update {
-                    it.copy(
-                        betaManagerUpdate = result.getOrNull(),
-                        isBetaManagerUpdateCheckFailed = result.isFailure,
-                    )
+            if (betaEnabled) {
+                launch {
+                    val result = runCatching { checkManagerUpdate(ManagerUpdateChannel.BETA) }
+                    homeStateRepository.update {
+                        it.copy(
+                            betaManagerUpdate = result.getOrNull(),
+                            isBetaManagerUpdateCheckFailed = result.isFailure,
+                        )
+                    }
                 }
             }
         }

@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.system.Os
 import android.widget.Toast
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
@@ -176,7 +177,7 @@ fun HomePage(
         }
     }
 
-    if (!uiState.isInitialDataLoaded) return
+    ReportDrawnWhen { uiState.isInitialDataLoaded }
 
     val pullRefreshState = rememberPullToRefreshState()
     val topAppBarState = rememberTopAppBarState()
@@ -202,9 +203,9 @@ fun HomePage(
         snackbarHost = {
             SwipeableSnackbarHost(
                 modifier = Modifier.padding(bottom = bottomPadding),
-                hostState = LocalSnackbarHost.current
+                hostState = LocalSnackbarHost.current,
             )
-        }
+        },
     ) { innerPadding ->
         PullToRefreshBox(
             state = pullRefreshState,
@@ -276,32 +277,41 @@ fun HomePage(
                     // 警告信息
                     if (BuildConfig.DEBUG) {
                         WarningCard(
-                            message = stringResource(R.string.debug_version_notice),
+                            message = stringResource(R.string.require_manager_version),
                             icon = {
                                 Icon(
                                     imageVector = Icons.TwoTone.Error,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onErrorContainer,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(18.dp),
                                 )
-                            }
+                            },
+                            onClick = {
+                                if (uiState.systemStatus.isLateLoadMode) return@WarningCard
+                                navigator.push(Route.Install(preselectedKernelUri = null))
+                            },
                         )
                     }
 
                     if (!uiState.systemStatus.isOfficialSignature) {
                         WarningCard(
-                            message = stringResource(
-                                R.string.unofficial_version_notice,
-                                stringResource(R.string.app_name)
-                            ),
+                            message = if (uiState.systemStatus.lkmMode == true) {
+                                stringResource(R.string.require_kernel_version)
+                            } else {
+                                stringResource(R.string.require_kernel_version_gki)
+                            },
                             icon = {
                                 Icon(
                                     imageVector = Icons.TwoTone.Error,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onErrorContainer,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(18.dp),
                                 )
-                            }
+                            },
+                            onClick = {
+                                if (uiState.systemStatus.isLateLoadMode) return@WarningCard
+                                navigator.push(Route.Install(preselectedKernelUri = null))
+                            },
                         )
                     }
 
@@ -394,14 +404,15 @@ fun HomePage(
                 ManagerUpdateCard(uiState.betaManagerUpdate)
                 if (uiState.isBetaManagerUpdateCheckFailed) {
                     WarningCard(
-                        message = stringResource(R.string.beta_update_check_failed),
+                        message = stringResource(R.string.debug_version_notice),
                         icon = {
                             Icon(
                                 imageVector = Icons.TwoTone.Error,
                                 contentDescription = null,
-                                modifier = Modifier.size(18.dp)
+                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.size(18.dp),
                             )
-                        }
+                        },
                     )
                 }
 
@@ -469,7 +480,7 @@ private fun ManagerUpdateCardContent(updateInfo: ManagerUpdateInfo) {
             R.string.manager_update_stable
         } else {
             R.string.manager_update_beta
-        }
+        },
     )
     val message = if (updateInfo.channel == ManagerUpdateChannel.STABLE) {
         stringResource(R.string.new_version_available, updateInfo.versionCode)
@@ -496,7 +507,7 @@ private fun ManagerUpdateCardContent(updateInfo: ManagerUpdateInfo) {
                 updateInfo,
                 enqueueManagerUpdate,
             )
-        }
+        },
     )
 
     WarningCard(
@@ -506,7 +517,7 @@ private fun ManagerUpdateCardContent(updateInfo: ManagerUpdateInfo) {
             Icon(
                 imageVector = Icons.TwoTone.Info,
                 contentDescription = null,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(18.dp),
             )
         },
         onClick = {
@@ -516,7 +527,7 @@ private fun ManagerUpdateCardContent(updateInfo: ManagerUpdateInfo) {
                 markdown = updateInfo.changelog.isNotBlank(),
                 confirm = updateText,
             )
-        }
+        },
     )
 }
 
@@ -560,20 +571,22 @@ private fun TopBar(
         },
         title = {
             Text(
-                text = stringResource(R.string.app_name)
+                text = stringResource(R.string.app_name),
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor =
-                if (themeConfig.isEnableBlur)
+                if (themeConfig.isEnableBlur) {
                     Color.Transparent
-                else
-                    MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                },
             scrolledContainerColor =
-                if (themeConfig.isEnableBlur)
+                if (themeConfig.isEnableBlur) {
                     Color.Transparent
-                else
-                    MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha),
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainer.copy(cardConfig.cardAlpha)
+                },
         ),
         actions = {
             if (uiState.isCoreDataLoaded) {
@@ -594,7 +607,7 @@ private fun TopBar(
                     }) {
                         Icon(
                             imageVector = Icons.TwoTone.Tune,
-                            contentDescription = stringResource(R.string.susfs_config_setting_title)
+                            contentDescription = stringResource(R.string.susfs_config_setting_title),
                         )
                     }
                 }
@@ -643,7 +656,7 @@ private fun TopBar(
             }
         },
         windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
     )
 }
 
@@ -651,7 +664,7 @@ private fun TopBar(
 private fun StatusCard(
     uiState: HomeUiState,
     onClickInstall: () -> Unit = {},
-    onClickJailbreak: () -> Unit = {}
+    onClickJailbreak: () -> Unit = {},
 ) {
     val cardConfig = koinInject<CardConfig>()
     val systemStatus = uiState.systemStatus
@@ -753,14 +766,16 @@ private fun StatusCard(
                             onClick = onClickJailbreak,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError
-                            )
+                                contentColor = MaterialTheme.colorScheme.onError,
+                            ),
 
                         ) {
                             Text(stringResource(R.string.home_jailbreak))
                         }
                     }
-                } else null
+                } else {
+                    null
+                },
             )
         }
 

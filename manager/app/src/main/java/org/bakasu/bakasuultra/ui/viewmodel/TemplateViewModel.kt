@@ -79,6 +79,7 @@ class TemplateViewModel(
     fun dispatch(action: TemplateUiAction) {
         when (action) {
             is TemplateUiAction.Refresh -> viewModelScope.launch { fetchTemplates(action.synchronize) }
+
             is TemplateUiAction.Import -> viewModelScope.launch {
                 val result = importTemplatesUseCase(action.json)
                 result.fold(

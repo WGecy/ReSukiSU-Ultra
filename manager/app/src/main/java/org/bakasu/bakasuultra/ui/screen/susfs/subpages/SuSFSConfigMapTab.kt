@@ -147,7 +147,8 @@ fun SusMapTab(
                 paths.forEach { path ->
                     if (awaitSuSFSBoolean(configHelper) { reply ->
                             SuSFSUiAction.AddSusMap(path, reply)
-                        }) {
+                        }
+                    ) {
                         successCount++
                     } else {
                         failCount++
@@ -183,12 +184,12 @@ fun SusMapTab(
                     enabled = !isLoading,
                     lineLimits = TextFieldLineLimits.MultiLine(
                         minHeightInLines = 4,
-                        maxHeightInLines = 8
+                        maxHeightInLines = 8,
                     ),
-                    renderBackgroundBlur = false
+                    renderBackgroundBlur = false,
                 )
             }
-        }
+        },
     )
 
     detailItem?.let { path ->

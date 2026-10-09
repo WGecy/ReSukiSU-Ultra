@@ -49,7 +49,7 @@ class DynamicManagerRepository(
                             isSelected = signatureIndex == DYNAMIC_MANAGER_SIGNATURE_INDEX,
                             managerSignatureIndex = signatureIndex,
                             isChangeable = signatureIndex == null ||
-                                    signatureIndex == DYNAMIC_MANAGER_SIGNATURE_INDEX,
+                                signatureIndex == DYNAMIC_MANAGER_SIGNATURE_INDEX,
                         )
                     }
                     .sortedWith(appComparator)
@@ -96,7 +96,7 @@ class DynamicManagerRepository(
                                 isSelected = signatureIndex == DYNAMIC_MANAGER_SIGNATURE_INDEX,
                                 managerSignatureIndex = signatureIndex,
                                 isChangeable = signatureIndex == null ||
-                                        signatureIndex == DYNAMIC_MANAGER_SIGNATURE_INDEX,
+                                    signatureIndex == DYNAMIC_MANAGER_SIGNATURE_INDEX,
                             )
                         }.sortedWith(appComparator),
                         isSubmitting = false,
@@ -108,8 +108,7 @@ class DynamicManagerRepository(
         }
     }
 
-    private suspend fun managerSignatureIndexes(): Map<Int, Int> =
-        kernelRepository.getManagerRuntimeInfo().managers.associate { it.uid to it.signatureIndex }
+    private suspend fun managerSignatureIndexes(): Map<Int, Int> = kernelRepository.getManagerRuntimeInfo().managers.associate { it.uid to it.signatureIndex }
 
     private companion object {
         const val DYNAMIC_MANAGER_SIGNATURE_INDEX = 255

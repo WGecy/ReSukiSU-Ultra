@@ -34,7 +34,6 @@ import org.koin.compose.viewmodel.koinViewModel
 class WebUIActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         // Enable edge to edge
         enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -55,7 +54,7 @@ class WebUIActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MainContent(activity: ComponentActivity, onFinish: () -> Unit) {
-    val moduleId = remember { activity.intent.getStringExtra("id") }
+    val moduleId = remember { activity.intent.data?.getQueryParameter("id") }
     val webUIState = remember { WebUIState() }
     val superUserViewModel = koinViewModel<SuperUserViewModel>()
     val settingsRepository = koinInject<AppSettingsRepository>()

@@ -155,7 +155,7 @@ import org.bakasu.bakasuultra.ui.component.ZipFileDetector
 import org.bakasu.bakasuultra.ui.theme.BackgroundManager
 import org.bakasu.bakasuultra.ui.theme.CardConfig
 import org.bakasu.bakasuultra.ui.theme.ThemeConfig
-import org.bakasu.bakasuultra.ui.util.module.Shortcut
+import org.bakasu.bakasuultra.ui.util.Shortcut
 import org.bakasu.bakasuultra.ui.viewmodel.AppProfileViewModel
 import org.bakasu.bakasuultra.ui.viewmodel.DynamicManagerViewModel
 import org.bakasu.bakasuultra.ui.viewmodel.ExecuteModuleActionViewModel
@@ -200,7 +200,7 @@ val coreModule = module {
                     chain.request().newBuilder()
                         .header("User-Agent", "BakaSU/${BuildConfig.VERSION_CODE}")
                         .header("Accept-Language", Locale.getDefault().toLanguageTag())
-                        .build()
+                        .build(),
                 )
             }
             .connectTimeout(5, TimeUnit.SECONDS)

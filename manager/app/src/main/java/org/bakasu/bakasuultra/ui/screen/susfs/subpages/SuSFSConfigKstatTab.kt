@@ -105,7 +105,7 @@ fun SusKstatTab(
                 statCtime,
                 statCtimeNsec,
                 statBlocks,
-                statBlksize
+                statBlksize,
             ).forEach { it.clearText() }
         }
     }
@@ -121,12 +121,10 @@ fun SusKstatTab(
     val defaultValueLabel = stringResource(R.string.susfs_value_default)
     val susfsEntryImportSuccess = stringResource(R.string.susfs_entry_import_success)
 
-    fun SusKstatType.localizedLabel(): String {
-        return when (this) {
-            SusKstatType.Normal -> subtypeNormal
-            SusKstatType.FullClone -> subtypeFullClone
-            SusKstatType.Statically -> subtypeStatically
-        }
+    fun SusKstatType.localizedLabel(): String = when (this) {
+        SusKstatType.Normal -> subtypeNormal
+        SusKstatType.FullClone -> subtypeFullClone
+        SusKstatType.Statically -> subtypeStatically
     }
 
     LazyColumn(
@@ -265,12 +263,12 @@ fun SusKstatTab(
                     } else {
                         TextFieldLineLimits.SingleLine
                     },
-                    renderBackgroundBlur = false
+                    renderBackgroundBlur = false,
                 )
             }
             item(
                 key = "susfs_kstat_static_fields",
-                visible = selectedSubtype == subtypeStatically
+                visible = selectedSubtype == subtypeStatically,
             ) {
                 SettingsBaseWidget(
                     iconPlaceholder = false,
@@ -290,7 +288,7 @@ fun SusKstatTab(
                 "ctime" to statCtime,
                 "ctime_nsec" to statCtimeNsec,
                 "blocks" to statBlocks,
-                "blksize" to statBlksize
+                "blksize" to statBlksize,
             ).forEachIndexed { index, (label, state) ->
                 item(key = "susfs_kstat_static_$index") {
                     SettingsTextFieldWidget(
@@ -299,17 +297,17 @@ fun SusKstatTab(
                         useLabelAsPlaceholder = true,
                         enabled = !isLoading,
                         lineLimits = TextFieldLineLimits.SingleLine,
-                        renderBackgroundBlur = false
+                        renderBackgroundBlur = false,
                     )
                 }
             }
-        }
+        },
     )
 
     detailItem?.let { item ->
         val fields = mutableListOf(
             pathLabel to item.path,
-            spoofTypeLabel to item.spoof_type.localizedLabel()
+            spoofTypeLabel to item.spoof_type.localizedLabel(),
         )
         item.statically?.let { st ->
             fields.add("ino" to (st.ino?.toString() ?: defaultValueLabel))

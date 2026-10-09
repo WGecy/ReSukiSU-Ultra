@@ -52,7 +52,6 @@ import top.yukonga.miuix.kmp.utils.PagerInterceptionMode
 import top.yukonga.miuix.kmp.utils.PagerNavigationSpringSpec
 import top.yukonga.miuix.kmp.utils.pagerGestureOverride
 
-
 @Composable
 fun MainScreen(
     pagerInterceptionMode: Int = PagerInterceptionMode.CrossAxisInterceptor.ordinal,
@@ -68,7 +67,7 @@ fun MainScreen(
     var uiSelectedPage by rememberSaveable { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(
         initialPage = uiSelectedPage,
-        pageCount = { pages.size }
+        pageCount = { pages.size },
     )
     var userScrollEnabled by remember { mutableStateOf(true) }
     var animating by remember { mutableStateOf(false) }
@@ -80,9 +79,11 @@ fun MainScreen(
     }
     val interceptPagerGestures = pagerMode == PagerInterceptionMode.CrossAxisInterceptor
 
-    val handlePageChange: (Int) -> Unit = remember(pagerState, coroutineScope) {
+    val handlePageChange: (Int) -> Unit = remember(pagerState, coroutineScope, pages) {
         { page ->
+            if (page !in pages.indices) return@remember
             uiSelectedPage = page
+
             if (page == pagerState.currentPage) {
                 if (animateJob != null && lastRequestedPage != page) {
                     animateJob?.cancel()
@@ -91,26 +92,25 @@ fun MainScreen(
                     userScrollEnabled = true
                 }
                 lastRequestedPage = page
-            } else {
-                if (animateJob != null && lastRequestedPage == page) {
-                    // Already animating to the requested page
-                } else {
-                    animateJob?.cancel()
-                    animating = true
-                    userScrollEnabled = false
-                    val job = coroutineScope.launch {
-                        try {
-                            pagerState.animateScrollToPage(page)
-                        } finally {
-                            if (animateJob === this) {
-                                userScrollEnabled = true
-                                animating = false
-                                animateJob = null
-                            }
+            } else if (animateJob == null || lastRequestedPage != page) {
+                animateJob?.cancel()
+                animating = true
+                userScrollEnabled = false
+                lastRequestedPage = page
+                animateJob = coroutineScope.launch {
+                    try {
+                        // A held pager gesture owns the scroll mutation at UserInput
+                        // priority. Stop it explicitly so a navigation tap always wins.
+                        pagerState.scroll(MutatePriority.PreventUserInput) { }
+                        pagerState.animateScrollToPage(page)
+                    } finally {
+                        if (animateJob === this) {
+                            animating = false
+                            userScrollEnabled = true
+                            animateJob = null
+                            lastRequestedPage = pagerState.currentPage
                         }
                     }
-                    animateJob = job
-                    lastRequestedPage = page
                 }
             }
         }
@@ -129,7 +129,7 @@ fun MainScreen(
     CompositionLocalProvider(
         LocalPagerState provides pagerState,
         LocalHandlePageChange provides handlePageChange,
-        LocalSelectedPage provides uiSelectedPage
+        LocalSelectedPage provides uiSelectedPage,
     ) {
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
@@ -147,7 +147,7 @@ fun MainScreen(
                         ),
                     state = pagerState,
                     userScrollEnabled = userScrollEnabled && !interceptPagerGestures,
-                    beyondViewportPageCount = 1,
+                    beyondViewportPageCount = if (homeState.isInitialDataLoaded) 1 else 0,
                     pageNestedScrollConnection = if (interceptPagerGestures) {
                         PagerGestureNestedScrollConnection
                     } else {

@@ -40,6 +40,7 @@ class SulogRepository(
                 currentCoroutineContext().ensureActive()
                 val selectedFile = when {
                     files.isEmpty() -> null
+
                     preferredFilePath != null ->
                         files.firstOrNull { it.path == preferredFilePath } ?: files.first()
 
@@ -98,7 +99,7 @@ class SulogRepository(
             Triple(name, date, rotation)
         }.sortedWith(
             compareByDescending<Triple<String, LocalDate, Int>> { it.second }
-                .thenByDescending { it.third }
+                .thenByDescending { it.third },
         ).map { it.first }
         return names.map { SulogFile(name = it, path = "$SULOG_DIR/$it") }
     }

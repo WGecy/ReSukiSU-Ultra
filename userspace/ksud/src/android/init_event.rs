@@ -142,7 +142,7 @@ pub fn on_post_fs_data() -> Result<()> {
 
     run_stage("post-mount", wait);
 
-    // ReSukiSU-Ultra: 开机加载联网隔离配置
+    // BakaSU-Ultra: 开机加载联网隔离配置
     if let Err(e) = crate::android::netisolate::apply_from_files() {
         warn!("apply netisolate failed: {e}");
     }
@@ -215,11 +215,11 @@ pub fn on_boot_completed() {
     if !is_safe_mode() {
         crate::android::susfs::init_event::on_boot_completed();
     }
-    // ReSukiSU-Ultra: 开机应用隐藏 BL 锁伪装
+    // BakaSU-Ultra: 开机应用隐藏 BL 锁伪装
     if let Err(e) = crate::android::fakelock::apply_if_enabled() {
         warn!("apply fakelock failed: {e}");
     }
-    // ReSukiSU-Ultra: 开机应用固化 IO 调度器 (覆盖厂商 init 的 cpq 写入)
+    // BakaSU-Ultra: 开机应用固化 IO 调度器 (覆盖厂商 init 的 cpq 写入)
     if let Err(e) = crate::android::iosched::apply_if_enabled() {
         warn!("apply iosched failed: {e}");
     }

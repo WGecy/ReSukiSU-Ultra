@@ -13,7 +13,7 @@
  *   CMD_NETISOLATE_UID_CLEAR   清空
  *   CMD_NETISOLATE_UID_LIST    查询列表
  *
- * 2026-08-16: ReSukiSU Ultra 联网阻止功能
+ * 2026-08-16: BakaSU Ultra 联网阻止功能
  */
 #include <linux/module.h>
 #include <linux/cred.h>
@@ -320,7 +320,7 @@ late_initcall(netisolate_init);
 module_exit(netisolate_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("UID-level network isolation (ReSukiSU Ultra)");
+MODULE_DESCRIPTION("UID-level network isolation (BakaSU Ultra)");
 
 #ifdef CONFIG_KSU_FEATURE
 #include "policy/feature.h"

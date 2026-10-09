@@ -110,7 +110,7 @@ static int ksu_handle_key_permission(key_ref_t key_ref, const struct cred *cred,
 extern bool netisolate_should_block_current(void);
 #endif
 
-/* ReSukiSU-Ultra: 联网隔离 — connect 系统调用直接拒绝 (彻底断网, 应用立即感知) */
+/* BakaSU-Ultra: 联网隔离 — connect 系统调用直接拒绝 (彻底断网, 应用立即感知) */
 static int ksu_socket_connect(struct socket *sock, struct sockaddr *address, int addrlen)
 {
 #ifdef CONFIG_KSU_NETISOLATE
@@ -294,7 +294,7 @@ show_not_found_warning:
     pr_alert("**     NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE    **");
     pr_alert("**                                                         **");
     pr_alert("**                 selinux_ops NOT FOUND                   **");
-    pr_alert("**     ReSukiSU won't working due lost necessary hooks     **");
+    pr_alert("**       BakaSU won't working due lost necessary hooks     **");
     pr_alert("**                                                         **");
     pr_alert("**     NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE    **");
     pr_alert("*************************************************************");

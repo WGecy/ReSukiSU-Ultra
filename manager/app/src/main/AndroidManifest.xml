@@ -35,7 +35,7 @@
         android:theme="@style/Theme.KernelSU"
         tools:targetApi="34"
         android:directBootAware="true"
-        android:zygotePreloadName="com.tesla.resukisuultra.magica.AppZygotePreload">
+        android:zygotePreloadName="org.bakasu.bakasuultra.magica.AppZygotePreload">
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
@@ -160,7 +160,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.tesla.resukisuultra.magica.LAUNCH" />
+                <action android:name="org.bakasu.bakasuultra.magica.LAUNCH" />
             </intent-filter>
         </receiver>
     </application>

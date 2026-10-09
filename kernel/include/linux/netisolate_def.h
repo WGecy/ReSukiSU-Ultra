@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* netisolate supercall 命令定义 (ReSukiSU-Ultra) */
+/* netisolate supercall 命令定义 (BakaSU-Ultra) */
 #ifndef KSU_NETISOLATE_DEF_H
 #define KSU_NETISOLATE_DEF_H
 

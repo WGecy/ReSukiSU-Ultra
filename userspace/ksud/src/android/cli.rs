@@ -114,7 +114,7 @@ enum Commands {
 
     /// Uninstall KernelSU modules and itself(LKM Only)
     Uninstall {
-        #[arg(long, default_value_t = String::from("com.resukisu.resukisu"))]
+        #[arg(long, default_value_t = String::from("org.bakasu.bakasuultra"))]
         package_name: String,
     },
 
@@ -174,10 +174,10 @@ enum Commands {
     #[command(name = "nomount")]
     NoMount(NoMountArgs),
 
-    /// ReSukiSU-Ultra: 联网隔离 (读取配置文件应用到内核 supercall)
+    /// BakaSU-Ultra: 联网隔离 (读取配置文件应用到内核 supercall)
     NetIsolate,
 
-    /// ReSukiSU-Ultra: IO 调度器固化 (apply/clear)
+    /// BakaSU-Ultra: IO 调度器固化 (apply/clear)
     #[command(name = "iosched")]
     IoSched {
         #[command(subcommand)]

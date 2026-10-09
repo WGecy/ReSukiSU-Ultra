@@ -1,16 +1,16 @@
-# ReSukiSU
-<img align='right' src='ReSukiSU_blue.svg' width='220px' alt="ReSukiSU Icon">
+# BakaSU
+<img align='right' src='BakaSU_blue.svg' width='220px' alt="BakaSU Icon">
 
 
 **English** | [简体中文](./zh/README.md)
 
 A based-on [`SukiSU-Ultra/SukiSU-Ultra`](https://github.com/SukiSU-Ultra/SukiSU-Ultra) fork, added some interesting changes, also make it more stable and build easily.
 
-[![Latest release](https://img.shields.io/github/v/release/ReSukiSU/ReSukiSU?label=Release&logo=github)](https://github.com/ReSukiSU/ReSukiSU/releases/latest)
-[![Latest CI build (nightly.link)](https://img.shields.io/badge/nightly.link-Latest%20CI%20Build-800080)](https://nightly.link/ReSukiSU/ReSukiSU/workflows/build-manager/main)
-[![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/ReSukisu)
+[![Latest release](https://img.shields.io/github/v/release/Baka-SU/BakaSU?label=Release&logo=github)](https://github.com/Baka-SU/BakaSU/releases/latest)
+[![Latest CI build (nightly.link)](https://img.shields.io/badge/nightly.link-Latest%20CI%20Build-800080)](https://nightly.link/Baka-SU/BakaSU/workflows/build-manager/main)
+[![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/BakaSU)
 [![Kernel License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-orange.svg?logo=gnu)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
-[![Other part License：GPL v3](https://img.shields.io/github/license/ReSukiSU/ReSukiSU?logo=gnu)](/LICENSE)
+[![Other part License：GPL v3](https://img.shields.io/github/license/Baka-SU/BakaSU?logo=gnu)](/LICENSE)
 
 ## Features
 
@@ -19,11 +19,11 @@ A based-on [`SukiSU-Ultra/SukiSU-Ultra`](https://github.com/SukiSU-Ultra/SukiSU-
 3. [App Profile](https://kernelsu.org/guide/app-profile.html): Lock up the root power in a cage
 4. Support non-GKI and GKI 1.0
 5. Tweaks to the manager theme and the built-in susfs management tool.
-6. Multi manager support, for default [Official KernelSU](https://github.com/tiann/KernelSU)/[RKSU](https://github.com/rsuntk/KernelSU)/[MKSU](https://github.com/5ec1cff/KernelSU)/[SukiSU](https://github.com/SukiSU-Ultra/SukiSU-Ultra) is supported work as manager with ReSukiSU's kernel
+6. Multi manager support, for default [Official KernelSU](https://github.com/tiann/KernelSU)/[RKSU](https://github.com/rsuntk/KernelSU)/[MKSU](https://github.com/5ec1cff/KernelSU)/[SukiSU](https://github.com/SukiSU-Ultra/SukiSU-Ultra) is supported work as manager with BakaSU's kernel
 
 ## Compatibility Status
 
-- ReSukiSU officially supports Android GKI 2.0 devices (kernel 5.10+).
+- BakaSU officially supports Android GKI 2.0 devices (kernel 5.10+).
 
 - Older kernels (3.4+) are also compatible, but the kernel will have to be built manually.
 
@@ -40,11 +40,11 @@ A based-on [`SukiSU-Ultra/SukiSU-Ultra`](https://github.com/SukiSU-Ultra/SukiSU-
 
 ## Integration
 
-See the [documentation](https://Resukisu.org).
+See the [documentation](https://bakasu.org).
 
 ## Translation
 
-If you need to submit a translation for the manager, please go to [Weblate](https://hosted.weblate.org/engage/resukisu/).
+If you need to submit a translation for the manager, please go to [Weblate](https://hosted.weblate.org/engage/bakasu/).
 
 ## Sponsor
 
@@ -71,11 +71,11 @@ If you need to submit a translation for the manager, please go to [Weblate](http
 
 ## Localization
 
-Help translate ReSukiSU on Weblate:
+Help translate BakaSU on Weblate:
 
-https://hosted.weblate.org/engage/resukisu/
+https://hosted.weblate.org/engage/bakasu/
 
-[![Localization Status](https://hosted.weblate.org/widget/resukisu/multi-auto.svg)](https://hosted.weblate.org/engage/resukisu/)
+[![Localization Status](https://hosted.weblate.org/widget/bakasu/multi-auto.svg)](https://hosted.weblate.org/engage/bakasu/)
 
 ## Credit
 

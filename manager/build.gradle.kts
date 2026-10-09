@@ -16,9 +16,9 @@ extra["androidTargetCompatibility"] = JavaVersion.VERSION_21
 extra["managerVersionCode"] = 30000 + getGitCommitCount() + 800
 extra["managerVersionName"] = getGitDescribe()
 extra["isPrBuild"] = project.findProperty("IS_PR_BUILD")?.toString()?.toBoolean() ?: false
-extra["defaultManagerPackageName"] = "com.tesla.resukisuultra"
+extra["defaultManagerPackageName"] = "org.bakasu.bakasuultra"
 extra["managerPackageName"] = project.findProperty("KSU_PACKAGE_NAME")?.toString() ?: extra["defaultManagerPackageName"]
-extra["defaultManagerAppName"] = if (extra["isPrBuild"] == true) "ReSukiSU Ultra PR" else "ReSukiSU Ultra"
+extra["defaultManagerAppName"] = if (extra["isPrBuild"] == true) "BakaSU Ultra PR" else "BakaSU Ultra"
 extra["managerName"] = project.findProperty("KSU_NAME")?.toString() ?: extra["defaultManagerAppName"]
 
 val isSpoofedBuild = project.findProperty("IS_SPOOFED_BUILD")?.toString()?.toBoolean() ?: false

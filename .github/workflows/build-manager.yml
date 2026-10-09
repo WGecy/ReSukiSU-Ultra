@@ -189,11 +189,11 @@ jobs:
             export KSU_PACKAGE_NAME="${{ needs.prepare.outputs.spoofed_package_name }}"
             export BUILD_EXTRA_ARGS="-PKSU_PACKAGE_NAME=$KSU_PACKAGE_NAME -PIS_SPOOFED_BUILD=true"
           elif [ "${{ github.event_name }}" == "pull_request" ]; then
-            export KSU_PACKAGE_NAME="com.resukisu.resukisu.pr${{github.event.pull_request.number}}"
+            export KSU_PACKAGE_NAME="org.bakasu.bakasuultra.pr${{github.event.pull_request.number}}"
             export BUILD_EXTRA_ARGS="-PKSU_PACKAGE_NAME=$KSU_PACKAGE_NAME"
           elif [ "${{ github.ref_type }}" != "tag" ] && [ "${{ github.ref_name }}" != "main" ]; then
-            export KSU_PACKAGE_NAME="com.resukisu.resukisu.dev"
-            export KSU_NAME="ReSukiSU-DEV"
+            export KSU_PACKAGE_NAME="org.bakasu.bakasuultra.dev"
+            export KSU_NAME="BakaSU-DEV"
             export BUILD_EXTRA_ARGS="-PKSU_PACKAGE_NAME=$KSU_PACKAGE_NAME -PKSU_NAME=$KSU_NAME"
           fi
 
@@ -486,7 +486,7 @@ jobs:
       - name: 准备固定名资产
         run: |
           # 固定名 universal APK: get-manager 用 latest/download 直连下载 (无需 API)
-          cp manager/*universal-release.apk manager/ReSukiSU-Ultra-universal.apk
+          cp manager/*universal-release.apk manager/BakaSU-Ultra-universal.apk
 
       - name: 删除旧 Release (固定 tag v4.3.0-latest)
         continue-on-error: true
@@ -511,9 +511,9 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.TAG_NAME }}
-          name: "ReSukiSU-Ultra v4.3.0_${{ steps.version.outputs.VERSION_CODE }}"
+          name: "BakaSU-Ultra v4.3.0_${{ steps.version.outputs.VERSION_CODE }}"
           body: |
-            自动构建产物 (ReSukiSU-Ultra 分支)
+            自动构建产物 (BakaSU-Ultra 分支)
             - 版本: ${{ steps.version.outputs.TAG_NAME }}
             - 提交: ${{ github.sha }}
           files: manager/*.apk

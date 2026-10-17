@@ -19,7 +19,7 @@ use std::sync::Mutex;
 use anyhow::{Result, anyhow, bail};
 
 /// 与内核 `NOMOUNT_MAGIC_SIG` ("NOMOUNT" 的 ASCII) 一致
-const NOMOUNT_MAGIC_SIG: u64 = 0x4E4F_4D4F_554E_54;
+const NOMOUNT_MAGIC_SIG: u64 = 0x004E_4F4D_4F55_4E54;
 const PATH_MAX: usize = 4096;
 
 /* ---- v2 (keyring) 协议常量, 对应内核 enum { NM_CMD_* } ---- */
@@ -29,13 +29,9 @@ const NM_CMD_DEL_RULE: u32 = 3;
 const NM_CMD_ADD_UID: u32 = 4;
 const NM_CMD_DEL_UID: u32 = 5;
 const NM_CMD_CLEAR_ALL: u32 = 6;
-const NM_CMD_CLEAR_RULES: u32 = 7;
-const NM_CMD_CLEAR_UIDS: u32 = 8;
 const NM_CMD_GET_LIST: u32 = 9;
-const NM_CMD_GET_UIDS: u32 = 10;
 
 /* 规则标志 (内核 nomount.h, v2) */
-pub const NM_FLAG_IS_DIR: u32 = 1 << 0;
 pub const NM_FLAG_VIRTUAL_DIR: u32 = 1 << 1;
 pub const NM_FLAG_WHITEOUT: u32 = 1 << 2;
 
@@ -88,9 +84,6 @@ pub struct Rule {
 impl Rule {
     pub fn is_whiteout(&self) -> bool {
         self.flags & NM_FLAG_WHITEOUT != 0
-    }
-    pub fn is_dir(&self) -> bool {
-        self.flags & NM_FLAG_IS_DIR != 0
     }
     fn plain(virtual_path: impl Into<String>, real_path: impl Into<String>) -> Self {
         Rule {
@@ -171,8 +164,8 @@ mod keyring {
         let ret = unsafe {
             libc::syscall(
                 SYS_ADD_KEY,
-                b"nomount\0".as_ptr(),
-                b"trigger\0".as_ptr(),
+                c"nomount".as_ptr(),
+                c"trigger".as_ptr(),
                 &ptr as *const u64,
                 std::mem::size_of::<u64>(),
                 KEY_SPEC_SESSION_KEYRING,
@@ -192,8 +185,13 @@ mod keyring {
 
     /// 一页对齐的 payload 缓冲 (mmap 单独映射, 保证 4 KiB 对齐)
     struct Page {
+        /// 页首地址; 由 mmap 返回, `with_payload` 持有独占的 `&mut Page`
         ptr: *mut u8,
     }
+
+    // SAFETY: 每个 Page 都是 mmap 独立映射出来的一页, 由 with_payload 独占持有,
+    // 不会跨线程共享; 这里显式声明只是为了让下面的 &mut 方法语义清楚。
+    unsafe impl Send for Page {}
 
     impl Page {
         fn new() -> Result<Self> {
@@ -210,14 +208,17 @@ mod keyring {
             if ptr == libc::MAP_FAILED {
                 bail!("mmap 失败: {}", std::io::Error::last_os_error());
             }
-            Ok(Page { ptr: ptr as *mut u8 })
+            Ok(Page {
+                ptr: ptr as *mut u8,
+            })
         }
 
-        /// 清零并初始化 magic
-        fn reset(&self) -> &mut NmPayload {
-            let p = self.ptr as *mut NmPayload;
+        /// 清零并初始化 magic (需要独占页, 因此取 &mut self)
+        fn reset(&mut self) -> &mut NmPayload {
+            let ptr = self.ptr;
+            let p = ptr as *mut NmPayload;
             unsafe {
-                std::ptr::write_bytes(self.ptr, 0, PATH_MAX);
+                std::ptr::write_bytes(ptr, 0, PATH_MAX);
                 (*p).magic = NOMOUNT_MAGIC_SIG;
                 &mut *p
             }
@@ -235,7 +236,7 @@ mod keyring {
 
     pub(super) fn with_payload<R>(f: impl FnOnce(&mut NmPayload) -> Result<R>) -> Result<R> {
         let _guard = PAGE_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let page = Page::new()?;
+        let mut page = Page::new()?;
         let payload = page.reset();
         f(payload)
     }
@@ -326,10 +327,10 @@ mod keyring {
                 while off + RULE_HDR_LEN <= size {
                     let flags = u32::from_ne_bytes(p.buffer[off..off + 4].try_into().unwrap());
                     let uid = u32::from_ne_bytes(p.buffer[off + 4..off + 8].try_into().unwrap());
-                    let v_len =
-                        u16::from_ne_bytes(p.buffer[off + 8..off + 10].try_into().unwrap()) as usize;
-                    let r_len =
-                        u16::from_ne_bytes(p.buffer[off + 10..off + 12].try_into().unwrap()) as usize;
+                    let v_len = u16::from_ne_bytes(p.buffer[off + 8..off + 10].try_into().unwrap())
+                        as usize;
+                    let r_len = u16::from_ne_bytes(p.buffer[off + 10..off + 12].try_into().unwrap())
+                        as usize;
                     let v_start = off + RULE_HDR_LEN;
                     let r_start = v_start + v_len;
                     if r_start + r_len > size {
@@ -344,27 +345,6 @@ mod keyring {
                         flags,
                     });
                     off = r_start + r_len;
-                }
-            }
-            Ok(out)
-        })
-    }
-
-    /// 内核侧隔离 UID 列表 (v2 新增 NM_CMD_GET_UIDS)
-    pub(super) fn list_uids() -> Result<Vec<u32>> {
-        with_payload(|p| {
-            let mut out = Vec::new();
-            p.cmd = NM_CMD_GET_UIDS;
-            loop {
-                p.arg1 = 0;
-                p.data_size = 0;
-                send_payload(p)?;
-                let size = (p.data_size as usize).min(p.buffer.len());
-                if size == 0 {
-                    break;
-                }
-                for c in p.buffer[..size].chunks_exact(4) {
-                    out.push(u32::from_ne_bytes(c.try_into().unwrap()));
                 }
             }
             Ok(out)
@@ -479,7 +459,12 @@ mod netlink {
                 payload.extend_from_slice(vb);
                 payload.extend_from_slice(rb);
             }
-            let rx = self.send_cmd(V1_CMD_ADD_RULE, V1_ATTR_PAYLOAD, &payload, NLM_F_REQUEST | NLM_F_ACK)?;
+            let rx = self.send_cmd(
+                V1_CMD_ADD_RULE,
+                V1_ATTR_PAYLOAD,
+                &payload,
+                NLM_F_REQUEST | NLM_F_ACK,
+            )?;
             check_error(&rx)?;
             Ok(())
         }
@@ -511,7 +496,8 @@ mod netlink {
                         return Ok(rules);
                     }
                     if msg_type == self.family_id {
-                        let v = get_attr_string(&buf[offset..offset + msg_len], V1_ATTR_VIRTUAL_PATH);
+                        let v =
+                            get_attr_string(&buf[offset..offset + msg_len], V1_ATTR_VIRTUAL_PATH);
                         let r = get_attr_string(&buf[offset..offset + msg_len], V1_ATTR_REAL_PATH);
                         if let (Some(v), Some(r)) = (v, r) {
                             rules.push(Rule::plain(v, r));
@@ -756,29 +742,6 @@ pub fn unblock_uid(uid: u32) -> Result<()> {
     }
 }
 
-/// 内核侧隔离 UID 列表 (只有 v2 内核提供)
-pub fn list_uids() -> Result<Vec<u32>> {
-    match backend()?.0 {
-        Backend::Keyring => keyring::list_uids(),
-        Backend::Netlink => bail!("旧版 NoMount 内核不提供 uid 列表查询"),
-    }
-}
-
-pub fn clear_rules() -> Result<()> {
-    match backend()?.0 {
-        Backend::Keyring => keyring::send_simple(NM_CMD_CLEAR_RULES),
-        // v1 没有"只清规则"命令, 用 clear all 代替
-        Backend::Netlink => netlink::NmSocket::new()?.clear(),
-    }
-}
-
-pub fn clear_uids() -> Result<()> {
-    match backend()?.0 {
-        Backend::Keyring => keyring::send_simple(NM_CMD_CLEAR_UIDS),
-        Backend::Netlink => bail!("旧版 NoMount 内核不提供 uid 清空命令"),
-    }
-}
-
 /// 总开关状态文件 (1=启用)
 pub const ENABLED_FILE: &str = "/data/adb/ksu/nomount/enabled";
 
@@ -930,6 +893,8 @@ fn read_exclusions() -> Result<Vec<u32>> {
     };
     let mut uids = Vec::new();
     for part in content.split(|c: char| c.is_whitespace() || c == ',') {
+        // 保持与基线一致: 拆成两层读起来更清楚 (clippy 建议用 let-chains, 但 MSRV 不支持)
+        #[allow(clippy::collapsible_if)]
         if let Ok(uid) = part.trim().parse::<u32>() {
             if !uids.contains(&uid) {
                 uids.push(uid);

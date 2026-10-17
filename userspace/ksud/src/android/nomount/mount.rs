@@ -23,10 +23,7 @@ const MAX_RULES_PER_PAYLOAD: usize = 64;
 
 /// (virtual, real) → 内核规则 (无白名单/UID 限制)
 fn to_rules(pairs: &[(String, String)]) -> Vec<Rule> {
-    pairs
-        .iter()
-        .map(|(v, r)| Rule::plain(v, r))
-        .collect()
+    pairs.iter().map(|(v, r)| Rule::plain(v, r)).collect()
 }
 
 /// 模块信息 (管理器模块卡片)

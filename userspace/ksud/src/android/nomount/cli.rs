@@ -111,15 +111,26 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
             let rules = nomount::list()?;
             if json {
                 let mut out = String::from("[");
-                for (i, (v, r)) in rules.iter().enumerate() {
+                for (i, r) in rules.iter().enumerate() {
                     if i > 0 {
                         out.push(',');
                     }
-                    out.push_str(&format!(
-                        "\n  {{\n    \"virtual\": \"{}\",\n    \"real\": \"{}\"\n  }}",
-                        escape_json(v),
-                        escape_json(r)
-                    ));
+                    if r.is_whiteout() {
+                        out.push_str(&format!(
+                            "\n  {{\n    \"virtual\": \"{}\",\n    \"whiteout\": true\n  }}",
+                            escape_json(&r.virtual_path)
+                        ));
+                    } else {
+                        out.push_str(&format!(
+                            "\n  {{\n    \"virtual\": \"{}\",\n    \"real\": \"{}\"",
+                            escape_json(&r.virtual_path),
+                            escape_json(&r.real_path)
+                        ));
+                        if r.uid != 0 {
+                            out.push_str(&format!(",\n    \"uid\": {}", r.uid));
+                        }
+                        out.push_str("\n  }");
+                    }
                 }
                 if !rules.is_empty() {
                     out.push('\n');
@@ -127,8 +138,14 @@ pub fn run_main(args: NoMountArgs) -> Result<()> {
                 out.push(']');
                 println!("{out}");
             } else {
-                for (v, r) in &rules {
-                    println!("{v} -> {r}");
+                for r in &rules {
+                    if r.is_whiteout() {
+                        println!("{} -> (whiteout)", r.virtual_path);
+                    } else if r.uid != 0 {
+                        println!("{} -> {} (uid {})", r.virtual_path, r.real_path, r.uid);
+                    } else {
+                        println!("{} -> {}", r.virtual_path, r.real_path);
+                    }
                 }
             }
             Ok(())

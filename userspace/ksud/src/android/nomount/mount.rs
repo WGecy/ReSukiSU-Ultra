@@ -1,5 +1,6 @@
 //! NoMount 模块注入 (替代 NoMount 模块的 metamount.sh)
-//! 开机遍历 /data/adb/modules/* 的可注入目录, 通过 netlink 批量注入 VFS 路径重定向规则
+//! 开机遍历 /data/adb/modules/* 的可注入目录, 批量下发 VFS 路径重定向规则
+//! (新内核走 keyring, 旧内核走 netlink —— 由 mod.rs 自动选择)
 
 use std::fs;
 use std::path::Path;
@@ -7,11 +8,26 @@ use std::path::Path;
 use anyhow::{Context, Result};
 use log::{info, warn};
 
-use super::NmSocket;
+use super::{Rule, add_rules_batch, del_rules_batch, list};
 
 const MODULES_DIR: &str = "/data/adb/modules";
 const TARGET_PARTITIONS: [&str; 6] = ["system", "vendor", "product", "system_ext", "odm", "oem"];
 const ALIAS_PARTITIONS: [&str; 5] = ["vendor", "product", "system_ext", "odm", "oem"];
+
+/// 每批下发的规则条数上限。
+///
+/// keyring 后端一条 payload 的 buffer 只有 4068 字节, 真正的字节上限由
+/// `add_rules_batch()` 兜底 (超了直接报错, 不静默截断); netlink 后端同样按批发送,
+/// 避免单条 netlink 消息超过接收缓冲。
+const MAX_RULES_PER_PAYLOAD: usize = 64;
+
+/// (virtual, real) → 内核规则 (无白名单/UID 限制)
+fn to_rules(pairs: &[(String, String)]) -> Vec<Rule> {
+    pairs
+        .iter()
+        .map(|(v, r)| Rule::plain(v, r))
+        .collect()
+}
 
 /// 模块信息 (管理器模块卡片)
 #[derive(Debug)]
@@ -57,8 +73,9 @@ pub fn inject_modules() -> Result<()> {
     }
 
     info!("nomount: 注入 {} 条重定向规则", all_rules.len());
-    let s = NmSocket::new()?;
-    s.add_rules_batch(&all_rules)?;
+    for chunk in all_rules.chunks(MAX_RULES_PER_PAYLOAD) {
+        add_rules_batch(&to_rules(chunk))?;
+    }
     Ok(())
 }
 
@@ -73,8 +90,9 @@ pub fn load_module(id: &str) -> Result<usize> {
         info!("nomount: 模块 {id} 没有可注入文件");
         return Ok(0);
     }
-    let s = NmSocket::new()?;
-    s.add_rules_batch(&rules)?;
+    for chunk in rules.chunks(MAX_RULES_PER_PAYLOAD) {
+        add_rules_batch(&to_rules(chunk))?;
+    }
     info!("nomount: 热加载 {id}: {} 条规则", rules.len());
     Ok(rules.len())
 }
@@ -82,20 +100,19 @@ pub fn load_module(id: &str) -> Result<usize> {
 /// 热卸载单个模块 (按 real 路径过滤移除其全部规则)
 pub fn unload_module(id: &str) -> Result<usize> {
     let prefix = format!("{MODULES_DIR}/{id}/");
-    let s = NmSocket::new()?;
-    let rules = s.list()?;
+    let rules = list()?;
     let targets: Vec<String> = rules
         .into_iter()
-        .filter(|(_, real)| real.starts_with(&prefix))
-        .map(|(v, _)| v)
+        .filter(|r| r.real_path.starts_with(&prefix))
+        .map(|r| r.virtual_path)
         .collect();
     let n = targets.len();
     if n == 0 {
         info!("nomount: 模块 {id} 没有已注入的规则");
         return Ok(0);
     }
-    for v in &targets {
-        s.mutate_rule(3, &encode_del_payload(v))?;
+    for chunk in targets.chunks(MAX_RULES_PER_PAYLOAD) {
+        del_rules_batch(chunk, &[])?;
     }
     info!("nomount: 热卸载 {id}: 移除 {n} 条规则");
     Ok(n)
@@ -107,8 +124,7 @@ pub fn modules() -> Result<Vec<ModuleInfo>> {
     if !modules_dir.is_dir() {
         return Ok(Vec::new());
     }
-    let s = NmSocket::new()?;
-    let rules = s.list().unwrap_or_default();
+    let rules = list().unwrap_or_default();
     let mut out = Vec::new();
     for entry in fs::read_dir(modules_dir).context("读取模块目录失败")? {
         let entry = entry?;
@@ -123,7 +139,7 @@ pub fn modules() -> Result<Vec<ModuleInfo>> {
         }
         let loaded = rules
             .iter()
-            .filter(|(_, real)| real.starts_with(&format!("{MODULES_DIR}/{id}/")))
+            .filter(|r| r.real_path.starts_with(&format!("{MODULES_DIR}/{id}/")))
             .count();
         let prop = read_module_prop(&mod_dir);
         let name = prop.get("name").cloned().unwrap_or_else(|| id.clone());
@@ -155,14 +171,6 @@ fn read_module_prop(mod_dir: &Path) -> std::collections::HashMap<String, String>
         }
     }
     map
-}
-
-fn encode_del_payload(v: &str) -> Vec<u8> {
-    let vb = v.as_bytes();
-    let mut payload = Vec::with_capacity(2 + vb.len());
-    payload.extend_from_slice(&(vb.len() as u16).to_ne_bytes());
-    payload.extend_from_slice(vb);
-    payload
 }
 
 /// 收集模块目录下的全部可注入规则 (含别名)
